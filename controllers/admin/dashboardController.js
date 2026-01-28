@@ -98,8 +98,9 @@ class DashboardController {
         supportTickets,
       });
     } catch (error) {
-      console.log(error);
-      return res.send("Something went wrong please try again later");
+      console.error("Dashboard Error:", error);
+      console.error("Error Stack:", error.stack);
+      return res.status(500).send(`Error: ${error.message}`);
     }
   };
 }
