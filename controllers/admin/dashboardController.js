@@ -6,6 +6,7 @@ const WebUser = require("../../models/WebUser");
 const SalesInvoice = require("../../models/SalesInvoice");
 const Transaction = require("../../models/Transaction");
 const SupportTicket = require("../../models/SupportTicket");
+const Product = require("../../models/Product");
 
 class DashboardController {
   static dashboard = async (req, res) => {
@@ -98,9 +99,8 @@ class DashboardController {
         supportTickets,
       });
     } catch (error) {
-      console.error("Dashboard Error:", error);
-      console.error("Error Stack:", error.stack);
-      return res.status(500).send(`Error: ${error.message}`);
+      console.error("Dashboard Controller Error:", error);
+      return res.status(500).send(`Dash Error: ${error.message} - ${error.stack}`);
     }
   };
 }

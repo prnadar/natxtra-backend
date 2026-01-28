@@ -69,4 +69,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 AdminRoutes(app);
 WebRoutes(app);
 
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error("Global Error:", err);
+  res.status(500).send(`Global Error: ${err.message} - ${err.stack}`);
+});
+
 module.exports = app;
