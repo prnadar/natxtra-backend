@@ -1,78 +1,62 @@
-<header class="header">
-  <nav class="navbar navbar-expand-lg bg-body-tertiary px-4">
-    <a href="#" class="toggle-nav d-block d-lg-none"
-      ><i class="fa-solid fa-chevron-right"></i
-    ></a>
-    <a class="navbar-brand d-block d-lg-none" href="#"
-      ><img src="images/logo.png" class="img-fluid" alt="logo"
-    /></a>
-    <a href="javascript:void(0);" class="toggle-nav d-none d-lg-block"
-      ><i class="fa-solid fa-chevron-right"></i
-    ></a>
-    <div class="d-flex align-items-center">
-      <button
-        class="navbar-toggler border-0 p-2"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span class="navbar-toggler border-0"
-          ><i class="fa-solid fa-user"></i
-        ></span>
-      </button>
-    </div>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-        <!-- <li class="nav-item">
-                    <a class="nav-link" href="#">
-                        <img src="images/sun-icon.svg" class="img-fluid" alt="">
-                    </a>
-                </li> -->
-        <li class="nav-item">
-          <a class="nav-link" href=""
-            ><img src="images/bell-icon.svg" class="img-fluid" alt=""
-          /></a>
-        </li>
+<div class="topbar">
+  <div class="topbar-left">
+    <button class="icon-btn" id="sidebarToggle">
+      <i class="fas fa-bars"></i>
+    </button>
+    <h1 class="page-title">
+      <%= typeof pageTitle !=='undefined' ? pageTitle : 'Dashboard' %>
+    </h1>
+  </div>
 
-        <li class="nav-item dropdown">
-          <a
-            class="nav-link dropdown-toggle"
-            href="#"
-            role="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            <%= admin.username%>
-          </a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">Profile</a></li>
-            <li>
-              <a class="dropdown-item" href="#" onclick="logout()">Logout</a>
-            </li>
-          </ul>
-        </li>
-      </ul>
+  <div class="topbar-right">
+    <!-- Search -->
+    <div class="search-box">
+      <i class="fas fa-search search-icon"></i>
+      <input type="text" class="search-input" placeholder="Search products, orders, customers..." />
     </div>
-  </nav>
-</header>
+
+    <!-- Actions -->
+    <div class="topbar-actions">
+      <!-- Notifications -->
+      <button class="icon-btn" id="notificationsBtn">
+        <i class="fas fa-bell"></i>
+        <span class="icon-btn-badge">3</span>
+      </button>
+
+      <!-- Messages -->
+      <button class="icon-btn" id="messagesBtn">
+        <i class="fas fa-envelope"></i>
+        <span class="icon-btn-badge">5</span>
+      </button>
+
+      <!-- User Menu -->
+      <div class="user-menu" id="userMenuBtn">
+        <div class="user-avatar">
+          <%= typeof userName !=='undefined' ? userName.charAt(0).toUpperCase() : 'A' %>
+        </div>
+        <div class="user-info">
+          <div class="user-name">
+            <%= typeof userName !=='undefined' ? userName : 'Admin' %>
+          </div>
+          <div class="user-role">
+            <%= typeof userRole !=='undefined' ? userRole : 'Administrator' %>
+          </div>
+        </div>
+        <i class="fas fa-chevron-down" style="color: var(--text-muted); font-size: 0.75rem;"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-  function logout() {
-    if (confirm("Do you really want to logout")) {
-      // DO POST
-      $.ajax({
-        type: "POST",
-        contentType: "application/json",
-        url: "/admin/logout",
-      }).done((res) => {
-        if (res == "success") {
-          window.location.href = "/admin/login";
-        } else {
-          alert(res);
-        }
-      });
-    }
-  }
+  // Sidebar toggle
+  document.getElementById('sidebarToggle')?.addEventListener('click', function () {
+    document.querySelector('.sidebar')?.classList.toggle('open');
+  });
+
+  // User menu dropdown (placeholder)
+  document.getElementById('userMenuBtn')?.addEventListener('click', function () {
+    // Add dropdown logic here
+    console.log('User menu clicked');
+  });
 </script>

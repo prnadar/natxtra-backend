@@ -1,242 +1,166 @@
-<% 
-  // Helper function to check permissions
-  const hasPermission = (module, permissionType = 'manage') => {
-    // Admins have all permissions
-    if (typeof isAdmin !== 'undefined' && isAdmin) return true;
-    // Check if user has the module and the specific permission
-    return typeof userPermissions !== 'undefined' && userPermissions && userPermissions[module] && userPermissions[module][permissionType];
+<% // Helper function to check permissions const hasPermission=(module, permissionType='manage' )=> {
+  if (typeof isAdmin !== 'undefined' && isAdmin) return true;
+  return typeof userPermissions !== 'undefined' && userPermissions && userPermissions[module] &&
+  userPermissions[module][permissionType];
   };
-%>
+  %>
 
-<div class="left-sidebar nice-nav sidebar-menu">
-  <div class="logo">
-    <a href="/admin/dashboard">
-      <img src="images/logo.png" class="img-fluid" alt="logo" />
-    </a>
-    <a href="javascript:void(0);" class="close_menu">
-      <i class="fa-solid fa-xmark"></i>
-    </a>
-  </div>
-  <ul class="list-inline">
-    <% if (hasPermission('Dashboard')) { %>
-    <li>
-      <a class="home" href="dashboard"
-        ><span class="menu-icon"
-          ><img src="images/dashborad-icon.svg" class="img-fluid" alt=""
-        /></span>
-        Dashboard</a
-      >
-    </li>
-    <% } %> <% if (hasPermission('Order')) { %>
-    <li class="treeview child-menu">
-      <a class="order" href=""
-        ><span class="menu-icon"
-          ><img src="images/menu-icon6.svg" class="img-fluid" alt=""
-        /></span>
-        Order <span class="fa fa-angle-right toggle-right"></span
-      ></a>
-      <ul class="list-inline child-menu-ul treeview-menu">
-        <li><a class="order" href="oerder-all">All Order</a></li>
-        <li><a class="order" href="oerder-pending">Pending Order</a></li>
-        <li><a class="order" href="oerder-process">Process Order</a></li>
-        <li><a class="order" href="oerder-shifted">Shifted Order</a></li>
-      </ul>
-    </li>
-    <% } %> <% if (hasPermission('Sales')) { %>
-    <li class="child-menu treeview">
-      <a href="javascript:void(0);"
-        ><span class="menu-icon"
-          ><img src="images/menu-icon.svg" class="img-fluid" alt=""
-        /></span>
-        Sales <span class="fa fa-angle-right toggle-right"></span>
-      </a>
-      <ul class="child-menu-ul list-inline treeview-menu">
-        <li>
-          <a href="sales-dash">Sales Dashboard</a>
-        </li>
-        <li>
-          <a href="lead-listing">Leads Management</a>
-        </li>
-        <li>
-          <a href="allocate-lead-listing">Allocated Leads</a>
-        </li>
-      </ul>
-    </li>
-    <% } %> <% if (hasPermission('Distributor')) { %>
-    <li class="child-menu treeview">
-      <a href="javascript:void(0);"
-        ><span class="menu-icon"
-          ><img src="images/menu-icon2.svg" class="img-fluid" alt=""
-        /></span>
-        Distributor Mana.. <span class="fa fa-angle-right toggle-right"></span>
-      </a>
-      <ul class="child-menu-ul list-inline treeview-menu">
-        <li>
-          <a href="distributor">Distributor</a>
-        </li>
-        <li>
-          <a href="distributor-management">Manage Distributor</a>
-        </li>
-        <!-- <li>
-                    <a href="javascript:void(0);">Added New Distributor</a>
-                </li>
-                <li>
-                    <a href="javascript:void(0);">Update</a>
-                </li> -->
-      </ul>
-    </li>
-    <% } %> <% if (hasPermission('User')) { %>
-    <li class="treeview child-menu">
-      <a href="user-management"
-        ><span class="menu-icon"
-          ><img src="images/menu-icon3.svg" class="img-fluid" alt=""
-        /></span>
-        User management <span class="fa fa-angle-right toggle-right"></span
-      ></a>
-      <ul class="list-inline treeview-menu">
-        <li><a href="user-management">User Management</a></li>
-        <!-- <li><a href="">Employee</a></li> -->
-        <li><a href="create-new-role">Create New Department </a></li>
-        <li><a href="create-new-designation">Create New Designation</a></li>
-      </ul>
-    </li>
-    <% } %> <% if (hasPermission('HR')) { %>
-    <li class="treeview child-menu">
-      <a href="HRMS-Dash"
-        ><span class="menu-icon"
-          ><img src="images/menu-icon4.svg" class="img-fluid" alt=""
-        /></span>
-        HRMS <span class="fa fa-angle-right toggle-right"></span
-      ></a>
-      <ul class="list-inline child-menu-ul treeview-menu">
-        <li><a href="HRMS-Dash">HRMS</a></li>
-        <li><a href="attendance-system">Attendance System</a></li>
-        <li><a href="leave-management">Leave Management</a></li>
-        <li><a href="office-calander">Office Calendar</a></li>
-        <li><a href="salary-slip-manage">Salary Slip Management</a></li>
-        <li>
-          <a href="resign-termination"
-            >Employee Joinning and Resignation Management</a
-          >
-        </li>
-      </ul>
-    </li>
-    <% } %> <% if (hasPermission('Inventory')) { %>
-    <li class="treeview child-menu">
-      <a href="javascript:void(0);"
-        ><span class="menu-icon"
-          ><img src="images/menu-icon5.svg" class="img-fluid" alt=""
-        /></span>
-        Inventory <span class="fa fa-angle-right toggle-right"></span
-      ></a>
-      <ul class="list-inline child-menu-ul treeview-menu">
-        <li><a href="category-list">Category</a></li>
-        <li><a href="unit-list">Unit</a></li>
-        <li><a href="inventory-Dash">Inventory</a></li>
-        <li><a href="products-manage">Product Management</a></li>
-        <!-- <li><a href="added_new_product">added_new_product</a></li> -->
-        <li><a href="products-stock-list">Stock Management</a></li>
-      </ul>
-    </li>
-    <% } %> <% if (hasPermission('Accounts')) { %>
-    <li class="treeview child-menu">
-      <a href="accounts-dash"
-        ><span class="menu-icon"
-          ><img src="images/menu-icon6.svg" class="img-fluid" alt=""
-        /></span>
-        Accounts <span class="fa fa-angle-right toggle-right"></span
-      ></a>
-      <ul class="list-inline child-menu-ul treeview-menu">
-        <!-- <li><a href="accounts-dash">Accounts Dash</a></li> -->
-        <li><a href="accounts-dash-new">Accounts</a></li>
-        <li><a href="accounts-purchase-invoice">Purchase Invoice</a></li>
-        <li><a href="accounts-sales-invoice">Sales Invoice</a></li>
-        <li><a href="accounts-estimation-invoice">Estimation Invoice</a></li>
-      </ul>
-    </li>
-    <% } %> <% if (hasPermission('Support Tickets')) { %>
-    <li class="treeview child-menu">
-      <a href="support-ticket-list"
-        ><span class="menu-icon"
-          ><img src="images/menu-icon7.svg" class="img-fluid" alt=""
-        /></span>
-        Support Tickets<span class="fa fa-angle-right toggle-right"></span
-      ></a>
-      <ul class="list-inline child-menu-ul treeview-menu">
-        <li><a href="support-ticket-list">Support Tickets List</a></li>
-      </ul>
-    </li>
-    <% } %> <% if (hasPermission('Reports')) { %>
-    <li class="treeview child-menu">
-      <a href="javascript:void(0);"
-        ><span class="menu-icon"
-          ><img src="images/menu-icon8.svg" class="img-fluid" alt=""
-        /></span>
-        Reports<span class="fa fa-angle-right toggle-right"></span
-      ></a>
-      <ul class="list-inline child-menu-ul treeview-menu">
-        <li><a href="report-dash">Report Dashboard</a></li>
-        <li><a href="report-sales">Sales Reports</a></li>
-        <li><a href="report-distributor">Distributor Reports</a></li>
-        <li><a href="report-user">User Reports</a></li>
-        <li><a href="report-hrms">HRMS Reports</a></li>
-        <li><a href="report-inventory">Inventory Reports</a></li>
-        <li><a href="report-accounts">Accounts Reports</a></li>
-      </ul>
-    </li>
-    <% } %> <% if (hasPermission('Setting')) { %>
-    <li class="treeview child-menu">
-      <a href="setting-dash"
-        ><span class="menu-icon"
-          ><img src="images/menu-icon9.svg" class="img-fluid" alt=""
-        /></span>
-        Settings<span class="fa fa-angle-right toggle-right"></span
-      ></a>
-      <ul class="list-inline child-menu-ul treeview-menu">
-        <li>
-          <a href="general-settings">General Setting </a>
-        </li>
-        <li><a href="setting-email">Email Configuration</a></li>
-        <li><a href="razorpay_config">RazorPay Configuration</a></li>
-      </ul>
-    </li>
-    <% } %> <% if (hasPermission('Web Management')) { %>
-    <li class="treeview child-menu">
-      <a href="website-management"
-        ><span class="menu-icon"
-          ><img src="images/menu-icon10.svg" class="img-fluid" alt=""
-        /></span>
-        Web Management<span class="fa fa-angle-right toggle-right"></span
-      ></a>
-      <ul class="list-inline child-menu-ul treeview-menu">
-        <li><a href="products-list">Products</a></li>
-        <li><a href="web-review">Review</a></li>
-        <li><a href="sliders-list">Sliders</a></li>
-        <li><a href="banners-list">Banners</a></li>
-        <li><a href="stores-list">Stores</a></li>
-        <li><a href="faq">Faqs</a></li>
-        <li><a href="contactus">Contact Us</a></li>
+  <div class="sidebar">
+    <!-- Sidebar Header -->
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <i class="fas fa-leaf"></i>
+      </div>
+      <span class="sidebar-brand">Natxtra</span>
+    </div>
 
-        <li class="treeview child-menu">
-          <a href=""
-            >
-            Gallery<span class="fa fa-angle-right toggle-right"></span
-          ></a>
-          <ul class="list-inline child-menu-ul treeview-menu">
-            <li>
-              <a href="gallery-category-list">Gallery Category </a>
+    <!-- Sidebar Menu -->
+    <nav class="sidebar-menu">
+      <!-- Main Section -->
+      <div class="menu-section">
+        <div class="menu-section-title">Main</div>
+        <ul>
+          <% if (hasPermission('Dashboard')) { %>
+            <li class="menu-item">
+              <a href="/admin/dashboard" class="menu-link">
+                <span class="menu-icon"><i class="fas fa-home"></i></span>
+                <span>Dashboard</span>
+              </a>
             </li>
-            <li><a href="gallery-list">Gallery </a></li>
-          </ul>
-        </li>
+            <% } %>
+        </ul>
+      </div>
 
-        <li><a href="aboutus">About Us</a></li>
-        <li><a href="termscondition">Terms & Conditions</a></li>
-        <li><a href="privacypolicy">Privacy Policy</a></li>
-        <li><a href="refundpolicy">Refund Policy</a></li>
-        <li><a href="shippingpolicy">Shipping Policy</a></li>
-      </ul>
-    </li>
-    <% } %>
-  </ul>
-</div>
+      <!-- Inventory Section -->
+      <div class="menu-section">
+        <div class="menu-section-title">Inventory</div>
+        <ul>
+          <% if (hasPermission('Inventory')) { %>
+            <li class="menu-item">
+              <a href="/admin/products-manage" class="menu-link">
+                <span class="menu-icon"><i class="fas fa-box"></i></span>
+                <span>Products</span>
+              </a>
+            </li>
+            <li class="menu-item">
+              <a href="/admin/category-manage" class="menu-link">
+                <span class="menu-icon"><i class="fas fa-tags"></i></span>
+                <span>Categories</span>
+              </a>
+            </li>
+            <li class="menu-item">
+              <a href="/admin/inventory-Dash" class="menu-link">
+                <span class="menu-icon"><i class="fas fa-warehouse"></i></span>
+                <span>Stock Management</span>
+              </a>
+            </li>
+            <% } %>
+        </ul>
+      </div>
+
+      <!-- Sales Section -->
+      <div class="menu-section">
+        <div class="menu-section-title">Sales</div>
+        <ul>
+          <% if (hasPermission('Sales')) { %>
+            <li class="menu-item">
+              <a href="/admin/sales-dashboard" class="menu-link">
+                <span class="menu-icon"><i class="fas fa-chart-line"></i></span>
+                <span>Sales Dashboard</span>
+              </a>
+            </li>
+            <li class="menu-item">
+              <a href="/admin/oerder-all" class="menu-link">
+                <span class="menu-icon"><i class="fas fa-shopping-cart"></i></span>
+                <span>Orders</span>
+                <span class="menu-badge">12</span>
+              </a>
+            </li>
+            <li class="menu-item">
+              <a href="/admin/lead-listing" class="menu-link">
+                <span class="menu-icon"><i class="fas fa-users"></i></span>
+                <span>Leads</span>
+              </a>
+            </li>
+            <% } %>
+        </ul>
+      </div>
+
+      <!-- HRMS Section -->
+      <div class="menu-section">
+        <div class="menu-section-title">Team</div>
+        <ul>
+          <% if (hasPermission('HRMS')) { %>
+            <li class="menu-item">
+              <a href="/admin/hrms-dashboard" class="menu-link">
+                <span class="menu-icon"><i class="fas fa-user-tie"></i></span>
+                <span>HRMS</span>
+              </a>
+            </li>
+            <li class="menu-item">
+              <a href="/admin/attendance" class="menu-link">
+                <span class="menu-icon"><i class="fas fa-calendar-check"></i></span>
+                <span>Attendance</span>
+              </a>
+            </li>
+            <% } %>
+        </ul>
+      </div>
+
+      <!-- Reports Section -->
+      <div class="menu-section">
+        <div class="menu-section-title">Analytics</div>
+        <ul>
+          <% if (hasPermission('Reports')) { %>
+            <li class="menu-item">
+              <a href="/admin/reports-dashboard" class="menu-link">
+                <span class="menu-icon"><i class="fas fa-chart-bar"></i></span>
+                <span>Reports</span>
+              </a>
+            </li>
+            <li class="menu-item">
+              <a href="/admin/analytics" class="menu-link">
+                <span class="menu-icon"><i class="fas fa-chart-pie"></i></span>
+                <span>Analytics</span>
+              </a>
+            </li>
+            <% } %>
+        </ul>
+      </div>
+
+      <!-- Settings Section -->
+      <div class="menu-section">
+        <div class="menu-section-title">System</div>
+        <ul>
+          <% if (hasPermission('Settings')) { %>
+            <li class="menu-item">
+              <a href="/admin/settings" class="menu-link">
+                <span class="menu-icon"><i class="fas fa-cog"></i></span>
+                <span>Settings</span>
+              </a>
+            </li>
+            <li class="menu-item">
+              <a href="/admin/users" class="menu-link">
+                <span class="menu-icon"><i class="fas fa-user-shield"></i></span>
+                <span>User Management</span>
+              </a>
+            </li>
+            <% } %>
+        </ul>
+      </div>
+    </nav>
+  </div>
+
+  <script>
+    // Active link highlighting
+    document.addEventListener('DOMContentLoaded', function () {
+      const currentPath = window.location.pathname;
+      const menuLinks = document.querySelectorAll('.menu-link');
+
+      menuLinks.forEach(link => {
+        if (link.getAttribute('href') === currentPath || currentPath.includes(link.getAttribute('href'))) {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
