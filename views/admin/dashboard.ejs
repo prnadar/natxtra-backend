@@ -28,8 +28,8 @@
                                         <i class="fas fa-arrow-up"></i> 12.5%
                                     </div>
                                 </div>
-                                <div class="metric-value">₹<%= typeof totalRevenue !=='undefined' ?
-                                        totalRevenue.toLocaleString() : '2,45,680' %>
+                                <div class="metric-value">₹<%= typeof totalPaymentReceived !=='undefined' ?
+                                        totalPaymentReceived.toLocaleString() : '0' %>
                                 </div>
                                 <div class="metric-label">Total Revenue</div>
                             </div>
@@ -45,28 +45,28 @@
                                     </div>
                                 </div>
                                 <div class="metric-value">
-                                    <%= typeof totalOrders !=='undefined' ? totalOrders : '1,248' %>
+                                    <%= typeof totalOrdersCount !=='undefined' ? totalOrdersCount : '0' %>
                                 </div>
                                 <div class="metric-label">Total Orders</div>
                             </div>
 
-                            <!-- Products -->
+                            <!-- Pending Orders -->
                             <div class="metric-card">
                                 <div class="metric-header">
                                     <div class="metric-icon">
-                                        <i class="fas fa-box"></i>
+                                        <i class="fas fa-clock"></i>
                                     </div>
                                     <div class="metric-trend up">
                                         <i class="fas fa-arrow-up"></i> 3.1%
                                     </div>
                                 </div>
                                 <div class="metric-value">
-                                    <%= typeof totalProducts !=='undefined' ? totalProducts : '156' %>
+                                    <%= typeof pendingOrdersCount !=='undefined' ? pendingOrdersCount : '0' %>
                                 </div>
-                                <div class="metric-label">Active Products</div>
+                                <div class="metric-label">Pending Orders</div>
                             </div>
 
-                            <!-- Customers -->
+                            <!-- Total Users -->
                             <div class="metric-card">
                                 <div class="metric-header">
                                     <div class="metric-icon">
@@ -77,136 +77,135 @@
                                     </div>
                                 </div>
                                 <div class="metric-value">
-                                    <%= typeof totalCustomers !=='undefined' ? totalCustomers : '892' %>
+                                    <%= typeof totalUsersCount !=='undefined' ? totalUsersCount : '0' %>
                                 </div>
-                                <div class="metric-label">Total Customers</div>
+                                <div class="metric-label">Total Users</div>
                             </div>
-                        </div>
-
-                        <!-- Charts Row -->
-                        <div
-                            style="display: grid; grid-template-columns: 2fr 1fr; gap: var(--space-6); margin-bottom: var(--space-8);">
-                            <!-- Sales Chart -->
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3 class="card-title">Sales Overview</h3>
-                                    <div class="card-actions">
-                                        <button class="btn btn-ghost btn-sm">
-                                            <i class="fas fa-download"></i> Export
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <canvas id="salesChart" height="80"></canvas>
-                                </div>
-                            </div>
-
-                            <!-- Top Products -->
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3 class="card-title">Top Products</h3>
-                                </div>
-                                <div class="card-body">
-                                    <div style="display: flex; flex-direction: column; gap: var(--space-4);">
-                                        <div
-                                            style="display: flex; justify-content: space-between; align-items: center;">
-                                            <div>
-                                                <div style="font-weight: 600; color: var(--text-primary);">Diabetic Care
-                                                    Plus</div>
-                                                <div style="font-size: 0.75rem; color: var(--text-muted);">156 sales
-                                                </div>
-                                            </div>
-                                            <span class="badge badge-success">₹12,450</span>
-                                        </div>
-                                        <div
-                                            style="display: flex; justify-content: space-between; align-items: center;">
-                                            <div>
-                                                <div style="font-weight: 600; color: var(--text-primary);">Immunity
-                                                    Booster</div>
-                                                <div style="font-size: 0.75rem; color: var(--text-muted);">142 sales
-                                                </div>
-                                            </div>
-                                            <span class="badge badge-success">₹10,890</span>
-                                        </div>
-                                        <div
-                                            style="display: flex; justify-content: space-between; align-items: center;">
-                                            <div>
-                                                <div style="font-weight: 600; color: var(--text-primary);">Wellness
-                                                    Capsules</div>
-                                                <div style="font-size: 0.75rem; color: var(--text-muted);">128 sales
-                                                </div>
-                                            </div>
-                                            <span class="badge badge-success">₹9,560</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Recent Orders Table -->
-                        <div class="table-container">
-                            <div class="table-header">
-                                <h3 style="font-size: 1.125rem; font-weight: 600; color: var(--text-primary);">Recent
-                                    Orders</h3>
-                                <a href="/admin/oerder-all" class="btn btn-primary btn-sm">View All</a>
-                            </div>
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Order ID</th>
-                                        <th>Customer</th>
-                                        <th>Product</th>
-                                        <th>Amount</th>
-                                        <th>Status</th>
-                                        <th>Date</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>#ORD-1248</td>
-                                        <td>Rajesh Kumar</td>
-                                        <td>Diabetic Care Plus</td>
-                                        <td>₹1,299</td>
-                                        <td><span class="badge badge-success">Delivered</span></td>
-                                        <td>Jan 28, 2026</td>
-                                    </tr>
-                                    <tr>
-                                        <td>#ORD-1247</td>
-                                        <td>Priya Sharma</td>
-                                        <td>Immunity Booster</td>
-                                        <td>₹899</td>
-                                        <td><span class="badge badge-warning">Processing</span></td>
-                                        <td>Jan 28, 2026</td>
-                                    </tr>
-                                    <tr>
-                                        <td>#ORD-1246</td>
-                                        <td>Amit Patel</td>
-                                        <td>Wellness Capsules</td>
-                                        <td>₹1,499</td>
-                                        <td><span class="badge badge-info">Shipped</span></td>
-                                        <td>Jan 27, 2026</td>
-                                    </tr>
-                                    <tr>
-                                        <td>#ORD-1245</td>
-                                        <td>Sneha Reddy</td>
-                                        <td>Diabetic Care Plus</td>
-                                        <td>₹1,299</td>
-                                        <td><span class="badge badge-success">Delivered</span></td>
-                                        <td>Jan 27, 2026</td>
-                                    </tr>
-                                    <tr>
-                                        <td>#ORD-1244</td>
-                                        <td>Vikram Singh</td>
-                                        <td>Immunity Booster</td>
-                                        <td>₹899</td>
-                                        <td><span class="badge badge-danger">Cancelled</span></td>
-                                        <td>Jan 26, 2026</td>
-                                    </tr>
-                                </tbody>
-                            </table>
                         </div>
                     </div>
+
+                    <!-- Charts Row -->
+                    <div
+                        style="display: grid; grid-template-columns: 2fr 1fr; gap: var(--space-6); margin-bottom: var(--space-8);">
+                        <!-- Sales Chart -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Sales Overview</h3>
+                                <div class="card-actions">
+                                    <button class="btn btn-ghost btn-sm">
+                                        <i class="fas fa-download"></i> Export
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="salesChart" height="80"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Top Products -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Top Products</h3>
+                            </div>
+                            <div class="card-body">
+                                <div style="display: flex; flex-direction: column; gap: var(--space-4);">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <div style="font-weight: 600; color: var(--text-primary);">Diabetic Care
+                                                Plus</div>
+                                            <div style="font-size: 0.75rem; color: var(--text-muted);">156 sales
+                                            </div>
+                                        </div>
+                                        <span class="badge badge-success">₹12,450</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <div style="font-weight: 600; color: var(--text-primary);">Immunity
+                                                Booster</div>
+                                            <div style="font-size: 0.75rem; color: var(--text-muted);">142 sales
+                                            </div>
+                                        </div>
+                                        <span class="badge badge-success">₹10,890</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <div style="font-weight: 600; color: var(--text-primary);">Wellness
+                                                Capsules</div>
+                                            <div style="font-size: 0.75rem; color: var(--text-muted);">128 sales
+                                            </div>
+                                        </div>
+                                        <span class="badge badge-success">₹9,560</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Orders Table -->
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3 style="font-size: 1.125rem; font-weight: 600; color: var(--text-primary);">Recent
+                                Orders</h3>
+                            <a href="/admin/oerder-all" class="btn btn-primary btn-sm">View All</a>
+                        </div>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Product</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (typeof orders !=='undefined' && orders.length> 0) { %>
+                                    <% orders.slice(0, 5).forEach(order=> { %>
+                                        <tr>
+                                            <td>#<%= order._id.toString().slice(-6).toUpperCase() %>
+                                            </td>
+                                            <td>
+                                                <%= order.user_id ? order.user_id.name || 'N/A' : 'N/A' %>
+                                            </td>
+                                            <td>
+                                                <%= order.product_id ? order.product_id.name || 'N/A' : 'N/A' %>
+                                            </td>
+                                            <td>₹<%= order.price || 0 %>
+                                            </td>
+                                            <td>
+                                                <% if (order.status==='delivered' || order.status==='shifted' ) { %>
+                                                    <span class="badge badge-success">Delivered</span>
+                                                    <% } else if (order.status==='pending' ) { %>
+                                                        <span class="badge badge-warning">Pending</span>
+                                                        <% } else if (order.status==='process' ) { %>
+                                                            <span class="badge badge-info">Processing</span>
+                                                            <% } else { %>
+                                                                <span class="badge badge-danger">
+                                                                    <%= order.status %>
+                                                                </span>
+                                                                <% } %>
+                                            </td>
+                                            <td>
+                                                <%= order.createdAt ? new
+                                                    Date(order.createdAt).toLocaleDateString('en-IN', { year: 'numeric'
+                                                    , month: 'short' , day: 'numeric' }) : 'N/A' %>
+                                            </td>
+                                        </tr>
+                                        <% }); %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="6"
+                                                        style="text-align: center; color: var(--text-muted); padding: var(--space-8);">
+                                                        No orders found
+                                                    </td>
+                                                </tr>
+                                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
             </div>
+    </div>
     </div>
 
     <%- include('partials/linkfooter.ejs') %>
