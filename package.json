@@ -11,11 +11,9 @@
     "type": "git",
     "url": "ez-door-backend"
   },
-  "author": "",
-  "license": "ISC",
   "description": "",
   "engines": {
-    "node": ">=18.0.0"
+    "node": "20.x"
   },
   "dependencies": {
     "axios": "^1.7.4",
