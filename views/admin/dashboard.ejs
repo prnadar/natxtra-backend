@@ -28,7 +28,7 @@
                                         <i class="fas fa-arrow-up"></i> 12.5%
                                     </div>
                                 </div>
-                                <div class="metric-value">₹<%= typeof totalPaymentReceived !=='undefined' ?
+                                <div class="metric-value">₹<%= typeof totalPaymentReceived !== 'undefined' ?
                                         totalPaymentReceived.toLocaleString() : '0' %>
                                 </div>
                                 <div class="metric-label">Total Revenue</div>
@@ -45,7 +45,7 @@
                                     </div>
                                 </div>
                                 <div class="metric-value">
-                                    <%= typeof totalOrdersCount !=='undefined' ? totalOrdersCount : '0' %>
+                                    <%= typeof totalOrdersCount !== 'undefined' ? totalOrdersCount : '0' %>
                                 </div>
                                 <div class="metric-label">Total Orders</div>
                             </div>
@@ -61,7 +61,7 @@
                                     </div>
                                 </div>
                                 <div class="metric-value">
-                                    <%= typeof pendingOrdersCount !=='undefined' ? pendingOrdersCount : '0' %>
+                                    <%= typeof pendingOrdersCount !== 'undefined' ? pendingOrdersCount : '0' %>
                                 </div>
                                 <div class="metric-label">Pending Orders</div>
                             </div>
@@ -77,7 +77,7 @@
                                     </div>
                                 </div>
                                 <div class="metric-value">
-                                    <%= typeof totalUsersCount !=='undefined' ? totalUsersCount : '0' %>
+                                    <%= typeof totalUsersCount !== 'undefined' ? totalUsersCount : '0' %>
                                 </div>
                                 <div class="metric-label">Total Users</div>
                             </div>
@@ -160,8 +160,8 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <% if (typeof orders !=='undefined' && orders.length> 0) { %>
-                                    <% orders.slice(0, 5).forEach(order=> { %>
+                                <% if (typeof orders !== 'undefined' && orders.length > 0) { %>
+                                    <% orders.slice(0, 5).forEach(order => { %>
                                         <tr>
                                             <td>#<%= order._id.toString().slice(-6).toUpperCase() %>
                                             </td>
@@ -174,11 +174,11 @@
                                             <td>₹<%= order.price || 0 %>
                                             </td>
                                             <td>
-                                                <% if (order.status==='delivered' || order.status==='shifted' ) { %>
+                                                <% if (order.status === 'delivered' || order.status === 'shifted' ) { %>
                                                     <span class="badge badge-success">Delivered</span>
-                                                    <% } else if (order.status==='pending' ) { %>
+                                                    <% } else if (order.status === 'pending' ) { %>
                                                         <span class="badge badge-warning">Pending</span>
-                                                        <% } else if (order.status==='process' ) { %>
+                                                        <% } else if (order.status === 'process' ) { %>
                                                             <span class="badge badge-info">Processing</span>
                                                             <% } else { %>
                                                                 <span class="badge badge-danger">
