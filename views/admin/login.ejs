@@ -2,245 +2,425 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Natxtra Admin - Login</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Natxtra - Admin Login</title>
   <%- include('partials/linkheader.ejs') %>
     <style>
-      body {
+      * {
         margin: 0;
         padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Inter', sans-serif;
         min-height: 100vh;
         display: flex;
-        align-items: center;
-        justify-content: center;
-        background: linear-gradient(135deg, #1B4332 0%, #2D6A4F 50%, #52B788 100%);
+        background: #0A0E27;
         position: relative;
         overflow: hidden;
       }
 
-      body::before {
+      /* Animated Background */
+      .bg-animation {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      .bg-animation::before {
         content: '';
+        position: absolute;
+        width: 800px;
+        height: 800px;
+        background: radial-gradient(circle, rgba(52, 211, 153, 0.15) 0%, transparent 70%);
+        border-radius: 50%;
+        top: -400px;
+        right: -200px;
+        animation: float1 20s ease-in-out infinite;
+      }
+
+      .bg-animation::after {
+        content: '';
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        bottom: -300px;
+        left: -100px;
+        animation: float2 15s ease-in-out infinite;
+      }
+
+      .gradient-orb {
         position: absolute;
         width: 500px;
         height: 500px;
-        background: radial-gradient(circle, rgba(116, 198, 157, 0.3) 0%, transparent 70%);
+        background: radial-gradient(circle, rgba(167, 139, 250, 0.12) 0%, transparent 70%);
         border-radius: 50%;
-        top: -200px;
-        right: -200px;
-        animation: float 6s ease-in-out infinite;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        animation: pulse 8s ease-in-out infinite;
       }
 
-      body::after {
-        content: '';
-        position: absolute;
-        width: 400px;
-        height: 400px;
-        background: radial-gradient(circle, rgba(82, 183, 136, 0.2) 0%, transparent 70%);
-        border-radius: 50%;
-        bottom: -150px;
-        left: -150px;
-        animation: float 8s ease-in-out infinite reverse;
-      }
-
-      @keyframes float {
+      @keyframes float1 {
 
         0%,
         100% {
-          transform: translateY(0px);
+          transform: translate(0, 0) rotate(0deg);
+        }
+
+        33% {
+          transform: translate(30px, -50px) rotate(120deg);
+        }
+
+        66% {
+          transform: translate(-20px, 20px) rotate(240deg);
+        }
+      }
+
+      @keyframes float2 {
+
+        0%,
+        100% {
+          transform: translate(0, 0) rotate(0deg);
         }
 
         50% {
-          transform: translateY(-20px);
+          transform: translate(-40px, -30px) rotate(180deg);
         }
+      }
+
+      @keyframes pulse {
+
+        0%,
+        100% {
+          transform: translate(-50%, -50%) scale(1);
+          opacity: 0.3;
+        }
+
+        50% {
+          transform: translate(-50%, -50%) scale(1.1);
+          opacity: 0.5;
+        }
+      }
+
+      /* Split Layout */
+      .login-wrapper {
+        display: flex;
+        width: 100%;
+        height: 100vh;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* Left Side - Branding */
+      .login-left {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 4rem;
+        position: relative;
+      }
+
+      .brand-content {
+        max-width: 500px;
+        color: white;
+      }
+
+      .brand-logo {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #34D399 0%, #10B981 100%);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 2rem;
+        box-shadow: 0 20px 60px rgba(52, 211, 153, 0.3);
+      }
+
+      .brand-logo img {
+        width: 50px;
+        height: 50px;
+      }
+
+      .brand-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #34D399 0%, #10B981 50%, #059669 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 1rem;
+        line-height: 1.2;
+      }
+
+      .brand-subtitle {
+        font-size: 1.25rem;
+        color: rgba(255, 255, 255, 0.7);
+        line-height: 1.6;
+        margin-bottom: 3rem;
+      }
+
+      .feature-list {
+        list-style: none;
+      }
+
+      .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1rem;
+      }
+
+      .feature-icon {
+        width: 40px;
+        height: 40px;
+        background: rgba(52, 211, 153, 0.1);
+        border: 1px solid rgba(52, 211, 153, 0.3);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #34D399;
+      }
+
+      /* Right Side - Login Form */
+      .login-right {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem;
+        background: rgba(15, 23, 42, 0.5);
+        backdrop-filter: blur(20px);
+        border-left: 1px solid rgba(255, 255, 255, 0.05);
       }
 
       .login-container {
-        position: relative;
-        z-index: 1;
         width: 100%;
         max-width: 450px;
-        padding: 2rem;
       }
 
-      .login-card {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(20px);
-        border-radius: 24px;
-        padding: 3rem 2.5rem;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        animation: slideUp 0.6s ease-out;
-      }
-
-      @keyframes slideUp {
-        from {
-          opacity: 0;
-          transform: translateY(30px);
-        }
-
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      .login-logo {
-        text-align: center;
-        margin-bottom: 2rem;
-      }
-
-      .login-logo img {
-        height: 60px;
-        width: auto;
-        margin-bottom: 1rem;
+      .login-header {
+        margin-bottom: 3rem;
       }
 
       .login-title {
-        font-size: 1.75rem;
+        font-size: 2rem;
         font-weight: 700;
-        color: var(--primary-dark);
-        text-align: center;
+        color: white;
         margin-bottom: 0.5rem;
       }
 
-      .login-subtitle {
-        text-align: center;
-        color: var(--text-secondary);
-        font-size: 0.9rem;
-        margin-bottom: 2rem;
+      .login-description {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 1rem;
       }
 
-      .form-floating {
-        position: relative;
+      /* Form Styles */
+      .form-group {
         margin-bottom: 1.5rem;
       }
 
-      .form-floating input {
+      .form-label {
+        display: block;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+      }
+
+      .input-wrapper {
+        position: relative;
+      }
+
+      .form-input {
         width: 100%;
-        padding: 1rem;
-        padding-top: 1.5rem;
-        border: 2px solid #E9ECEF;
+        padding: 1rem 1.25rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid rgba(255, 255, 255, 0.1);
         border-radius: 12px;
-        font-size: 0.95rem;
+        color: white;
+        font-size: 1rem;
         transition: all 0.3s ease;
-        background: white;
       }
 
-      .form-floating input:focus {
+      .form-input:focus {
         outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 4px rgba(45, 106, 79, 0.1);
+        background: rgba(255, 255, 255, 0.08);
+        border-color: #34D399;
+        box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.1);
       }
 
-      .form-floating label {
-        position: absolute;
-        top: 1rem;
-        left: 1rem;
-        font-size: 0.95rem;
-        color: #6C757D;
-        pointer-events: none;
-        transition: all 0.3s ease;
-      }
-
-      .form-floating input:focus~label,
-      .form-floating input:not(:placeholder-shown)~label {
-        top: 0.4rem;
-        font-size: 0.75rem;
-        color: var(--primary);
-        font-weight: 600;
+      .form-input::placeholder {
+        color: rgba(255, 255, 255, 0.4);
       }
 
       .password-toggle {
         position: absolute;
-        right: 1rem;
+        right: 1.25rem;
         top: 50%;
         transform: translateY(-50%);
+        color: rgba(255, 255, 255, 0.5);
         cursor: pointer;
-        color: #6C757D;
         transition: color 0.3s ease;
       }
 
       .password-toggle:hover {
-        color: var(--primary);
+        color: #34D399;
       }
 
       .form-options {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 1.5rem;
-        font-size: 0.875rem;
+        margin-bottom: 2rem;
       }
 
-      .remember-me {
+      .checkbox-wrapper {
         display: flex;
         align-items: center;
         gap: 0.5rem;
       }
 
-      .remember-me input[type="checkbox"] {
-        width: 18px;
-        height: 18px;
+      .checkbox-wrapper input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
         cursor: pointer;
-        accent-color: var(--primary);
+        accent-color: #34D399;
+      }
+
+      .checkbox-wrapper label {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.875rem;
+        cursor: pointer;
       }
 
       .forgot-link {
-        color: var(--primary);
+        color: #34D399;
         text-decoration: none;
+        font-size: 0.875rem;
         font-weight: 500;
         transition: color 0.3s ease;
       }
 
       .forgot-link:hover {
-        color: var(--primary-light);
+        color: #10B981;
       }
 
       .btn-login {
         width: 100%;
-        padding: 1rem;
-        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-        color: white;
+        padding: 1.125rem;
+        background: linear-gradient(135deg, #34D399 0%, #10B981 100%);
         border: none;
         border-radius: 12px;
+        color: white;
         font-size: 1rem;
         font-weight: 600;
         cursor: pointer;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(45, 106, 79, 0.3);
+        box-shadow: 0 10px 30px rgba(52, 211, 153, 0.3);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn-login::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s ease;
+      }
+
+      .btn-login:hover::before {
+        left: 100%;
       }
 
       .btn-login:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(45, 106, 79, 0.4);
+        box-shadow: 0 15px 40px rgba(52, 211, 153, 0.4);
       }
 
       .btn-login:active {
         transform: translateY(0);
       }
 
-      .login-footer {
-        text-align: center;
-        margin-top: 2rem;
-        padding-top: 1.5rem;
-        border-top: 1px solid #E9ECEF;
-        color: var(--text-secondary);
+      .divider {
+        display: flex;
+        align-items: center;
+        margin: 2rem 0;
+        color: rgba(255, 255, 255, 0.4);
         font-size: 0.875rem;
       }
 
+      .divider::before,
+      .divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .divider::before {
+        margin-right: 1rem;
+      }
+
+      .divider::after {
+        margin-left: 1rem;
+      }
+
+      .social-login {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+
+      .social-btn {
+        padding: 0.875rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+
+      .social-btn:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+
       .error-message {
-        background: rgba(231, 111, 81, 0.1);
-        color: #E76F51;
-        padding: 0.75rem 1rem;
-        border-radius: 8px;
-        margin-bottom: 1rem;
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #EF4444;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
         font-size: 0.875rem;
         display: none;
+        animation: shake 0.5s ease;
       }
 
       .error-message.show {
         display: block;
-        animation: shake 0.5s ease;
       }
 
       @keyframes shake {
@@ -258,50 +438,126 @@
           transform: translateX(10px);
         }
       }
+
+      /* Responsive */
+      @media (max-width: 1024px) {
+        .login-left {
+          display: none;
+        }
+
+        .login-right {
+          flex: 1;
+          border-left: none;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .login-right {
+          padding: 2rem;
+        }
+
+        .brand-title {
+          font-size: 2.5rem;
+        }
+
+        .login-title {
+          font-size: 1.5rem;
+        }
+      }
     </style>
 </head>
 
 <body>
-  <div class="login-container">
-    <div class="login-card">
-      <div class="login-logo">
-        <img src="images/logo.png" alt="Natxtra Logo" />
-        <h1 class="login-title">Welcome to Natxtra</h1>
-        <p class="login-subtitle">Sign in to access your admin dashboard</p>
+  <div class="bg-animation">
+    <div class="gradient-orb"></div>
+  </div>
+
+  <div class="login-wrapper">
+    <!-- Left Side - Branding -->
+    <div class="login-left">
+      <div class="brand-content">
+        <div class="brand-logo">
+          <i class="fas fa-leaf" style="font-size: 2rem; color: white;"></i>
+        </div>
+        <h1 class="brand-title">Natxtra</h1>
+        <p class="brand-subtitle">
+          Your premium wellness supplement management platform.
+          Streamline operations, boost sales, and grow your business.
+        </p>
+        <ul class="feature-list">
+          <li class="feature-item">
+            <div class="feature-icon">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <span>Real-time analytics & insights</span>
+          </li>
+          <li class="feature-item">
+            <div class="feature-icon">
+              <i class="fas fa-shield-alt"></i>
+            </div>
+            <span>Enterprise-grade security</span>
+          </li>
+          <li class="feature-item">
+            <div class="feature-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <span>Complete team management</span>
+          </li>
+        </ul>
       </div>
+    </div>
 
-      <div class="error-message" id="errorMessage">
-        Invalid credentials. Please try again.
-      </div>
-
-      <form id="loginForm" class="login-form">
-        <div class="form-floating">
-          <input type="email" id="email" name="email" placeholder=" " required autocomplete="email" />
-          <label for="email">Email Address</label>
+    <!-- Right Side - Login Form -->
+    <div class="login-right">
+      <div class="login-container">
+        <div class="login-header">
+          <h2 class="login-title">Welcome back</h2>
+          <p class="login-description">Enter your credentials to access your account</p>
         </div>
 
-        <div class="form-floating">
-          <input type="password" id="password" name="password" placeholder=" " required
-            autocomplete="current-password" />
-          <label for="password">Password</label>
-          <i class="fas fa-eye-slash password-toggle" id="togglePassword"></i>
+        <div class="error-message" id="errorMessage">
+          <i class="fas fa-exclamation-circle"></i> Invalid credentials. Please try again.
         </div>
 
-        <div class="form-options">
-          <label class="remember-me">
-            <input type="checkbox" id="rememberMe" />
-            <span>Remember me</span>
-          </label>
-          <a href="#" class="forgot-link">Forgot password?</a>
+        <form id="loginForm">
+          <div class="form-group">
+            <label class="form-label">Email address</label>
+            <div class="input-wrapper">
+              <input type="email" class="form-input" id="email" placeholder="admin@natxtra.com" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <div class="input-wrapper">
+              <input type="password" class="form-input" id="password" placeholder="Enter your password" required />
+              <i class="fas fa-eye-slash password-toggle" id="togglePassword"></i>
+            </div>
+          </div>
+
+          <div class="form-options">
+            <div class="checkbox-wrapper">
+              <input type="checkbox" id="remember" />
+              <label for="remember">Remember me</label>
+            </div>
+            <a href="#" class="forgot-link">Forgot password?</a>
+          </div>
+
+          <button type="submit" class="btn-login">
+            Sign in to dashboard
+          </button>
+        </form>
+
+        <div class="divider">or continue with</div>
+
+        <div class="social-login">
+          <button class="social-btn">
+            <i class="fab fa-google"></i> Google
+          </button>
+          <button class="social-btn">
+            <i class="fab fa-microsoft"></i> Microsoft
+          </button>
         </div>
-
-        <button type="submit" class="btn-login">
-          Sign In
-        </button>
-      </form>
-
-      <div class="login-footer">
-        <p>&copy; 2026 Natxtra. All rights reserved.</p>
       </div>
     </div>
   </div>
@@ -352,7 +608,7 @@
         }
       });
 
-      // Remove error message on input
+      // Remove error on input
       document.querySelectorAll('input').forEach(input => {
         input.addEventListener('input', () => {
           errorMessage.classList.remove('show');
