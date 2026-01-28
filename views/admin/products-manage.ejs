@@ -1,0 +1,1155 @@
+<% 
+  // Helper function to check permissions
+  const hasPermission = (module, permissionType = 'manage') => {
+    // Admins have all permissions
+    if (typeof isAdmin !== 'undefined' && isAdmin) return true;
+    // Check if user has the module and the specific permission
+    return typeof userPermissions !== 'undefined' && userPermissions && userPermissions[module] && userPermissions[module][permissionType];
+  };
+%>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EZ Door || PRODUCTS MANAGEMENT</title>
+  <%- include('partials/linkheader.ejs') %>
+</head>
+
+<body>
+  <div class="page-wrapper">
+    <!------Header END-------->
+
+    <section class="listing-wrapper distributer-wrapper position-relative vh-100">
+      <div class="container-fluid px-0 h-100">
+        <div class="row mx-0 h-100">
+          <div class="col-md-12 px-0">
+            <div class="h-100">
+              <%- include('partials/sidebar.ejs') %>
+                <div class="right-side-block">
+                  <%- include('partials/header.ejs') %>
+
+                    <div class="card border-0 bg-transparent">
+                      <div class="card-body p-0">
+                        <div class="bg-white">
+                          <div class="d-flex p-3 border-bottom align-items-center justify-content-between">
+                            <h4 class="title-text">Products Management</h4>
+                            <div class="right-side-button">
+                              <% if (hasPermission('Inventory', 'create' )) { %>
+                                <a href="#" class="btn btn-primary" data-bs-toggle="modal"
+                                  data-bs-target="#exampleModal">Add Product</a>
+                                <!-- <a
+                              href="#"
+                              class="btn btn-default bg-white border-0 ms-2"
+                              >Import</a
+                            > -->
+                                <% } %>
+                            </div>
+                          </div>
+
+                          <div class="product-filter border-bottom px-3 py-4">
+                            <form method="GET" action="/admin/products-manage">
+                              <div class="row">
+                                <!-- Category Filter -->
+                                <div class="col-md-3 col-lg-2">
+                                  <div class="form-group">
+                                    <select name="category_id" class="form-control" id="category_id">
+                                      <option value="">Select Category</option>
+                                      <% categories.forEach(function(element) { %>
+                                        <option value="<%= element._id %>" <%=selectedCategory==element._id ? 'selected'
+                                          : '' %>>
+                                          <%= element.name %>
+                                        </option>
+                                        <% }); %>
+                                    </select>
+                                  </div>
+                                </div>
+
+                                <div class="col-md-3 col-lg-2">
+                                  <div class="form-group">
+                                    <select name="brand_name" class="form-control">
+                                      <option value="">Select Brand</option>
+                                      <option value="EZ Doors">EZ Doors</option>
+                                      <option value="Hindustan Doors">
+                                        Hindustan Doors
+                                      </option>
+                                    </select>
+                                  </div>
+                                </div>
+
+                                <!-- Stock Status Filter -->
+                                <div class="col-md-2 col-lg-2 mt-4 mt-md-0">
+                                  <div class="form-group">
+                                    <select name="status" class="form-control">
+                                      <option value="">All Status</option>
+                                      <option value="In Stock" <%=selectedStatus==='In Stock' ? 'selected' : '' %>>In
+                                        Stock</option>
+                                      <option value="Low Stock" <%=selectedStatus==='Low Stock' ? 'selected' : '' %>>Low
+                                        Stock</option>
+                                      <option value="Out of Stock" <%=selectedStatus==='Out of Stock' ? 'selected' : ''
+                                        %>>Out of Stock</option>
+                                    </select>
+                                  </div>
+                                </div>
+                                <!-- Search and Clear Buttons -->
+                                <div class="col-md-3">
+                                  <button type="submit" class="btn btn-primary">
+                                    Search
+                                  </button>
+                                  <button type="button" class="btn btn-default ms-2" onclick="clearQueryParams()">
+                                    Clear
+                                  </button>
+                                </div>
+                              </div>
+                            </form>
+                          </div>
+
+                          <div class="p-4">
+                            <div class="row">
+                              <% products.forEach(product=> { %>
+                                <div class="col-md-3 mb-4">
+                                  <div class="products_details border rounded p-3">
+                                    <!-- Product Image -->
+                                    <figure class="text-center">
+                                      <% if (product.image) { %>
+                                        <img src="../../uploads/product/<%= product.image %>" alt="Product Image"
+                                          class="img-fluid" style="height: 150px; object-fit: contain" />
+                                        <% } else { %>
+                                          <img src="../../admin/images/logo.png" alt="No Image" class="img-fluid"
+                                            style="height: 150px; object-fit: contain" />
+                                          <% } %>
+                                    </figure>
+
+                                    <!-- Product Info -->
+                                    <div class="prodcuts_naming mt-2">
+                                      <h6 class="d-flex align-items-center justify-content-between">
+                                        <%= product.name %>
+                                          <span>
+                                            <%= product.category_id?.name %>
+                                          </span>
+                                      </h6>
+                                      <p>SKU: <%= product.sku %>
+                                      </p>
+                                      <div class="d-flex my-2 align-items-center justify-content-between">
+                                        <span>₹<%= product.sale_price %></span>
+                                        <span
+                                          class="<%= product.status === 'In Stock' ? 'in-stock text-success' : 'text-danger' %>">
+                                          <%= product.status %>
+                                        </span>
+                                      </div>
+                                      <p>Stock: <%= product.quantity %> Units</p>
+
+                                      <!-- Action Buttons -->
+                                      <div class="d-flex mt-3 align-items-center justify-content-between">
+                                        <% if (hasPermission('Inventory', 'edit' )) { %>
+                                          <a href="#" class="btn btn-primary text-white edit-btn"
+                                            data-model="<%= JSON.stringify(product) %>" id="edit_btn"
+                                            data-bs-toggle="modal" data-bs-target="#editproductModal">Edit</a>
+                                          <% } %>
+                                            <% if (hasPermission('Inventory', 'delete' )) { %>
+                                              <a href="#"
+                                                class="delete-btn red-status text-black bg-transparent btn btn-default ms-2"
+                                                data-id="<%=product._id%>">Delete</a>
+                                              <% } %>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <% }) %>
+                            </div>
+                          </div>
+
+                          <div class="d-flex align-items-center justify-content-between p-4 border-top">
+                            <p>Showing 1 to 10 of 45 distributors</p>
+                            <nav aria-label="Page navigation example">
+                              <ul class="pagination mb-0">
+                                <li class="page-item">
+                                  <a class="page-link" href="#">Previous</a>
+                                </li>
+                                <li class="page-item active" aria-current="page">
+                                  <a class="page-link" href="#">1</a>
+                                </li>
+                                <li class="page-item">
+                                  <a class="page-link" href="#">2</a>
+                                </li>
+                                <li class="page-item">
+                                  <a class="page-link" href="#">3</a>
+                                </li>
+                                <li class="page-item">
+                                  <a class="page-link" href="#">Next</a>
+                                </li>
+                              </ul>
+                            </nav>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!------listing-wrapper END-------->
+  </div>
+  <!------Page-wrapper END-------->
+  <%- include('partials/linkfooter.ejs') %>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">
+              Create New Item
+            </h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="addProductForm">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="">Product Name<span class="text-danger">*</span></label>
+                    <input type="text" name="name" id="name" class="form-control" placeholder="Product Name" />
+                  </div>
+                </div>
+                <!-- Door Code Removed -->
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="size">Size/Variant</label>
+                    <input type="text" name="size" id="size" class="form-control" placeholder="e.g. 60 Caps, 500ml" />
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">SKU</label>
+                    <input type="text" name="sku" id="sku" class="form-control" placeholder="Item SKU" />
+                  </div>
+                </div>
+
+                <!-- Thickness & Panel Thickness Removed -->
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Sale Price<span class="text-danger">*</span></label>
+                    <input type="number" name="sale_price" id="sale_price" class="form-control"
+                      placeholder="Sale Price" />
+                  </div>
+                </div>
+
+                <!-- <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for=""
+                      >Purchase Price<span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="number"
+                      name="purchase_price"
+                      id="purchase_price"
+                      class="form-control"
+                      placeholder="Purchase Price"
+                    />
+                  </div>
+                </div> -->
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Distributor Price</label>
+                    <input type="number" name="distributor_price" id="distributor_price" class="form-control"
+                      placeholder="Distributor Price" />
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Dealer Price</label>
+                    <input type="number" name="dealer_price" id="dealer_price" class="form-control"
+                      placeholder="Dealer Price" />
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">M.R.P.</label>
+                    <input type="number" name="mrp" id="mrp" class="form-control" placeholder="M.R.P." />
+                  </div>
+                </div>
+
+                <!-- <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for=""
+                      >Production Cost</label
+                    >
+                    <input
+                      type="number"
+                      name="production_cost"
+                      id="production_cost"
+                      class="form-control"
+                      placeholder="Production Cost"
+                    />
+                  </div>
+                </div> -->
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Quantity<span class="text-danger">*</span></label>
+                    <input type="text" name="quantity" id="quantity" class="form-control" placeholder="Quantity" />
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Unit<span class="text-danger">*</span></label>
+                    <select name="unit_id" class="form-control js-states" id="unit_id">
+                      <option value="">Select Unit</option>
+                      <% units.forEach(units=> { %>
+                        <option value="<%= units._id %>">
+                          <%= units.name %>
+                        </option>
+                        <% }) %>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-12 mt-4">
+                  <div class="form-group">
+                    <label for="">Tax Configuration</label>
+                    <div class="row">
+                      <div class="col-md-4">
+                        <div class="d-flex align-items-center mb-2">
+                          <input type="checkbox" name="tax_cgst_enabled" id="tax_cgst_enabled" class="form-check-input me-2" />
+                          <label for="tax_cgst_enabled" class="form-check-label mb-0">CGST</label>
+                        </div>
+                        <input type="number" name="tax_cgst_percentage" id="tax_cgst_percentage" class="form-control" placeholder="Percentage" step="0.01" min="0" max="100" />
+                      </div>
+                      <div class="col-md-4">
+                        <div class="d-flex align-items-center mb-2">
+                          <input type="checkbox" name="tax_sgst_enabled" id="tax_sgst_enabled" class="form-check-input me-2" />
+                          <label for="tax_sgst_enabled" class="form-check-label mb-0">SGST</label>
+                        </div>
+                        <input type="number" name="tax_sgst_percentage" id="tax_sgst_percentage" class="form-control" placeholder="Percentage" step="0.01" min="0" max="100" />
+                      </div>
+                      <div class="col-md-4">
+                        <div class="d-flex align-items-center mb-2">
+                          <input type="checkbox" name="tax_igst_enabled" id="tax_igst_enabled" class="form-check-input me-2" />
+                          <label for="tax_igst_enabled" class="form-check-label mb-0">IGST</label>
+                        </div>
+                        <input type="number" name="tax_igst_percentage" id="tax_igst_percentage" class="form-control" placeholder="Percentage" step="0.01" min="0" max="100" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Category<span class="text-danger">*</span></label>
+                    <select name="category_id" class="form-control js-states" id="category_id">
+                      <option value="">Select Category</option>
+                      <% categories.forEach(categories=> { %>
+                        <option value="<%= categories._id %>">
+                          <%= categories.name %>
+                        </option>
+                        <% }) %>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Brand Name</label>
+                    <select name="brand_name" class="form-control">
+                      <option value="">Select Brand</option>
+                      <option value="EZ Doors">EZ Doors</option>
+                      <option value="Hindustan Doors">Hindustan Doors</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Status</label>
+                    <select name="status" class="form-control">
+                      <option value="In Stock">In Stock</option>
+                      <option value="Low Stock">Low Stock</option>
+                      <option value="Out of Stock">Out of Stock</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Thumbnail Img</label>
+                    <input type="file" id="image" name="image" class="form-control" placeholder="" />
+                  </div>
+                </div>
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Product Images</label>
+                    <input type="file" id="product_images" name="product_images" class="form-control" placeholder=""
+                      multiple />
+                  </div>
+                </div>
+                <!-- <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Type</label>
+                    <div class="d-flex align-items-center">
+                      <div class="form-check">
+                        <input
+                          class="form-check-input"
+                          type="radio"
+                          name="type"
+                          id="type1"
+                          value="Product"
+                          checked
+                        />
+                        <label class="form-check-label" for="type1"
+                          >Product</label
+                        >
+                      </div>
+                      <div class="form-check ms-3">
+                        <input
+                          class="form-check-input"
+                          type="radio"
+                          name="type"
+                          id="type2"
+                          value="Service"
+                        />
+                        <label class="form-check-label" for="type2"
+                          >Service</label
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div> -->
+
+                <div class="col-md-12 mt-4">
+                  <div class="form-group">
+                    <label for="">Description</label>
+                    <textarea name="description" id="description" class="form-control" placeholder="Description"
+                      style="height: 100px"></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <div class="text-end pt-4">
+                <button type="button" class="btn btn-default bg-white border-0" data-bs-dismiss="modal">
+                  Close
+                </button>
+                <button type="submit" id="add-btn" class="btn btn-primary ms-3">
+                  Create
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- edit Modal -->
+    <div class="modal fade" id="editproductModal" tabindex="-1" aria-labelledby="editproductModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="editproductModalLabel">
+              Edit Item
+            </h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="editform">
+              <div class="row">
+                <input type="text" name="editid" hidden id="editid" />
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="">Product Name<span class="text-danger">*</span></label>
+                    <input type="text" name="edit_name" id="edit_name" class="form-control"
+                      placeholder="Product Name" />
+                  </div>
+                </div>
+                <!-- Edit Door Code Removed -->
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="size">Size/Variant</label>
+                    <input type="text" name="edit_size" id="edit_size" class="form-control" placeholder="e.g. 60 Caps" />
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">SKU</label>
+                    <input type="text" name="edit_sku" id="edit_sku" class="form-control" placeholder="Item SKU" />
+                  </div>
+                </div>
+
+                <!-- Edit Thickness & Panel Thickness Removed -->
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Sale Price<span class="text-danger">*</span></label>
+                    <input type="number" name="edit_sale_price" id="edit_sale_price" class="form-control"
+                      placeholder="Sale Price" />
+                  </div>
+                </div>
+
+                <!-- <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for=""
+                      >Purchase Price<span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="number"
+                      name="edit_purchase_price"
+                      id="edit_purchase_price"
+                      class="form-control"
+                      placeholder="Purchase Price"
+                    />
+                  </div>
+                </div> -->
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Distributor Price</label>
+                    <input type="number" name="edit_distributor_price" id="edit_distributor_price" class="form-control"
+                      placeholder="Distributor Price" />
+                  </div>
+                </div>
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Dealer Price</label>
+                    <input type="number" name="edit_dealer_price" id="edit_dealer_price" class="form-control"
+                      placeholder="Dealer Price" />
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">M.R.P.</label>
+                    <input type="number" name="edit_mrp" id="edit_mrp" class="form-control" placeholder="M.R.P." />
+                  </div>
+                </div>
+
+                <!-- <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for=""
+                      >Production Cost</label
+                    >
+                    <input
+                      type="number"
+                      name="edit_production_cost"
+                      id="edit_production_cost"
+                      class="form-control"
+                      placeholder="Production Cost"
+                    />
+                  </div>
+                </div>   -->
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Quantity<span class="text-danger">*</span></label>
+                    <input type="text" name="edit_quantity" id="edit_quantity" class="form-control"
+                      placeholder="Quantity" />
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Unit<span class="text-danger">*</span></label>
+                    <select name="edit_unit_id" class="form-control js-states" id="edit_unit_id">
+                      <option value="">Select Unit</option>
+                      <% units.forEach(units=> { %>
+                        <option value="<%= units._id %>">
+                          <%= units.name %>
+                        </option>
+                        <% }) %>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-12 mt-4">
+                  <div class="form-group">
+                    <label for="">Tax Configuration</label>
+                    <div class="row">
+                      <div class="col-md-4">
+                        <div class="d-flex align-items-center mb-2">
+                          <input type="checkbox" name="edit_tax_cgst_enabled" id="edit_tax_cgst_enabled" class="form-check-input me-2" />
+                          <label for="edit_tax_cgst_enabled" class="form-check-label mb-0">CGST</label>
+                        </div>
+                        <input type="number" name="edit_tax_cgst_percentage" id="edit_tax_cgst_percentage" class="form-control" placeholder="Percentage" step="0.01" min="0" max="100" />
+                      </div>
+                      <div class="col-md-4">
+                        <div class="d-flex align-items-center mb-2">
+                          <input type="checkbox" name="edit_tax_sgst_enabled" id="edit_tax_sgst_enabled" class="form-check-input me-2" />
+                          <label for="edit_tax_sgst_enabled" class="form-check-label mb-0">SGST</label>
+                        </div>
+                        <input type="number" name="edit_tax_sgst_percentage" id="edit_tax_sgst_percentage" class="form-control" placeholder="Percentage" step="0.01" min="0" max="100" />
+                      </div>
+                      <div class="col-md-4">
+                        <div class="d-flex align-items-center mb-2">
+                          <input type="checkbox" name="edit_tax_igst_enabled" id="edit_tax_igst_enabled" class="form-check-input me-2" />
+                          <label for="edit_tax_igst_enabled" class="form-check-label mb-0">IGST</label>
+                        </div>
+                        <input type="number" name="edit_tax_igst_percentage" id="edit_tax_igst_percentage" class="form-control" placeholder="Percentage" step="0.01" min="0" max="100" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Category<span class="text-danger">*</span></label>
+                    <select name="edit_category_id" class="form-control js-states" id="edit_category_id">
+                      <option value="">Select Category</option>
+                      <% categories.forEach(categories=> { %>
+                        <option value="<%= categories._id %>">
+                          <%= categories.name %>
+                        </option>
+                        <% }) %>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Brand Name</label>
+                    <select name="edit_brand_name" id="edit_brand_name" class="form-control">
+                      <option value="">Select Brand</option>
+                      <option value="EZ Doors">EZ Doors</option>
+                      <option value="Hindustan Doors">Hindustan Doors</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Status</label>
+                    <select name="edit_status" id="edit_status" class="form-control">
+                      <option value="In Stock">In Stock</option>
+                      <option value="Low Stock">Low Stock</option>
+                      <option value="Out of Stock">Out of Stock</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Thumbnail Img</label>
+                    <input type="file" id="editimage" name="editimage" class="form-control" placeholder="" />
+                  </div>
+                </div>
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Product Images</label>
+                    <input type="file" id="edit_product_images" name="edit_product_images" class="form-control"
+                      placeholder="" multiple />
+                  </div>
+                </div>
+                <!-- <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Type</label>
+                    <div class="d-flex align-items-center">
+                      <div class="form-check">
+                        <input
+                          class="form-check-input"
+                          type="radio"
+                          name="edit_type"
+                          id="edit_type1"
+                          value="Product"
+                          checked
+                        />
+                        <label class="form-check-label" for="edit_type1"
+                          >Product</label
+                        >
+                      </div>
+                      <div class="form-check ms-3">
+                        <input
+                          class="form-check-input"
+                          type="radio"
+                          name="edit_type"
+                          id="edit_type2"
+                          value="Service"
+                        />
+                        <label class="form-check-label" for="edit_type2"
+                          >Service</label
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div> -->
+
+                <div class="col-md-12 mt-4">
+                  <div class="form-group">
+                    <label for="">Description</label>
+                    <textarea name="edit_description" id="edit_description" class="form-control"
+                      placeholder="Description" style="height: 100px"></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <div class="text-end pt-4">
+                <button type="button" class="btn btn-default bg-white border-0" data-bs-dismiss="modal">
+                  Close
+                </button>
+                <button type="submit" id="edit-btn" class="btn btn-primary ms-2">
+                  Save
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      $(document).ready(function () {
+        $('#size').select2({
+          placeholder: "Select Sizes",
+          allowClear: true,
+          width: '100%',
+          dropdownParent: $('#exampleModal') // modal ki ID
+        });
+      });
+
+      $(document).ready(function () {
+        $('#edit_size').select2({
+          placeholder: "Select Sizes",
+          allowClear: true,
+          width: '100%',
+          dropdownParent: $('#editproductModal') // modal ki ID
+        });
+      });
+
+      // Enable/disable tax percentage inputs based on checkbox state
+      function toggleTaxInputs() {
+        // Add form
+        $('#tax_cgst_enabled').on('change', function() {
+          $('#tax_cgst_percentage').prop('disabled', !$(this).is(':checked'));
+          if (!$(this).is(':checked')) {
+            $('#tax_cgst_percentage').val('');
+          }
+        });
+        $('#tax_sgst_enabled').on('change', function() {
+          $('#tax_sgst_percentage').prop('disabled', !$(this).is(':checked'));
+          if (!$(this).is(':checked')) {
+            $('#tax_sgst_percentage').val('');
+          }
+        });
+        $('#tax_igst_enabled').on('change', function() {
+          $('#tax_igst_percentage').prop('disabled', !$(this).is(':checked'));
+          if (!$(this).is(':checked')) {
+            $('#tax_igst_percentage').val('');
+          }
+        });
+
+        // Edit form
+        $('#edit_tax_cgst_enabled').on('change', function() {
+          $('#edit_tax_cgst_percentage').prop('disabled', !$(this).is(':checked'));
+          if (!$(this).is(':checked')) {
+            $('#edit_tax_cgst_percentage').val('');
+          }
+        });
+        $('#edit_tax_sgst_enabled').on('change', function() {
+          $('#edit_tax_sgst_percentage').prop('disabled', !$(this).is(':checked'));
+          if (!$(this).is(':checked')) {
+            $('#edit_tax_sgst_percentage').val('');
+          }
+        });
+        $('#edit_tax_igst_enabled').on('change', function() {
+          $('#edit_tax_igst_percentage').prop('disabled', !$(this).is(':checked'));
+          if (!$(this).is(':checked')) {
+            $('#edit_tax_igst_percentage').val('');
+          }
+        });
+
+        // Initialize disabled state on page load
+        $('#tax_cgst_percentage').prop('disabled', !$('#tax_cgst_enabled').is(':checked'));
+        $('#tax_sgst_percentage').prop('disabled', !$('#tax_sgst_enabled').is(':checked'));
+        $('#tax_igst_percentage').prop('disabled', !$('#tax_igst_enabled').is(':checked'));
+        $('#edit_tax_cgst_percentage').prop('disabled', !$('#edit_tax_cgst_enabled').is(':checked'));
+        $('#edit_tax_sgst_percentage').prop('disabled', !$('#edit_tax_sgst_enabled').is(':checked'));
+        $('#edit_tax_igst_percentage').prop('disabled', !$('#edit_tax_igst_enabled').is(':checked'));
+      }
+
+      $(document).ready(toggleTaxInputs);
+
+      // Reset tax fields when add modal is opened
+      $('#exampleModal').on('show.bs.modal', function () {
+        $('#tax_cgst_enabled').prop('checked', false);
+        $('#tax_cgst_percentage').val('').prop('disabled', true);
+        $('#tax_sgst_enabled').prop('checked', false);
+        $('#tax_sgst_percentage').val('').prop('disabled', true);
+        $('#tax_igst_enabled').prop('checked', false);
+        $('#tax_igst_percentage').val('').prop('disabled', true);
+      });
+
+      // Reset tax fields when edit modal is closed (for next time it opens)
+      $('#editproductModal').on('hidden.bs.modal', function () {
+        $('#edit_tax_cgst_enabled').prop('checked', false);
+        $('#edit_tax_cgst_percentage').val('').prop('disabled', true);
+        $('#edit_tax_sgst_enabled').prop('checked', false);
+        $('#edit_tax_sgst_percentage').val('').prop('disabled', true);
+        $('#edit_tax_igst_enabled').prop('checked', false);
+        $('#edit_tax_igst_percentage').val('').prop('disabled', true);
+      });
+    </script>
+
+
+    <script>
+      //#region Add product
+      var addformProduct = $("#addProductForm");
+      addformProduct.on("submit", submitFormHandler);
+
+      function submitFormHandler(e) {
+        e.preventDefault();
+
+        // Enable all tax percentage fields temporarily so they're included in form submission
+        $('#tax_cgst_percentage, #tax_sgst_percentage, #tax_igst_percentage').prop('disabled', false);
+
+        var formData = new FormData(addformProduct[0]);
+
+        // Client-side validation for required fields
+        const requiredFields = [
+          { field: "door_name", label: "Door Name" },
+          { field: "sale_price", label: "Sale Price" },
+          // { field: "purchase_price", label: "Purchase Price" },
+          { field: "quantity", label: "Quantity" },
+          { field: "unit_id", label: "Unit" },
+          { field: "category_id", label: "Category" },
+        ];
+
+        for (let { field, label } of requiredFields) {
+          const value = formData.get(field);
+          if (!value || value.trim() === "") {
+            renderToast({
+              message: `${label} is required.`,
+              icon: "error",
+            });
+            return;
+          }
+        }
+
+        // Optional: Validate price fields (ensure they are numbers)
+        const salePrice = parseFloat(formData.get("sale_price"));
+        // const purchasePrice = parseFloat(formData.get("purchase_price"));
+        if (isNaN(salePrice) || salePrice <= 0) {
+          renderToast({
+            message: "Sale Price must be a valid number greater than 0.",
+            icon: "error",
+          });
+          return;
+        }
+
+        // if (isNaN(purchasePrice) || purchasePrice <= 0) {
+        //   renderToast({
+        //     message: "Purchase Price must be a valid number greater than 0.",
+        //     icon: "error",
+        //   });
+        //   return;
+        // }
+
+        // Optional: Validate quantity field (ensure it's a number)
+        const quantity = parseInt(formData.get("quantity"));
+        if (isNaN(quantity) || quantity < 0) {
+          renderToast({
+            message: "Quantity must be a valid number and cannot be negative.",
+            icon: "error",
+          });
+          return;
+        }
+
+        // Proceed with POST if validation passes
+        $.ajax({
+          type: "POST",
+          cache: false,
+          enctype: "multipart/form-data",
+          processData: false,
+          contentType: false,
+          url: "/admin/create-product",
+          data: formData,
+          success: (res) => {
+            renderToast({
+              message: res.message,
+              icon: "success",
+            });
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          },
+          error: (res) => {
+            renderToast({
+              message: res.message,
+              icon: "error",
+            });
+            console.log(res);
+          },
+        });
+      }
+
+      //#endregion Add product
+
+      //#region Edit product
+      $(document).on("click", "#edit_btn", function (e) {
+        var data = $(this).attr("data-model");
+        data = JSON.parse(data);
+        console.log(data);
+
+        $("#editid").val(data._id);
+        $("#edit_door_name").val(data.door_name);
+        $("#edit_door_code").val(data.door_code);
+        // ✅ Multi-select Size (array handle)
+        if (Array.isArray(data.size)) {
+          $("#edit_size").val(data.size).trigger("change");
+        } else {
+          $("#edit_size").val([data.size]).trigger("change");
+        } $("#edit_sku").val(data.sku);
+        $("#edit_thickness").val(data.thickness);
+        $("#edit_pannel_thickness").val(data.pannel_thickness);
+        $("#edit_sale_price").val(data.sale_price);
+        // $("#edit_purchase_price").val(data.purchase_price);
+        $("#edit_distributor_price").val(data.distributor_price);
+        $("#edit_dealer_price").val(data.dealer_price);
+        $("#edit_mrp").val(data.mrp);
+        // $("#edit_production_cost").val(data.production_cost);
+        $("#edit_quantity").val(data.quantity);
+        $("#edit_unit_id").val(data.unit_id._id);
+        
+        // Handle tax - support both old (string) and new (object) format
+        if (data.tax && typeof data.tax === 'object') {
+          // New format: { cgst: { percentage: 9 }, sgst: { percentage: 9 }, igst: { percentage: 18 } }
+          if (data.tax.cgst && data.tax.cgst.percentage) {
+            $("#edit_tax_cgst_enabled").prop("checked", true);
+            $("#edit_tax_cgst_percentage").val(data.tax.cgst.percentage);
+            $("#edit_tax_cgst_percentage").prop("disabled", false);
+          } else {
+            $("#edit_tax_cgst_enabled").prop("checked", false);
+            $("#edit_tax_cgst_percentage").val("");
+            $("#edit_tax_cgst_percentage").prop("disabled", true);
+          }
+          if (data.tax.sgst && data.tax.sgst.percentage) {
+            $("#edit_tax_sgst_enabled").prop("checked", true);
+            $("#edit_tax_sgst_percentage").val(data.tax.sgst.percentage);
+            $("#edit_tax_sgst_percentage").prop("disabled", false);
+          } else {
+            $("#edit_tax_sgst_enabled").prop("checked", false);
+            $("#edit_tax_sgst_percentage").val("");
+            $("#edit_tax_sgst_percentage").prop("disabled", true);
+          }
+          if (data.tax.igst && data.tax.igst.percentage) {
+            $("#edit_tax_igst_enabled").prop("checked", true);
+            $("#edit_tax_igst_percentage").val(data.tax.igst.percentage);
+            $("#edit_tax_igst_percentage").prop("disabled", false);
+          } else {
+            $("#edit_tax_igst_enabled").prop("checked", false);
+            $("#edit_tax_igst_percentage").val("");
+            $("#edit_tax_igst_percentage").prop("disabled", true);
+          }
+        } else {
+          // Old format: string like "CGST" or "SGST" - clear all fields
+          $("#edit_tax_cgst_enabled").prop("checked", false);
+          $("#edit_tax_cgst_percentage").val("");
+          $("#edit_tax_cgst_percentage").prop("disabled", true);
+          $("#edit_tax_sgst_enabled").prop("checked", false);
+          $("#edit_tax_sgst_percentage").val("");
+          $("#edit_tax_sgst_percentage").prop("disabled", true);
+          $("#edit_tax_igst_enabled").prop("checked", false);
+          $("#edit_tax_igst_percentage").val("");
+          $("#edit_tax_igst_percentage").prop("disabled", true);
+        }
+        
+        $("#edit_category_id").val(data.category_id._id);
+        $("#edit_brand_name").val(data.brand_name);
+        $("#edit_status").val(data.status);
+        $("#edit_description").val(data.description);
+        // ✅ Set type radio button
+        // if (data.type === "Product") {
+        //   $("#edit_type1").prop("checked", true);
+        // } else if (data.type === "Service") {
+        //   $("#edit_type2").prop("checked", true);
+        // }
+      });
+
+      var editform = $("#editform");
+      editform.on("submit", editSubmitHandler);
+
+      function editSubmitHandler(e) {
+        e.preventDefault();
+
+        // Enable all tax percentage fields temporarily so they're included in form submission
+        $('#edit_tax_cgst_percentage, #edit_tax_sgst_percentage, #edit_tax_igst_percentage').prop('disabled', false);
+
+        var formData = new FormData(this);
+
+        // Client-side validation for required fields
+        const requiredFields = [
+          { field: "edit_door_name", label: "Door Name" },
+          { field: "edit_sale_price", label: "Sale Price" },
+          // { field: "edit_purchase_price", label: "Purchase Price" },
+          { field: "edit_quantity", label: "Quantity" },
+          { field: "edit_unit_id", label: "Unit" },
+          { field: "edit_category_id", label: "Category" },
+        ];
+
+        for (let { field, label } of requiredFields) {
+          const value = formData.get(field);
+          if (!value || value.trim() === "") {
+            renderToast({
+              message: `${label} is required.`,
+              icon: "error",
+            });
+            return;
+          }
+        }
+
+        // Optional: Validate price fields (ensure they are numbers)
+        const salePrice = parseFloat(formData.get("edit_sale_price"));
+        // const purchasePrice = parseFloat(formData.get("edit_purchase_price"));
+        if (isNaN(salePrice) || salePrice <= 0) {
+          renderToast({
+            message: "Sale Price must be a valid number greater than 0.",
+            icon: "error",
+          });
+          return;
+        }
+
+        // if (isNaN(purchasePrice) || purchasePrice <= 0) {
+        //   renderToast({
+        //     message: "Purchase Price must be a valid number greater than 0.",
+        //     icon: "error",
+        //   });
+        //   return;
+        // }
+
+        // Optional: Validate quantity field (ensure it's a number)
+        const quantity = parseInt(formData.get("edit_quantity"));
+        if (isNaN(quantity) || quantity < 0) {
+          renderToast({
+            message: "Quantity must be a valid number and cannot be negative.",
+            icon: "error",
+          });
+          return;
+        }
+
+        // Proceed with POST if validation passes
+        $.ajax({
+          type: "POST",
+          enctype: "multipart/form-data",
+          processData: false,
+          contentType: false,
+          url: "/admin/update-product",
+          data: formData,
+          success: (res) => {
+            renderToast({
+              message: res.message,
+              icon: "success",
+            });
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          },
+          error: (res) => {
+            renderToast({
+              message: res.message,
+              icon: "error",
+            });
+            console.log(res);
+          },
+        });
+      }
+      //#endregion Edit Product
+    </script>
+
+    <script>
+      let selectedProduct = [];
+      $(document).ready(function () {
+        $(".form-check-input").on("change", function () {
+          const value = $(this).val();
+          if ($(this).is(":checked")) {
+            if (!selectedProduct.includes(value)) {
+              selectedProduct.push(value);
+            }
+          } else {
+            // Remove value
+            selectedProduct = selectedProduct.filter((item) => item !== value);
+          }
+          if (selectedProduct.length == 0) {
+            $(".edit-btn").show();
+          } else {
+            $(".edit-btn").hide();
+          }
+        });
+
+        $(".delete-btn").on("click", function (e) {
+          const id = $(this).data("id");
+          if (selectedProduct.length == 0) {
+            if (confirm("Do you really want to delete this record")) {
+              $.ajax({
+                type: "POST",
+                contentType: "application/json",
+                url: "/admin/delete_product",
+                data: JSON.stringify({
+                  id: id,
+                }),
+                success: (res) => {
+                  renderToast({
+                    message: res.message,
+                    icon: "success",
+                  });
+                  setTimeout(() => {
+                    window.location.reload();
+                  }, 1000);
+                },
+                error: (res) => {
+                  renderToast({
+                    message: res.message,
+                    icon: "error",
+                  });
+                  console.error(res);
+                },
+              });
+            }
+          } else {
+            $.ajax({
+              type: "POST",
+              contentType: "application/json",
+              url: "/admin/delete_products",
+              data: JSON.stringify(selectedCategory),
+              success: (res) => {
+                renderToast({
+                  message: res.message,
+                  icon: "success",
+                });
+                setTimeout(() => {
+                  window.location.reload();
+                }, 1000);
+              },
+              error: (res) => {
+                renderToast({
+                  message: res.message,
+                  icon: "error",
+                });
+                console.error(res);
+              },
+            });
+          }
+        });
+      });
+    </script>
+    <script>
+      function clearQueryParams() {
+        // Reset input and select fields
+        document.querySelector('select[name="category_id"]').value = "";
+        document.querySelector('select[name="brand_name"]').value = "";
+        document.querySelector('select[name="status"]').value = "";
+
+        // Reload the page without any query parameters
+        const url = window.location.origin + window.location.pathname;
+        window.location.href = url; // Triggers reload with no query
+      }
+    </script>
+</body>
+
+</html>

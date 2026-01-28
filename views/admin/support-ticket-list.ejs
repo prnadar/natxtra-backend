@@ -1,0 +1,598 @@
+<% 
+  // Helper function to check permissions
+  const hasPermission = (module, permissionType = 'manage') => {
+    // Admins have all permissions
+    if (typeof isAdmin !== 'undefined' && isAdmin) return true;
+    // Check if user has the module and the specific permission
+    return typeof userPermissions !== 'undefined' && userPermissions && userPermissions[module] && userPermissions[module][permissionType];
+  };
+%>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EZ Door || Support Dashboard</title>
+    <%- include('partials/linkheader.ejs', { baseUrl: '/' }) %>
+  </head>
+
+  <body>
+    <div class="page-wrapper">
+      <!------Header END-------->
+
+      <section
+        class="listing-wrapper distributer-wrapper position-relative vh-100"
+      >
+        <div class="container-fluid px-0 h-100">
+          <div class="row mx-0 h-100">
+            <div class="col-md-12 px-0">
+              <div class="h-100">
+                <%- include('partials/sidebar.ejs') %>
+                <div class="right-side-block">
+                  <%- include('partials/header.ejs') %>
+
+                  <div class="card border-0 bg-transparent">
+                    <div class="card-body p-0">
+                      <div
+                        class="d-flex align-items-center justify-content-between"
+                      >
+                        <h4 class="title-head">Support Tickets</h4>
+                        <% if (hasPermission('SupportTicket', 'create')) { %>
+                        <a
+                          href="#"
+                          class="btn btn-primary"
+                          data-bs-toggle="modal"
+                          data-bs-target="#ticketModal"
+                          >+ Create Ticket</a
+                        >
+                        <% } %>
+                      </div>
+
+                      <div class="row mt-4">
+                        <div class="col-md-4">
+                          <div class="account-block">
+                            <span>Total Tickets</span>
+                            <h4 class="py-2">
+                              <strong> <%= totalItems %> </strong>
+                            </h4>
+                            <p class="text-warning">Last 30 days</p>
+                          </div>
+                        </div>
+
+                        <div class="col-md-4 mt-4 mt-md-0">
+                          <div class="account-block">
+                            <span>Open Tickets</span>
+                            <h4 class="py-2"><strong>42</strong></h4>
+                            <p class="text-success">Needs attention</p>
+                          </div>
+                        </div>
+
+                        <div class="col-md-4 mt-4 mt-md-0">
+                          <div class="account-block">
+                            <span>Average Response</span>
+                            <h4 class="py-2"><strong>94%</strong></h4>
+                            <p class="text-success">Above target</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="bg-white p-4 rounded-3 mt-4">
+                        <form
+                          method="GET"
+                          action="/admin/support-ticket-list"
+                        >
+                      <div class="row">
+                          <div class="col-md-3">
+                            <div class="form-group">
+                              <label for="">Priority</label>
+                              <select name="priority" class="form-control">
+                                <option value="">All Priorities</option>
+                                <option value="Low" <%= (priority === 'Low') ? 'selected' : '' %>>Low</option>
+                                <option value="Medium" <%= (priority === 'Medium') ? 'selected' : '' %>>Medium</option>
+                                <option value="High" <%= (priority === 'High') ? 'selected' : '' %>>High</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          <div class="col-md-3 mt-4 mt-md-0">
+                            <div class="form-group">
+                              <label for="">Status</label>
+                              <select name="status" class="form-control">
+                                <option value="">All Status</option>
+                                <option value="pending" <%= (status === 'Pending') ? 'selected' : '' %>>Pending</option>
+                                <option value="In Progress" <%= (status === 'In Progress') ? 'selected' : '' %>>In Progress</option>
+                                <option value="Resolved" <%= (status === 'Resolved') ? 'selected' : '' %>>Resolved</option>
+                              </select>
+                            </div>
+                          </div>
+                          <div class="col-md-3 mt-4">
+                            <button type="submit" class="btn btn-primary">
+                              Search
+                            </button>
+                            <button type="button" class="btn btn-default ms-2" onclick="clearQueryParams()">
+                              Clear
+                            </button>
+                          </div>
+                        </div>
+                      </form>
+                      </div>
+
+                      <div class="bg-white mt-4 rounded-3">
+                        <div class="distributor-table mt-4">
+                          <div class="table-responsive">
+                            <table class="table">
+                              <thead>
+                                <tr class="text-center">
+                                  <th>
+                                    <div class="form-check">
+                                      <input
+                                        id="MyTableCheckAllButton"
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        value=""
+                                        id="flexCheckDefault"
+                                      />
+                                    </div>
+                                  </th>
+                                  <th>Ticket ID</th>
+                                  <th>Subject</th>
+                                  <th>Customer</th>
+                                  <th>Priority</th>
+                                  <th>Status</th>
+                                  <!-- <th>Assigned To</th> -->
+                                  <th>End Date</th>
+                                  <th>Created</th>
+                                  <th>Actions</th>
+                                </tr>
+                              </thead>
+                              <tbody class="text-center">
+                                <% if (!supportTickets[0]) { %>
+                                <tr>
+                                  <td colspan="100%">No Data</td>
+                                </tr>
+                                <% } else {%> <%
+                                supportTickets.forEach(function(supportTickets,index){%>
+                                <tr>
+                                  <td>
+                                    <div class="form-check">
+                                      <input
+                                        class="form-check-input tickets-checkbox"
+                                        type="checkbox"
+                                        value="<%=supportTickets._id%>"
+                                      />
+                                    </div>
+                                  </td>
+                                  <td>#000<%=index + 1 %></td>
+                                  <td><%=supportTickets.subject ? supportTickets.subject : '--' %></td>
+                                  <td>
+                                    <div class="d-flex align-items-center">
+                                      <!-- <figure class="mb-0 name-circle">
+                                        
+                                      </figure> -->
+                                      <div class="tb-name">
+                                        <h5>
+                                          <%=supportTickets.user_id ? supportTickets.user_id.name : '--' %>
+                                        </h5>
+                                      </div>
+                                    </div>
+                                  </td>
+
+                                  <td>
+                                    <label class="red-tag">
+                                      <%=supportTickets.priority ? supportTickets.priority : '--' %>
+                                    </label>
+                                  </td>
+
+                                  <td>
+                                    <label class="red-tag">
+                                      <%=supportTickets.status ? supportTickets.status : '--' %>
+                                    </label>
+                                  </td>
+                                  <!-- <td>
+                                    <label class="green-text"
+                                      >Sarah Wilson</label
+                                    >
+                                  </td> -->
+                                  <td><%=supportTickets.end_date ? supportTickets.end_date : '--' %></td>
+                                  <td>
+                                    <%= new
+                                    Date(supportTickets.created_at).toISOString().split('T')[0]
+                                    %>
+                                  </td>
+
+                                  <td>
+                                    <% if (hasPermission('SupportTicket',
+                                    'edit')) { %>
+                                    <a
+                                      href="/admin/support-ticket-reply/<%=supportTickets._id%>"
+                                      class="text-success"
+                                      >Reply</a
+                                    >
+                                    <% } %>
+                                    <!-- <% if (hasPermission('SupportTicket', 'delete')) { %>
+                                  <a href="#" class="text-danger ms-2">Close</a>
+                                  <% } %> -->
+                                  </td>
+                                </tr>
+                                <% });} %>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+
+                        <!-- Page Size Dropdown (Right side) -->
+                        <div
+                          class="d-flex align-items-center justify-content-between mt-4 p-4"
+                        >
+                          <p>
+                            Showing <%= Math.min(currentPage * pageSize,totalItems) %> of <%= totalItems %> entries
+                          </p>
+
+                          <nav aria-label="Page navigation">
+                            <ul class="pagination mb-0">
+                              <!-- Previous Button -->
+                              <li
+                                class="page-item <%= currentPage <= 1 ? 'disabled' : '' %>"
+                              >
+                                <a
+                                  class="page-link"
+                                  href="?page=<%= currentPage - 1 %>"
+                                  >Previous</a
+                                >
+                              </li>
+
+                              <% 
+                              let startPage = Math.max(1, currentPage - 1);
+                              let endPage = Math.min(totalPages, startPage + 2);
+
+                              // Adjust startPage if we're near the end 
+                              if (endPage - startPage < 2) { 
+                                startPage =  Math.max(1, endPage - 2);
+                             } 
+                             %> 
+                             <% for (let i = startPage; i <= endPage; i++) { %>
+                              <li
+                                class="page-item <%= i === currentPage ? 'active' : '' %>"
+                              >
+                                <a class="page-link" href="?page=<%= i %>"
+                                  ><%= i %></a
+                                >
+                              </li>
+                              <% } %>
+
+                              <!-- Next Button -->
+                              <li
+                                class="page-item <%= currentPage >= totalPages ? 'disabled' : '' %>"
+                              >
+                                <a
+                                  class="page-link"
+                                  href="?page=<%= currentPage + 1 %>"
+                                  >Next</a
+                                >
+                              </li>
+                            </ul>
+                          </nav>
+                        </div>
+
+                        <div class="card border-0 leads_wrapper mb-0">
+                          <div class="card-body p-0">
+                            <div class="allocate_leads">
+                              <div class="row">
+                                <div class="col-md-2">
+                                  <div class="form-group mb-0">
+                                    <div class="allocate_drop">
+                                      <select
+                                        name="assign_to"
+                                        class="form-control js-states ms-2"
+                                        id="userSelect"
+                                      >
+                                        <option value="">Assign To</option>
+                                        <% users.forEach(user => { %>
+                                        <option value="<%= user._id %>">
+                                          <%= user.name %> (<%= user.role?.name
+                                          || "No Role" %>)
+                                        </option>
+                                        <% }) %>
+                                      </select>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <button
+                                    type="button"
+                                    class="btn btn-primary ms-md-3"
+                                    id="allocateBtn"
+                                  >
+                                    Assign
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!------listing-wrapper END-------->
+    </div>
+    <!------Page-wrapper END-------->
+    <%- include('partials/linkfooter.ejs') %>
+
+    <!-- Modal -->
+    <div
+      class="modal fade"
+      id="ticketModal"
+      tabindex="-1"
+      aria-labelledby="ticketModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="ticketModalLabel">
+              <strong>Create New Support</strong>
+            </h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="addSupportForm">
+              <div class="row align-items-center">
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label for=""
+                      >Subject<span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="text"
+                      name="subject"
+                      id="subject"
+                      class="form-control"
+                      placeholder="Enter Subject"
+                    />
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">User<span class="text-danger">*</span></label>
+                    <select
+                      name="user_id"
+                      class="form-control js-states"
+                      id="user_id"
+                    >
+                      <option value="">Select User</option>
+                      <% users.forEach(user => { %>
+                      <option value="<%= user._id %>"><%= user.name %></option>
+                      <% }) %>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group mb-0">
+                    <label for="">Priority</label>
+                    <select id="priority" name="priority" class="form-control">
+                      <option value="Low">Low</option>
+                      <option value="Medium">Medium</option>
+                      <option value="High">High</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for=""
+                      >Attachment<span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="file"
+                      id="images"
+                      name="images"
+                      class="form-control"
+                      placeholder=""
+                    />
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for=""
+                      >End Date<span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="date"
+                      name="end_date"
+                      id="end_date"
+                      class="form-control"
+                      placeholder="DD/MM/YYYY"
+                    />
+                  </div>
+                </div>
+
+                <div class="col-md-12 mt-4">
+                  <div class="form-group">
+                    <label for="">Description</label>
+                    <textarea
+                      name="description"
+                      id="description"
+                      class="form-control"
+                      placeholder="Enter Description"
+                      style="height: 80px"
+                    ></textarea>
+                  </div>
+                </div>
+
+                <div class="col-md-12 mt-4">
+                  <div class="text-end">
+                    <button
+                      type="button"
+                      class="btn btn-default bg-white border-0"
+                      data-bs-dismiss="modal"
+                    >
+                      Close
+                    </button>
+                    <button
+                      type="submit"
+                      id="add-btn"
+                      class="btn btn-primary ms-2"
+                    >
+                      Create
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Script for Add form
+      var addform = $("#addSupportForm");
+      addform.on("submit", submitFormHandler);
+
+      function submitFormHandler(e) {
+        e.preventDefault();
+
+        var formData = new FormData(addform[0]);
+        // Client-side validation for required fields
+        const requiredFields = [
+          { field: "subject", label: "Subject" },
+          { field: "user_id", label: "User ID" },
+          { field: "end_date", label: "End Date" },
+        ];
+
+        for (let { field, label } of requiredFields) {
+          const value = formData.get(field);
+          if (!value || value.trim() === "") {
+            renderToast({
+              message: `${label} is required.`,
+              icon: "error",
+            });
+            return;
+          }
+        }
+
+        // Optional: Validate end_date (ensure it's a valid date)
+        const endDate = formData.get("end_date");
+        const parsedEndDate = Date.parse(endDate);
+        if (isNaN(parsedEndDate)) {
+          renderToast({
+            message: "End Date must be a valid date.",
+            icon: "error",
+          });
+          return;
+        }
+
+        $.ajax({
+          type: "POST",
+          url: "/admin/create-support-ticket",
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: (res) => {
+            renderToast({
+              message: res.message,
+              icon: "success",
+            });
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          },
+          error: (res) => {
+            renderToast({
+              message: res.message,
+              icon: "error",
+            });
+            console.log(res);
+          },
+        });
+      }
+      //Add Script end here
+    </script>
+    <script>
+      function clearQueryParams() {
+        // Reset input and select fields
+        document.querySelector('select[name="priority"]').value = "";
+        document.querySelector('select[name="status"]').value = "";
+
+        // Reload the page without any query parameters
+        const url = window.location.origin + window.location.pathname;
+        window.location.href = url; // Triggers reload with no query
+      }
+    </script>
+    <script>
+      document
+        .getElementById("allocateBtn")
+        .addEventListener("click", function () {
+          // Get the selected leads and the user to whom they will be allocated
+          const selectedTickets = [];
+
+          document
+            .querySelectorAll(".tickets-checkbox:checked")
+            .forEach(function (checkbox) {
+              selectedTickets.push(checkbox.value); // Use checkbox value which contains lead ID
+            });
+
+          const assignTo = document.getElementById("userSelect").value;
+
+          if (selectedTickets.length > 0 && assignTo) {
+            // Send the selected leads and assigned user to the backend
+            fetch("/admin/assign-support-ticket", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                tickets: selectedTickets,
+                assignTo: assignTo,
+              }),
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.success) {
+                  // Successful allocation
+                  renderToast({
+                    message: data.message,
+                    icon: "success",
+                  });
+                  setTimeout(() => {
+                    window.location.reload();
+                  }, 1000);
+                } else {
+                  // Allocation failed
+                  renderToast({
+                    message: data.message,
+                    icon: "error",
+                  });
+                }
+              })
+              .catch((error) => {
+                console.error("Error:", error);
+                renderToast({
+                  message: "An error occurred while assigning tickets.",
+                  icon: "error",
+                });
+              });
+          } else {
+            renderToast({
+              message: "Please select ticlet and a user to assign.",
+              icon: "error",
+            });
+          }
+        });
+    </script>
+  </body>
+</html>

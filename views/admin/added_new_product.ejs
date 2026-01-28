@@ -1,0 +1,327 @@
+<% 
+  // Helper function to check permissions
+  const hasPermission = (module, permissionType = 'manage') => {
+    // Admins have all permissions
+    if (typeof isAdmin !== 'undefined' && isAdmin) return true;
+    // Check if user has the module and the specific permission
+    return typeof userPermissions !== 'undefined' && userPermissions && userPermissions[module] && userPermissions[module][permissionType];
+  };
+%>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EZ Door || ADDED PRODUCTS</title>
+  <%- include('partials/linkheader.ejs') %>
+</head>
+
+<body>
+  <div class="page-wrapper">
+    <!------Header END-------->
+
+    <section class="listing-wrapper distributer-wrapper position-relative vh-100">
+      <div class="container-fluid px-0 h-100">
+        <div class="row mx-0 h-100">
+          <div class="col-md-12 px-0">
+            <div class="h-100">
+              <%- include('partials/sidebar.ejs') %>
+              <div class="right-side-block">
+                <%- include('partials/header.ejs') %>
+
+                <div class="card border-0 bg-transparent h-100">
+                  <div class="card-body p-0">
+                    <div class="row h-100">
+                      <div class="col-md-4 col-lg-3">
+                        <div class="bg-white p-3 h-100">
+                          <div class="d-flex align-items-center justify-content-between">
+                            <a href="#" class="text-black"><i class="fa-solid fa-magnifying-glass"></i></a>
+                            <div class="">
+                              <% if (hasPermission('Inventory', 'create')) { %>
+                              <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#additemsModal"><span><i class="fa-solid fa-plus"></i></span> Add Item <span class="down_arrow"><i class="fa-solid fa-angle-down"></i></span></a>
+                              <% } %>
+                              <a href="#" class="text-black ms-2"><i class="fa-solid fa-ellipsis-vertical"></i></a>
+                            </div>
+                          </div>
+                          <div class="table-responsive">
+                            <table class="table">
+                              <thead>
+                                <tr>
+                                  <th>Item</th>
+                                  <th>Quantity</th>
+                                  <% if (hasPermission('Inventory', 'edit') || hasPermission('Inventory', 'delete')) { %>
+                                  <th>Actions</th>
+                                  <% } %>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr>
+                                  <td>Test</td>
+                                  <td>100</td>
+                                  <% if (hasPermission('Inventory', 'edit') || hasPermission('Inventory', 'delete')) { %>
+                                  <td>
+                                    <div class="d-flex">
+                                      <% if (hasPermission('Inventory', 'edit')) { %>
+                                      <a href="#" class="btn btn-primary me-2">Edit</a>
+                                      <% } %>
+                                      <% if (hasPermission('Inventory', 'delete')) { %>
+                                      <a href="#" class="btn btn-danger">Delete</a>
+                                      <% } %>
+                                    </div>
+                                  </td>
+                                  <% } %>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-md-8 col-lg-9">
+                        <div class="bg-white p-3">
+                          <p class="d-flex align-items-center justify-content-between">Test <a href="#" class="btn btn-primary">Adjust Item</a></p>
+                          <div class="d-flex align-items-center justify-content-between my-3">
+                            <p>Sale Price: <span><i class="fa-solid fa-indian-rupee-sign"></i> 100.00 (excl)</span></p>
+                            <p>Stock Quantity: <span class="text-success">100</span></p>
+                          </div>
+                          <div class="d-flex align-items-center justify-content-between">
+                            <p>Purchase Price: <span><i class="fa-solid fa-indian-rupee-sign"></i> 90.00 (excl)</span></p>
+                            <p>Stock Value: <span class="text-success">100</span></p>
+                          </div>
+                        </div>
+
+                        <div class="bg-white p-3 mt-3">
+                          <div class="row align-items-center justify-content-between">
+                            <div class="col-md-4">
+                              <h5>Transactions</h5>
+                            </div>
+
+                            <div class="col-md-5">
+                              <div class="d-flex align-items-center justify-content-end">
+                                <div class="form-group position-relative w-75 me-3">
+                                  <input type="text" class="form-control">
+                                  <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                </div>
+                                <a href="#"><img src="images/excel.png" class="img-fluid" alt=""></a>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="table-responsive">
+                            <table class="table">
+                              <thead>
+                                <tr>
+                                  <th></th>
+                                  <th>Type <a href="" class="text-black"><i class="fa-solid fa-filter"></i></a></th>
+                                  <th>Invoice/.. <a href="" class="text-black"><i class="fa-solid fa-filter"></i></a></th>
+                                  <th>Name <a href="" class="text-black"><i class="fa-solid fa-filter"></i></a></th>
+                                  <th>Date <a href="" class="text-black"><i class="fa-solid fa-filter"></i></a></th>
+                                  <th>Quantity <a href="" class="text-black"><i class="fa-solid fa-filter"></i></a></th>
+                                  <th>Price/ U. <a href="" class="text-black"><i class="fa-solid fa-filter"></i></a></th>
+                                  <th>Status <a href="" class="text-black"><i class="fa-solid fa-filter"></i></a></th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr>
+                                  <td></td>
+                                  <td></td>
+                                  <td></td>
+                                  <td></td>
+                                  <td></td>
+                                  <td></td>
+                                  <td></td>
+                                  <td></td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!------listing-wrapper END-------->
+  </div>
+  <!------Page-wrapper END-------->
+  <%- include('partials/linkfooter.ejs') %>
+
+  <!-- Modal -->
+  <div class="modal fade" id="additemsModal" tabindex="-1" aria-labelledby="additemsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="additemsModalLabel">Add Item</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form action="">
+            <div class="row">
+              <div class="col-md-8">
+                <div class="row">
+                  <div class="col-md-4 col-lg-5">
+                    <div class="form-group">
+                      <input type="text" class="form-control" placeholder="Item Name *">
+                    </div>
+
+                    <div class="form-group mt-4">
+                      <select name="" class="form-control bg-white rounded-2">
+                        <option value="">Category</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="col-md-4 col-lg-5">
+                    <div class="form-group position-relative">
+                      <input type="text" class="form-control" placeholder="Item Name *">
+                      <span class="search-icon" style="left:auto;right:20px"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    </div>
+
+                    <div class="form-group position-relative mt-4">
+                      <input type="text" class="form-control" placeholder="Item Code">
+                      <span class="assign_code">Assign Code</span>
+                    </div>
+                  </div>
+                  <div class="col-md-4 col-lg-2">
+                    <button type="button" class="btn btn-primary w-100">Select Unit</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-4">
+
+              </div>
+            </div>
+          </form>
+
+          <div class="product_stock_tabs mt-5">
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home-tab-pane" type="button" role="tab" aria-controls="home-tab-pane" aria-selected="true">Pricing</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="false">Stock</button>
+              </li>
+            </ul>
+            <div class="tab-content" id="myTabContent">
+              <div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
+                <div class="mt-5">
+                  <p>Sale Price</p>
+                  <div class="row mt-4">
+                    <div class="col-md-4 col-lg-3">
+                      <div class="input-group">
+                        <input type="text" class="form-control w-50" placeholder="Sale Price">
+                        <select class="form-select w-50" id="inputGroupSelect03" aria-label="Example select with button addon">
+                          <option selected>Without Tax</option>
+                          <option value="1">With Tax</option>
+                          <option value="2">Two</option>
+                          <option value="3">Three</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div class="col-md-4 col-lg-3">
+                      <div class="input-group">
+                        <input type="text" class="form-control w-50" placeholder="Disc On Sale Price">
+                        <select class="form-select w-50" id="inputGroupSelect03" aria-label="Example select with button addon">
+                          <option selected>Percentage</option>
+                          <option value="1">With Tax</option>
+                          <option value="2">Two</option>
+                          <option value="3">Three</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mt-4">
+                    <a href="#" class="btn btn-default bg-white border-0 text-info"><span class=""><i class="fa-solid fa-plus"></i></span> Add Wholesale Price</a>
+                  </div>
+
+                  <div class="purchase_pricing">
+                    <div class="row mt-4">
+                      <div class="col-md-4 col-lg-3">
+                        <p>Purchase Price</p>
+                        <div class="input-group mt-4">
+                          <input type="text" class="form-control w-50" placeholder="Purchase Price">
+                          <select class="form-select w-50" id="inputGroupSelect03" aria-label="Example select with button addon">
+                            <option selected>Without Tax</option>
+                            <option value="1">With Tax</option>
+                            <option value="2">Two</option>
+                            <option value="3">Three</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="col-md-4 col-lg-3">
+                        <p>Taxes</p>
+                        <div class="input-group mt-4">
+                          <select class="form-select w-50" id="inputGroupSelect03" aria-label="Example select with button addon">
+                            <option selected>None</option>
+                            <option value="1">With Tax</option>
+                            <option value="2">Two</option>
+                            <option value="3">Three</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="tab-pane fade" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
+                <div class="stocks_form mt-5">
+                  <div class="row">
+                    <div class="col-md-4 col-lg-3 mt-4 mt-lg-0">
+                      <div class="form-group">
+                        <label class="mb-2">Opening Quantity</label>
+                        <input type="text" class="form-control" placeholder="Opening Quantity">
+                      </div>
+                    </div>
+                    <div class="col-md-4 col-lg-3 mt-4 mt-lg-0">
+                      <div class="form-group">
+                        <label class="mb-2">At Price</label>
+                        <input type="text" class="form-control" placeholder="At Price">
+                      </div>
+                    </div>
+                    <div class="col-md-4 col-lg-3 mt-4 mt-lg-0">
+                      <div class="form-group">
+                        <label class="mb-2">As of Date</label>
+                        <input type="date" class="form-control" placeholder="DD/MM/YYYY">
+                      </div>
+                    </div>
+
+                    <div class="col-md-4 col-lg-3 mt-4 mt-lg-0">
+                      <div class="form-group">
+                        <label class="mb-2">Stock to Maintain</label>
+                        <input type="text" class="form-control" placeholder="Min Stock to Maintain">
+                      </div>
+                    </div>
+
+                    <div class="col-md-4 col-lg-3 mt-4">
+                      <div class="form-group">
+                        <label class="mb-2">Location</label>
+                        <input type="text" class="form-control" placeholder="Location">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-end pt-4">
+            <button type="button" class="btn btn-default bg-white border-0" data-bs-dismiss="modal">Save & New</button>
+            <button type="button" class="btn btn-primary ms-3">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

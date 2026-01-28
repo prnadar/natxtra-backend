@@ -1,0 +1,186 @@
+<% 
+  // Helper function to check permissions
+  const hasPermission = (module, permissionType = 'manage') => {
+    // Admins have all permissions
+    if (typeof isAdmin !== 'undefined' && isAdmin) return true;
+    // Check if user has the module and the specific permission
+    return typeof userPermissions !== 'undefined' && userPermissions && userPermissions[module] && userPermissions[module][permissionType];
+  };
+%>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EZ Door || Process Orders</title>
+  <%- include('partials/linkheader.ejs') %>
+</head>
+
+<body>
+  <span id="pageId" style="display:none;">order</span>
+  <div class="page-wrapper">
+    <section class="listing-wrapper distributer-wrapper position-relative vh-100">
+      <div class="container-fluid px-0 h-100">
+        <div class="row mx-0 h-100">
+          <div class="col-md-12 px-0">
+            <div class="h-100">
+              <%- include('partials/sidebar.ejs') %>
+              <div class="right-side-block">
+                <%- include('partials/header.ejs') %>
+
+                <div class="card border-0 bg-transparent">
+                  <div class="card-body p-0">
+                    <h4>Process Orders</h4>
+                    <div class="distributor-table table-responsive bg-white mt-4">
+                      <table class="table">
+                        <thead>
+                          <tr>
+                            <th>SL</th>
+                            <th>OrderId</th>
+                            <th>User</th>
+                            <th>Products</th>
+                            <th>Size</th>
+                            <th>Quantity</th>
+                            <th>Total Amount</th>
+                            <th>Payment Method</th>
+                            <th>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <% if (!orders[0]) { %>
+                                <tr>
+                                  <td colspan="100%">No Data</td>
+                                </tr>
+                                <% } else {%> <%
+                                orders.forEach(function(orders,index){%>
+                          <tr>
+                            <td><%= index + 1 %></td>
+                            <td>
+                              <%= orders.orderId %>
+                            </td>
+                            <td>
+                              <%= orders.user_id ? orders.user_id.name : '--' %>
+                            </td>
+                            <td>
+                              <figure class="m-0">
+                                 <% if (orders?.product_id?.image) { %>
+                                  <img
+                                    src="../../uploads/product/<%= orders?.product_id?.image %>"
+                                    alt="Product Image"
+                                    class="img-fluid"
+                                    style="width: 45px; height: 45px;"
+                                  />
+                                  <% } else { %>
+                                  <img
+                                    src="../../admin/images/logo.png"
+                                    alt="No Image"
+                                    class="img-fluid"
+                                    style="width: 45px; height: 45px;"
+                                  />
+                                  <% } %>
+                              </figure>
+                            </td>
+                            <td>
+                              <%= orders.size ? orders.size : '--' %>
+                            </td>
+                            <td>
+                              <%= orders.quantity %>
+                            </td>
+                            <td>
+                              <%= orders.sub_total %>
+                            </td>
+                            <td>
+                              <%= orders.payment_mode %>
+                            </td>
+                            <td>
+                              <span class="badge bg-primary text-white">
+                                <%= orders.status.charAt(0).toUpperCase() + orders.status.slice(1) %>
+                              </span>
+                            </td>
+                          </tr>
+                           <% });} %>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!------listing-wrapper END-------->
+  </div>
+  <!------Page-wrapper END-------->
+  <%- include('partials/linkfooter.ejs') %>
+
+  <!-- Modal -->
+  <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <!-- <div class="modal-header">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div> -->
+        <div class="modal-body">
+          <div class="text-center">
+            <div class="cicle-exclamation text-danger"><i class="fa-solid fa-exclamation"></i></div>
+            <h4>Are you Sure ?</h4>
+            <p>You won't be able to revert this!</p>
+
+            <div class="text-center mt-4">
+              <button type="button" class="btn btn-primary bg-info border-0">Yes, delete it</button>
+              <button type="button" class="btn btn-danger ms-2" data-bs-dismiss="modal">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Change Status</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group mb-0">
+            <label for="">Status</label>
+            <input type="text" class="form-control" placeholder="Pending">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary bg-info border-0">Update</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    $(document).ready(function() {
+      var table = $('#example').DataTable({
+        select: false,
+        "columnDefs": [{
+          className: "Name",
+          "targets": [0],
+          "visible": false,
+          "searchable": false
+        }]
+      }); //End of create main table
+
+
+      $('#example tbody').on('click', 'tr', function() {
+
+        alert(table.row(this).data()[0]);
+
+      });
+    });
+  </script>
+</body>
+
+</html>

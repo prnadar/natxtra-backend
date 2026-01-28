@@ -1,0 +1,722 @@
+<% 
+  // Helper function to check permissions
+  const hasPermission = (module, permissionType = 'manage') => {
+    // Admins have all permissions
+    if (typeof isAdmin !== 'undefined' && isAdmin) return true;
+    // Check if user has the module and the specific permission
+    return typeof userPermissions !== 'undefined' && userPermissions && userPermissions[module] && userPermissions[module][permissionType];
+  };
+%>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EZ Door || HRMS Dashboard</title>
+    <%- include('partials/linkheader.ejs') %>
+  </head>
+  <style>
+    .leave_topbar h4 {
+      font-size: 18px;
+      line-height: 24px;
+    }
+
+    .leave_topbar a.btn.btn-primary {
+      white-space: nowrap;
+    }
+  </style>
+
+  <body>
+    <div class="page-wrapper">
+      <!------Header END-------->
+
+      <section
+        class="listing-wrapper distributer-wrapper position-relative vh-100"
+      >
+        <div class="container-fluid px-0 h-100">
+          <div class="row mx-0 h-100">
+            <div class="col-md-12 px-0">
+              <div class="h-100">
+                <%- include('partials/sidebar.ejs') %>
+                <div class="right-side-block">
+                  <%- include('partials/header.ejs') %>
+
+                  <div class="card border-0 bg-transparent">
+                    <div class="card-body p-0">
+                      <div class="bg-white">
+                        <div
+                          class="p-md-4 p-3 leave_topbar d-flex align-items-center justify-content-between"
+                        >
+                          <h4>Leave Management</h4>
+                          <% if (hasPermission('HR', 'create')) { %>
+                          <a
+                            href="#"
+                            class="btn btn-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#exampleModal"
+                            >Create New Leave</a
+                          >
+                          <% } %>
+                        </div>
+                        <div class="card-body p-0">
+                          <div class="distributor-table bg-white p-4">
+                            <div class="table-responsive">
+                              <table class="table">
+                                <thead>
+                                  <tr>
+                                    <th>Employee</th>
+                                    <th>Type</th>
+                                    <th>From</th>
+                                    <th>To</th>
+                                    <th>Status</th>
+                                    <% if (hasPermission('HR', 'edit') ||
+                                    hasPermission('HR', 'delete')) { %>
+                                    <th>Actions</th>
+                                    <% } %>
+                                  </tr>
+                                </thead>
+
+                                <tbody>
+                                  <% if (!leave[0]) { %>
+                                  <tr>
+                                    <td colspan="100%">No Data</td>
+                                  </tr>
+                                  <% } else {%> <%
+                                  leave.forEach(function(leave,index){%>
+                                  <tr>
+                                    <td><%= leave.user_id?.name %></td>
+                                    <td><%= leave.leave_type %></td>
+                                    <td><%= leave.start_date %></td>
+                                    <td><%= leave.end_date %></td>
+                                    <!-- <td>
+                                  <label class="pending-label">
+                                    <%= leave.status %>
+                                  </label>
+                                </td> -->
+                                    <td>
+                                      <span
+                                        id="status-badge-<%= leave._id %>"
+                                        class="badge <%= leave.status === 'approved' ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' %>"
+                                        data-id="<%= leave._id %>"
+                                        data-status="<%= leave.status %>"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="top"
+                                        title="Click to change status"
+                                        style="cursor: pointer"
+                                      >
+                                        <%= leave.status === 'approved' ?
+                                        'Approved' : 'Pending' %>
+                                      </span>
+                                    </td>
+                                    <% if (hasPermission('HR', 'edit') ||
+                                    hasPermission('HR', 'delete')) { %>
+                                    <td>
+                                      <div class="">
+                                        <% if (hasPermission('HR', 'edit')) { %>
+                                        <a
+                                          href="#"
+                                          class="btn btn-primary text-white edit-btn"
+                                          data-model="<%= JSON.stringify(leave) %>"
+                                          id="edit_btn"
+                                          data-bs-toggle="modal"
+                                          data-bs-target="#editleaveModal"
+                                          >Edit</a
+                                        >
+
+                                        <% } %> <% if (hasPermission('HR',
+                                        'delete')) { %>
+                                        <a
+                                          href="#"
+                                          class="delete-btn red-status text-black bg-transparent btn btn-default ms-2"
+                                          data-id="<%=leave._id%>"
+                                          >Delete</a
+                                        >
+                                        <% } %>
+                                      </div>
+                                    </td>
+                                    <% } %>
+                                  </tr>
+                                  <% });} %>
+                                </tbody>
+                              </table>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between">
+  <p>
+    Showing
+    <%= Math.min(currentPage * pageSize, totalItems) %>
+    of
+    <%= totalItems %>
+    entries
+  </p>
+
+  <nav aria-label="Page navigation">
+    <ul class="pagination mb-0">
+
+      <!-- Previous Button -->
+      <li class="page-item <%= currentPage <= 1 ? 'disabled' : '' %>">
+        <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
+      </li>
+
+      <% 
+        let startPage = Math.max(1, currentPage - 1);
+        let endPage = Math.min(totalPages, startPage + 2);
+
+        // Adjust startPage if we're near the end
+        if (endPage - startPage < 2) {
+          startPage = Math.max(1, endPage - 2);
+        }
+      %>
+
+      <% for (let i = startPage; i <= endPage; i++) { %>
+        <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+          <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+        </li>
+      <% } %>
+
+      <!-- Next Button -->
+      <li class="page-item <%= currentPage >= totalPages ? 'disabled' : '' %>">
+        <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
+      </li>
+    </ul>
+  </nav>
+</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!------listing-wrapper END-------->
+    </div>
+    <!------Page-wrapper END-------->
+    <%- include('partials/linkfooter.ejs') %>
+
+    <!-- Modal -->
+    <div
+      class="modal fade"
+      id="exampleModal"
+      tabindex="-1"
+      aria-labelledby="exampleModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">
+              Create New Leave
+            </h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+
+          <div class="modal-body">
+            <form id="addleaveForm">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="">Leave Type</label>
+                    <select
+                      name="leave_type"
+                      id="leave_type"
+                      class="form-control"
+                    >
+                      <option value="casual_leave">Casual Leave</option>
+                      <option value="annual_leave">Annual Leave</option>
+                      <option value="sick_leave">Sick Leave</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="">User<span class="text-danger">*</span></label>
+                    <select
+                      name="user_id"
+                      class="form-control js-states"
+                      id="user_id"
+                    >
+                      <option value="">Select User</option>
+                      <% users.forEach(user => { %>
+                      <option value="<%= user._id %>"><%= user.name %></option>
+                      <% }) %>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for=""
+                      >Start Date<span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="date"
+                      name="start_date"
+                      id="start_date"
+                      class="form-control"
+                    />
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for=""
+                      >End Date<span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="date"
+                      name="end_date"
+                      id="end_date"
+                      class="form-control"
+                    />
+                  </div>
+                </div>
+
+                <div class="col-md-12 mt-4">
+                  <div class="form-group">
+                    <label for=""
+                      >Leave Reason<span class="text-danger">*</span></label
+                    >
+                    <textarea
+                      name="reason"
+                      id="reason"
+                      class="form-control"
+                      placeholder="write your reason here"
+                      style="height: 130px"
+                    ></textarea>
+                  </div>
+                </div>
+
+                <div class="col-md-12 mt-4">
+                  <div class="form-group">
+                    <label for="">Remarks</label>
+                    <textarea
+                      name="remarks"
+                      id="remarks"
+                      class="form-control"
+                      placeholder="write your remarks here"
+                      style="height: 130px"
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer text-end">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Close
+                </button>
+                <button type="submit" id="add-btn" class="btn btn-primary">
+                  Create
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div
+      class="modal fade"
+      id="editleaveModal"
+      tabindex="-1"
+      aria-labelledby="editleaveModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="editleaveModalLabel">
+              Edit Leave
+            </h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+
+          <div class="modal-body">
+            <form id="editform">
+              <div class="row">
+                <input type="text" name="editid" hidden id="editid" />
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="">Leave Type</label>
+                    <select
+                      name="edit_leave_type"
+                      id="edit_leave_type"
+                      class="form-control"
+                    >
+                      <option value="casual_leave">Casual Leave</option>
+                      <option value="annual_leave">Annual Leave</option>
+                      <option value="sick_leave">Sick Leave</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="">User<span class="text-danger">*</span></label>
+                    <select
+                      name="edit_user_id"
+                      class="form-control js-states"
+                      id="edit_user_id"
+                    >
+                      <option value="">Select User</option>
+                      <% users.forEach(user => { %>
+                      <option value="<%= user._id %>"><%= user.name %></option>
+                      <% }) %>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for=""
+                      >Start Date<span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="date"
+                      name="edit_start_date"
+                      id="edit_start_date"
+                      class="form-control"
+                    />
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for=""
+                      >End Date<span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="date"
+                      name="edit_end_date"
+                      id="edit_end_date"
+                      class="form-control"
+                    />
+                  </div>
+                </div>
+
+                <div class="col-md-12 mt-4">
+                  <div class="form-group">
+                    <label for=""
+                      >Leave Reason<span class="text-danger">*</span></label
+                    >
+                    <textarea
+                      name="edit_reason"
+                      id="edit_reason"
+                      class="form-control"
+                      placeholder=""
+                      style="height: 130px"
+                    ></textarea>
+                  </div>
+                </div>
+
+                <div class="col-md-12 mt-4">
+                  <div class="form-group">
+                    <label for="">Remarks</label>
+                    <textarea
+                      name="edit_remarks"
+                      id="edit_remarks"
+                      class="form-control"
+                      placeholder=""
+                      style="height: 130px"
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer text-end">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Close
+                </button>
+                <button type="submit" id="edit-btn" class="btn btn-primary">
+                  Save
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      //#region Add leave
+      var addleaveForm = $("#addleaveForm");
+      addleaveForm.on("submit", submitFormHandler);
+
+      function submitFormHandler(e) {
+        e.preventDefault();
+
+        var formData = getFormData(addleaveForm);
+
+        // Client-side validation
+        const requiredFields = [
+          { field: "user_id", label: "User" },
+          { field: "leave_type", label: "Leave Type" },
+          { field: "start_date", label: "Start Date" },
+          { field: "end_date", label: "End Date" },
+          { field: "reason", label: "Reason" },
+        ];
+
+        for (let { field, label } of requiredFields) {
+          const value = formData[field];
+          if (!value || value.trim() === "") {
+            renderToast({
+              message: `${label} is required.`,
+              icon: "error",
+            });
+            return;
+          }
+        }
+
+        // Optional: Validate date range
+        const start = new Date(formData.start_date);
+        const end = new Date(formData.end_date);
+        if (start > end) {
+          renderToast({
+            message: "End Date cannot be before Start Date.",
+            icon: "error",
+          });
+          return;
+        }
+
+        // Proceed with POST
+        $.ajax({
+          type: "POST",
+          processData: false,
+          contentType: "application/json",
+          url: "/admin/leave-add",
+          data: JSON.stringify(formData),
+          success: (res) => {
+            renderToast({
+              message: res.message,
+              icon: "success",
+            });
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          },
+          error: (res) => {
+            renderToast({
+              message: res.message,
+              icon: "error",
+            });
+            console.log(res);
+          },
+        });
+      }
+      //#endregion Add leave
+
+      //#region starts Edit leave
+      $(document).on("click", "#edit_btn", function (e) {
+        var data = $(this).attr("data-model");
+        leave = JSON.parse(data);
+
+        $("#editid").val(leave._id);
+        $("#edit_type").val(leave.type);
+        $("#edit_user_id").val(leave.user_id._id);
+        $("#edit_start_date").val(leave.start_date);
+        $("#edit_end_date").val(leave.end_date);
+        $("#edit_reason").val(leave.reason);
+        $("#edit_remarks").val(leave.remarks);
+      });
+
+      var editform = $("#editform");
+      editform.on("submit", editSubmitHandler);
+
+      function editSubmitHandler(e) {
+        e.preventDefault();
+
+        // Prepare form data
+        var formData = getFormData(editform);
+
+        // Client-side validation
+        const requiredFields = [
+          { field: "user_id", label: "User" },
+          { field: "leave_type", label: "Leave Type" },
+          { field: "start_date", label: "Start Date" },
+          { field: "end_date", label: "End Date" },
+          { field: "reason", label: "Reason" },
+        ];
+
+        for (let { field, label } of requiredFields) {
+          const value = formData[field];
+          if (!value || value.trim() === "") {
+            renderToast({
+              message: `${label} is required.`,
+              icon: "error",
+            });
+            return;
+          }
+        }
+
+        // Optional: Validate date range
+        const start = new Date(formData.start_date);
+        const end = new Date(formData.end_date);
+        if (start > end) {
+          renderToast({
+            message: "End Date cannot be before Start Date.",
+            icon: "error",
+          });
+          return;
+        }
+
+        // Perform AJAX request
+        $.ajax({
+          type: "POST",
+          url: "/admin/leave-edit",
+          contentType: "application/json",
+          processData: false,
+          data: JSON.stringify(formData),
+          success: (res) => {
+            renderToast({
+              message: res.message,
+              icon: "success",
+            });
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          },
+          error: (res) => {
+            renderToast({
+              message: res.message,
+              icon: "error",
+            });
+            console.log(res);
+          },
+        });
+      }
+
+      //#endregion Edit leave
+    </script>
+
+    <script>
+      let selectedLeave = [];
+      $(document).ready(function () {
+        $(".form-check-input").on("change", function () {
+          const value = $(this).val();
+          if ($(this).is(":checked")) {
+            if (!selectedLeave.includes(value)) {
+              selectedLeave.push(value);
+            }
+          } else {
+            // Remove value
+            selectedLeave = selectedLeave.filter((item) => item !== value);
+          }
+          if (selectedLeave.length == 0) {
+            $(".edit-btn").show();
+          } else {
+            $(".edit-btn").hide();
+          }
+        });
+
+        $(".delete-btn").on("click", function (e) {
+          const id = $(this).data("id");
+          if (selectedLeave.length == 0) {
+            if (confirm("Do you really want to delete this record")) {
+              $.ajax({
+                type: "POST",
+                contentType: "application/json",
+                url: "/admin/leave-delete",
+                data: JSON.stringify({
+                  id: id,
+                }),
+                success: (res) => {
+                  renderToast({
+                    message: res.message,
+                    icon: "success",
+                  });
+                  setTimeout(() => {
+                    window.location.reload();
+                  }, 1000);
+                },
+                error: (res) => {
+                  renderToast({
+                    message: res.message,
+                    icon: "error",
+                  });
+                  console.error(res);
+                },
+              });
+            }
+          } else {
+            $.ajax({
+              type: "POST",
+              contentType: "application/json",
+              url: "/admin/leaves-delete",
+              data: JSON.stringify(selectedLeave),
+              success: (res) => {
+                renderToast({
+                  message: res.message,
+                  icon: "success",
+                });
+                setTimeout(() => {
+                  window.location.reload();
+                }, 1000);
+              },
+              error: (res) => {
+                renderToast({
+                  message: res.message,
+                  icon: "error",
+                });
+                console.error(res);
+              },
+            });
+          }
+        });
+      });
+    </script>
+
+    <script>
+      // Update leave status on badge click
+      $(document).on("click", ".badge", function () {
+        const leaveId = $(this).data("id");
+        let currentStatus = $(this).data("status");
+        const newStatus = currentStatus === "pending" ? "approved" : "pending";
+
+        $.ajax({
+          url: "/admin/leave-update-status",
+          type: "POST",
+          data: {
+            leaveId: leaveId,
+            status: newStatus,
+          },
+          success: function (res) {
+            renderToast({
+              message: res.message,
+              icon: "success",
+            });
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          },
+          error: function (res) {
+            renderToast({
+              message: res.message,
+              icon: "error",
+            });
+            console.log(res);
+          },
+        });
+      });
+    </script>
+  </body>
+</html>

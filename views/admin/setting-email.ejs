@@ -1,0 +1,188 @@
+<% 
+  // Helper function to check permissions
+  const hasPermission = (module, permissionType = 'manage') => {
+    // Admins have all permissions
+    if (typeof isAdmin !== 'undefined' && isAdmin) return true;
+    // Check if user has the module and the specific permission
+    return typeof userPermissions !== 'undefined' && userPermissions && userPermissions[module] && userPermissions[module][permissionType];
+  };
+%>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EZ Door || Setting Email</title>
+  <%- include('partials/linkheader.ejs') %>
+</head>
+
+<body>
+  <div class="page-wrapper">
+    <section class="listing-wrapper distributer-wrapper position-relative vh-100">
+      <div class="container-fluid px-0 h-100">
+        <div class="row mx-0 h-100">
+          <div class="col-md-12 px-0">
+            <div class="h-100">
+              <%- include('partials/sidebar.ejs') %>
+              <div class="right-side-block">
+                <%- include('partials/header.ejs') %>
+
+                <div class="card border-0 bg-transparent">
+                  <div class="card-body p-0">
+                    <div class="p-4 bg-white rounded-3">
+                      <h4>Email Configuration</h4>
+                      <form id="emailForm">
+                        <div class="row">
+                          <div class="col-md-6 mt-4">
+                            <div class="form-group">
+                              <label for="">SMTP Server</label>
+                              <input type="text" class="form-control" id="host" name="host" placeholder="Enter Host" value="<%= host ? host : '' %>" />
+                            </div>
+                          </div>
+                          <div class="col-md-6 mt-4">
+                            <div class="form-group">
+                              <label for="">SMTP Port</label>
+                              <input type="text" class="form-control" id="port" name="port" placeholder="Enter Port" value="<%= port ? port : '' %>" />
+                            </div>
+                          </div>
+
+                          <div class="col-md-6 mt-4">
+                            <div class="form-group">
+                              <label for="">Email Address</label>
+                              <input type="text" class="form-control" id="mail_address" name="mail_address" placeholder="Enter Mail Address" value="<%= mail_address ? mail_address : '' %>" />
+                            </div>
+                          </div>
+                          <div class="col-md-6 mt-4">
+                            <div class="form-group">
+                              <label for="">Name</label>
+                              <input type="text" class="form-control" id="name" name="name" placeholder="Enter Name" value="<%= name ? name : '' %>" />
+                            </div>
+                          </div>
+                          <div class="col-md-6 mt-4">
+                            <div class="form-group">
+                              <label for="">Username</label>
+                              <input type="text" class="form-control" id="username" name="username" placeholder="Enter Username" value="<%= username ? username : '' %>" />
+                            </div>
+                          </div>
+
+                          <div class="col-md-6 mt-4">
+                            <div class="form-group">
+                              <label for="">Password</label>
+                              <input type="password" class="form-control" id="password" name="password" placeholder="Enter Password" value="<%= password ? password : '' %>" />
+                            </div>
+                          </div>
+                          <div class="col-lg-6 mt-4">
+                            <label for="encryption_type" class="form-label">Mail Encryption Type</label>
+                            <select class="form-control" id="secure" name="secure" value="<%= secure ? secure : '' %>">
+                              <option value="tsl" <%= secure == "tsl" ? "selected" : "" %>>TSL</option>
+                              <option value="ssl" <%= secure == "ssl" ? "selected" : "" %>>SSL</option>
+                            </select>
+                          </div>
+
+                          <% if (hasPermission('Setting', 'edit')) { %>
+                          <div class="col-md-6 ms-auto text-md-end text-center mt-4">
+                            <button type="submit" class="btn btn-primary">
+                              Save Changes
+                            </button>
+                          </div>
+                          <% } %>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!------listing-wrapper END-------->
+  </div>
+  <!------Page-wrapper END-------->
+  <%- include('partials/linkfooter.ejs') %>
+  <script>
+    //#region SMTP Config Add
+    var editform = $("#emailForm");
+    editform.submit(function(e) {
+      e.preventDefault();
+
+      //validation
+
+      if ($("#host").val() == "") {
+        renderToast({
+            message: "Host is required",
+            icon: "warning",
+          });
+          return false;
+      }
+      if ($("#port").val() == "") {
+        renderToast({
+            message: "Port is required",
+            icon: "warning",
+          });
+        return false;
+      }
+      if ($("#mail_address").val() == "") {
+        renderToast({
+            message: "Mail Address is required",
+            icon: "warning",
+          });
+        return false;
+      }
+      if ($("#name").val() == "") {
+        renderToast({
+            message: "Name is required",
+            icon: "warning",
+          });
+        return false;
+      }
+      if ($("#username").val() == "") {
+        renderToast({
+            message: "Username is required",
+            icon: "warning",
+          });
+        return false;
+      }
+      if ($("#secure").val() == "") {
+        renderToast({
+            message: "Mail Encryption Type is required",
+            icon: "warning",
+          });
+        return false;
+      }
+
+      if ($("#password").val() == "") {
+        renderToast({
+            message: "Password is required",
+            icon: "warning",
+          });
+        return false;
+      }
+
+      var formData = getFormData(editform);
+
+      $.ajax({
+        type: "POST",
+        url: "/admin/smtp_config_add",
+        data: formData,
+        success: (res) => {
+          renderToast({
+            message: res.message,
+            icon: "success"
+          });
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        },
+        error: (res) => {
+          console.error(res);
+        },
+      });
+    });
+    //#endregion SMTP Config Add
+  </script>
+</body>
+
+</html>

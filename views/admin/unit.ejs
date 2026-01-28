@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EZ Door || Unit</title>
+    <%- include('partials/linkheader.ejs') %>
+  </head>
+
+  <body>
+    <span id="pageId" style="display: none">Unit</span>
+    <div class="page-wrapper">
+      <!------Header END-------->
+
+      <section
+        class="listing-wrapper distributer-wrapper position-relative vh-100"
+      >
+        <div class="container-fluid px-0 h-100">
+          <div class="row mx-0 h-100">
+            <div class="col-md-12 px-0">
+              <div class="h-100">
+                <%- include('partials/sidebar.ejs') %>
+                <div class="right-side-block">
+                  <%- include('partials/header.ejs') %>
+
+                  <div class="card border-0 bg-transparent">
+                    <div class="card-body p-0">
+                      <div class="bg-white">
+                        <div
+                          class="d-flex align-items-center justify-content-between p-4"
+                        >
+                          <h4 class="title-head">Unit List</h4>
+                          <a
+                            href=""
+                            class="btn btn-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#newunitModal"
+                            >Add Unit</a
+                          >
+                        </div>
+                        <div class="distributor-table">
+                          <div class="table-responsive">
+                            <table class="table bg-white w-100">
+                              <thead>
+                                <tr>
+                                  <th>Sr.</th>
+                                  <th>Name</th>
+                                  <th>Actions</th>
+                                </tr>
+                              </thead>
+                              <tbody class="text-center">
+                                <% if (!units[0]) { %>
+                                <tr>
+                                  <td colspan="100%">No Data</td>
+                                </tr>
+                                <% } else {%> <%
+                                units.forEach(function(unit,index){%>
+                                <tr>
+                                  <td><%= index + 1 %></td>
+                                  <td><%= unit.name %></td>
+                                  <td>
+                                    <a
+                                      href="#"
+                                      class="btn btn-primary text-white edit-btn"
+                                      data-model="<%= JSON.stringify(unit) %>"
+                                      id="edit_btn"
+                                      data-bs-toggle="modal"
+                                      data-bs-target="#editunitModal"
+                                      >Edit</a
+                                    >
+                                    <a
+                                      href="#"
+                                      class="delete-btn red-status text-black bg-transparent btn btn-default ms-2"
+                                      data-id="<%=unit._id%>"
+                                      >Delete</a
+                                    >
+                                  </td>
+                                </tr>
+                                <% });} %>
+                              </tbody>
+                            </table>
+                          </div>
+                          <div
+                            class="d-flex align-items-center justify-content-between"
+                          >
+                            <p>
+                              Showing <%= Math.min(currentPage * pageSize,
+                              totalItems) %> of <%= totalItems %> entries
+                            </p>
+
+                            <nav aria-label="Page navigation">
+                              <ul class="pagination mb-0">
+                                <!-- Previous Button -->
+                                <li
+                                  class="page-item <%= currentPage <= 1 ? 'disabled' : '' %>"
+                                >
+                                  <a
+                                    class="page-link"
+                                    href="?page=<%= currentPage - 1 %>"
+                                    >Previous</a
+                                  >
+                                </li>
+
+                                <<% let startPage = Math.max(1, currentPage - 1);
+                                let endPage = Math.min(totalPages, startPage +2); 
+                                // Adjust startPage if we're near the end 
+                                if (endPage - startPage < 2) { startPage = Math.max(1, endPage - 2); } %> 
+                                <% for (let i = startPage; i <= endPage; i++) { %>
+                                <li
+                                  class="page-item <%= i === currentPage ? 'active' : '' %>"
+                                >
+                                  <a class="page-link" href="?page=<%= i %>"
+                                    ><%= i %></a
+                                  >
+                                </li>
+                                <% } %>
+
+                                <!-- Next Button -->
+                                <li
+                                  class="page-item <%= currentPage >= totalPages ? 'disabled' : '' %>"
+                                >
+                                  <a
+                                    class="page-link"
+                                    href="?page=<%= currentPage + 1 %>"
+                                    >Next</a
+                                  >
+                                </li>
+                              </ul>
+                            </nav>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!------listing-wrapper END-------->
+    </div>
+    <!------Page-wrapper END-------->
+    <%- include('partials/linkfooter.ejs') %>
+
+    <!-- Add role Modal -->
+    <div
+      class="modal fade"
+      id="newunitModal"
+      tabindex="-1"
+      aria-labelledby="newunitModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title" id="newunitModalLabel">Create New Unit</h3>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="addUnitForm">
+              <div class="row align-items-center">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="">Name</label>
+                    <input
+                      type="text"
+                      id="name"
+                      class="form-control"
+                      name="name"
+                      placeholder="Enter name"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-12 mt-4">
+                <div class="text-end">
+                  <button
+                    type="submit"
+                    id="add-btn"
+                    class="btn btn-primary ms-2"
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Role Modal -->
+    <div
+      class="modal fade"
+      id="editunitModal"
+      tabindex="-1"
+      aria-labelledby="editunitModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title" id="editunitModalLabel">Edit New Unit</h3>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="editform">
+              <div class="row align-items-center">
+                <input type="text" name="editid" hidden id="editid" />
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="">Name</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      name="edit_name"
+                      id="edit_name"
+                      placeholder="Enter name"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-12 mt-4">
+                  <div class="text-end">
+                    <button
+                      type="submit"
+                      id="edit-btn"
+                      class="btn btn-primary ms-2"
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      //#region Add Category
+      var addformUnit = $("#addUnitForm");
+      addformUnit.on("submit", submitFormHandler);
+
+      function submitFormHandler(e) {
+        e.preventDefault();
+
+        var formData = getFormData(addformUnit);
+        // DO POST
+        $.ajax({
+          type: "POST",
+          processData: false,
+          contentType: "application/json",
+          url: "/admin/unit-add",
+          data: JSON.stringify(formData),
+          success: (res) => {
+            renderToast({
+              message: res.message,
+              icon: "success",
+            });
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          },
+          error: (res) => {
+            renderToast({
+              message: res.message,
+              icon: "error",
+            });
+            console.log(res);
+          },
+        });
+      }
+      //#endregion Add unit
+
+      //#region starts Edit unit
+      $(document).on("click", "#edit_btn", function (e) {
+        var data = $(this).attr("data-model");
+        unit = JSON.parse(data);
+
+        $("#editid").val(unit._id);
+        $("#edit_name").val(unit.name);
+      });
+
+      var editform = $("#editform");
+      editform.on("submit", editSubmitHandler);
+
+      function editSubmitHandler(e) {
+        e.preventDefault();
+        // Prepare form data
+        var formData = getFormData(editform);
+
+        // Perform AJAX request
+        $.ajax({
+          type: "POST",
+          url: "/admin/unit-edit",
+          contentType: "application/json",
+          processData: false,
+          data: JSON.stringify(formData),
+          success: (res) => {
+            renderToast({
+              message: res.message,
+              icon: "success",
+            });
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          },
+          error: (res) => {
+            renderToast({
+              message: res.message,
+              icon: "error",
+            });
+            console.log(res);
+          },
+        });
+      }
+
+      //#endregion Edit unit
+    </script>
+
+    <script>
+      let selectedUnit = [];
+      $(document).ready(function () {
+        $(".form-check-input").on("change", function () {
+          const value = $(this).val();
+          if ($(this).is(":checked")) {
+            if (!selectedUnit.includes(value)) {
+              selectedUnit.push(value);
+            }
+          } else {
+            // Remove value
+            selectedUnit = selectedUnit.filter((item) => item !== value);
+          }
+          if (selectedUnit.length == 0) {
+            $(".edit-btn").show();
+          } else {
+            $(".edit-btn").hide();
+          }
+        });
+
+        $(".delete-btn").on("click", function (e) {
+          const id = $(this).data("id");
+          if (selectedUnit.length == 0) {
+            if (confirm("Do you really want to delete this record")) {
+              $.ajax({
+                type: "POST",
+                contentType: "application/json",
+                url: "/admin/unit-delete",
+                data: JSON.stringify({
+                  id: id,
+                }),
+                success: (res) => {
+                  renderToast({
+                    message: res.message,
+                    icon: "success",
+                  });
+                  setTimeout(() => {
+                    window.location.reload();
+                  }, 1000);
+                },
+                error: (res) => {
+                  renderToast({
+                    message: res.message,
+                    icon: "error",
+                  });
+                  console.error(res);
+                },
+              });
+            }
+          } else {
+            $.ajax({
+              type: "POST",
+              contentType: "application/json",
+              url: "/admin/units-delete",
+              data: JSON.stringify(selectedUnit),
+              success: (res) => {
+                renderToast({
+                  message: res.message,
+                  icon: "success",
+                });
+                setTimeout(() => {
+                  window.location.reload();
+                }, 1000);
+              },
+              error: (res) => {
+                renderToast({
+                  message: res.message,
+                  icon: "error",
+                });
+                console.error(res);
+              },
+            });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

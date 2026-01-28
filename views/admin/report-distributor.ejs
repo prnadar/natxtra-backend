@@ -1,0 +1,326 @@
+<% 
+  // Helper function to check permissions
+  const hasPermission = (module, permissionType = 'manage') => {
+    // Admins have all permissions
+    if (typeof isAdmin !== 'undefined' && isAdmin) return true;
+    // Check if user has the module and the specific permission
+    return typeof userPermissions !== 'undefined' && userPermissions && userPermissions[module] && userPermissions[module][permissionType];
+  };
+%>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EZ Door || Report Distributor</title>
+  <%- include('partials/linkheader.ejs') %>
+</head>
+
+<body>
+  <div class="page-wrapper">
+    <section class="listing-wrapper distributer-wrapper position-relative vh-100">
+      <div class="container-fluid px-0 h-100">
+        <div class="row mx-0 h-100">
+          <div class="col-md-12 px-0">
+            <div class="h-100">
+              <%- include('partials/sidebar.ejs') %>
+                <div class="right-side-block">
+                  <%- include('partials/header.ejs') %>
+
+                    <div class="card border-0 bg-transparent">
+                      <div class="card-body p-0">
+                        <div class="bg-white">
+                          <h4 class="p-md-4 p-3 border-bottom">
+                            <strong>Custom Report Generator</strong>
+                          </h4>
+                          <div class="p-md-4 p-3">
+                            <form id="addForm">
+                              <div class="row">
+                                <div class="col-md-3">
+                                  <div class="form-group">
+                                    <label for="">Report Type</label>
+                                    <select name="report_type" id="report_type" class="form-control">
+                                      <option value="distributor">
+                                        Distributor Report
+                                      </option>
+                                    </select>
+                                  </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                  <div class="form-group">
+                                    <label for="">All Distributors</label>
+                                    <select name="distributor" class="form-control" id="distributorSelect">
+                                      <option value="">Select Distributor</option>
+                                      <% distributors.forEach(distributor=> { %>
+                                        <option value="<%= distributor._id %>">
+                                          <%= distributor.name %>
+                                        </option>
+                                        <% }) %>
+                                    </select>
+                                  </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                  <div class="form-group">
+                                    <label for="state">State</label>
+                                    <select id="state" name="state" class="form-control">
+                                      <option value="">Select State</option>
+                                      <option value="Andhra Pradesh">Andhra Pradesh</option>
+                                      <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                                      <option value="Assam">Assam</option>
+                                      <option value="Bihar">Bihar</option>
+                                      <option value="Chhattisgarh">Chhattisgarh</option>
+                                      <option value="Goa">Goa</option>
+                                      <option value="Gujarat">Gujarat</option>
+                                      <option value="Haryana">Haryana</option>
+                                      <option value="Himachal Pradesh">Himachal Pradesh</option>
+                                      <option value="Jharkhand">Jharkhand</option>
+                                      <option value="Karnataka">Karnataka</option>
+                                      <option value="Kerala">Kerala</option>
+                                      <option value="Madhya Pradesh">Madhya Pradesh</option>
+                                      <option value="Maharashtra">Maharashtra</option>
+                                      <option value="Manipur">Manipur</option>
+                                      <option value="Meghalaya">Meghalaya</option>
+                                      <option value="Mizoram">Mizoram</option>
+                                      <option value="Nagaland">Nagaland</option>
+                                      <option value="Odisha">Odisha</option>
+                                      <option value="Punjab">Punjab</option>
+                                      <option value="Rajasthan">Rajasthan</option>
+                                      <option value="Sikkim">Sikkim</option>
+                                      <option value="Tamil Nadu">Tamil Nadu</option>
+                                      <option value="Telangana">Telangana</option>
+                                      <option value="Tripura">Tripura</option>
+                                      <option value="Uttar Pradesh">Uttar Pradesh</option>
+                                      <option value="Uttarakhand">Uttarakhand</option>
+                                      <option value="West Bengal">West Bengal</option>
+                                      <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
+                                      <option value="Chandigarh">Chandigarh</option>
+                                      <option value="Dadra and Nagar Haveli and Daman and Diu">Dadra and Nagar Haveli
+                                        and Daman and Diu</option>
+                                      <option value="Delhi">Delhi</option>
+                                      <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+                                      <option value="Ladakh">Ladakh</option>
+                                      <option value="Lakshadweep">Lakshadweep</option>
+                                      <option value="Puducherry">Puducherry</option>
+                                    </select>
+                                  </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                  <div class="form-group">
+                                    <label for="">Zone Wise</label>
+                                    <select name="zone" class="form-control" id="zoneSelect">
+                                      <option value="">Select Zone</option>
+                                      <option value="north">North</option>
+                                      <option value="south">South</option>
+                                      <option value="east">East</option>
+                                      <option value="west">West</option>
+                                    </select>
+                                  </div>
+                                </div>
+
+                                <div class="col-md-3 my-4">
+                                  <div class="form-group">
+                                    <label for="">Distributors/Dealer Wise</label>
+                                    <select name="distributor_type" id="distributor_type" class="form-control">
+                                      <option value="">Select</option>
+                                      <% role.forEach(r=> { %>
+                                        <option value="<%= r._id %>" <%=r._id.toString()===selectedDistributorType
+                                          ? "selected" : "" %>>
+                                          <%= r.name %>
+                                        </option>
+                                        <% }); %>
+                                    </select>
+                                  </div>
+                                </div>
+                                <div class="col-md-4 my-4">
+                                  <div class="form-group">
+                                    <label for="date_range_from">Date Range</label>
+                                    <div class="d-flex align-items-start">
+                                      <input type="date" class="form-control" name="date_range_from"
+                                        id="date_range_from" value="<%= today %>" />
+                                      <input type="date" class="form-control ms-3" name="date_range_to"
+                                        id="date_range_to" value="<%= today %>" />
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="col-md-12 text-end">
+                                  <button type="button" id="generateBtn" class="btn btn-primary">
+                                    Generate Report
+                                  </button>
+                                </div>
+                              </div>
+                            </form>
+                          </div>
+                        </div>
+                        <div class="bg-white p-4 mt-4">
+                          <h4>Distributor Reports</h4>
+                          <div class="distributor-table mt-4">
+                            <div class="table-responsive">
+                              <table class="table">
+                                <thead>
+                                  <tr>
+                                    <th>Report type</th>
+                                    <th>Generated On</th>
+                                    <th>Distributor</th>
+                                    <th>State</th>
+                                    <th>Zone</th>
+                                    <th>Distributors/Dealer Wise</th>
+                                    <th>Actions</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <% if (!report[0]) { %>
+                                    <tr>
+                                      <td colspan="100%">No Data</td>
+                                    </tr>
+                                    <% } else {%>
+                                      <% report.forEach(report=> { %>
+                                        <tr>
+                                          <td>
+                                            <%= report.report_type %>
+                                          </td>
+                                          <td>
+                                            <%= new Date(report.createdAt).toLocaleDateString() %>
+                                          </td>
+                                          <td>
+                                            <%= report.distributor ? report.distributor.name : '--' %>
+                                          </td>
+                                          <td>
+                                            <%= report.state || '--' %>
+                                          </td>
+                                          <td>
+                                            <%= report.zone || '--' %>
+                                          </td>
+                                          <td>
+                                            <%= report.distributor_type ? report.distributor_type.name : '--' %>
+                                          </td>
+                                          <td>
+                                            <a href="/admin/download-distributor-report/<%= report._id %>"
+                                              class="text-info downloadReport">Download</a>
+                                          </td>
+                                        </tr>
+                                        <% });} %>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!------listing-wrapper END-------->
+  </div>
+  <!------Page-wrapper END-------->
+  <%- include('partials/linkfooter.ejs') %>
+
+    <script>
+      // Generate Distributor Report
+      document.getElementById("generateBtn")?.addEventListener("click", async () => {
+        const report_type = document.getElementById("report_type").value.trim();
+        const date_range_from = document.getElementById("date_range_from").value.trim();
+        const date_range_to = document.getElementById("date_range_to").value.trim();
+        const distributor = document.getElementById("distributorSelect").value.trim();
+        const state = document.getElementById("state").value.trim();
+        const zone = document.getElementById("zoneSelect").value.trim();
+        const distributor_type = document.getElementById("distributor_type").value.trim();
+
+        // Check filters
+        const filters = [distributor, state, zone, distributor_type].filter(v => v !== "");
+        if (filters.length > 1) {
+          renderToast({
+            icon: "warning",
+            message: "Please select only one filter (Distributor, State, Zone, or Distributor Type)"
+          });
+          return false;
+        }
+        if (filters.length === 0) {
+          renderToast({
+            icon: "warning",
+            message: "Please select at least one filter"
+          });
+          return false;
+        }
+
+        try {
+          const res = await fetch("/admin/distributor-report-generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              report_type,
+              date_range_from,
+              date_range_to,
+              distributor,
+              state,
+              zone,
+              distributor_type
+            }),
+          });
+
+          const result = await res.json();
+          if (result.success) {
+            renderToast({
+              icon: "success",
+              message: "Distributor Report generated successfully",
+            });
+            location.reload();
+          } else {
+            renderToast({
+              icon: "error",
+              message: result.message || "Error generating report",
+            });
+          }
+        } catch (err) {
+          console.error(err);
+          renderToast({
+            icon: "error",
+            message: err.message || "Error generating report",
+          });
+        }
+      });
+
+      // Download Distributor Report
+      $(document).ready(function () {
+        $(".downloadReport").on("click", function (e) {
+          e.preventDefault();
+          const url = $(this).attr("href");
+          const btn = $(this);
+
+          btn.text("Generating...");
+          fetch(url)
+            .then((response) => {
+              if (!response.ok) throw new Error("Failed to download report");
+              return response.blob();
+            })
+            .then((blob) => {
+              const link = document.createElement("a");
+              link.href = window.URL.createObjectURL(blob);
+              link.download = "distributor_report.pdf";
+              window.open(link.href, "_blank");
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              btn.text("Download");
+            })
+            .catch((error) => {
+              renderToast({
+                icon: "error",
+                message: error.message || "Error downloading report",
+              });
+              btn.text("Download");
+            });
+        });
+      });
+    </script>
+
+
+</body>
+
+</html>

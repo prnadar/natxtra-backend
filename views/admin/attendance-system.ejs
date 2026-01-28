@@ -1,0 +1,296 @@
+<% 
+  // Helper function to check permissions
+  const hasPermission = (module, permissionType = 'manage') => {
+    // Admins have all permissions
+    if (typeof isAdmin !== 'undefined' && isAdmin) return true;
+    // Check if user has the module and the specific permission
+    return typeof userPermissions !== 'undefined' && userPermissions && userPermissions[module] && userPermissions[module][permissionType];
+  };
+%>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EZ Door || HRMS Attendance</title>
+  <%- include('partials/linkheader.ejs') %>
+</head>
+
+<body>
+  <div class="page-wrapper">
+    <!------Header END-------->
+
+    <section class="listing-wrapper distributer-wrapper position-relative vh-100">
+      <div class="container-fluid px-0 h-100">
+        <div class="row mx-0 h-100">
+          <div class="col-md-12 px-0">
+            <div class="h-100">
+              <%- include('partials/sidebar.ejs') %>
+                <div class="right-side-block">
+                  <%- include('partials/header.ejs') %>
+
+                    <div class="card border-0 bg-transparent">
+                      <div class="card-body p-0">
+                        <div class="bg-white">
+                          <div class="p-4 d-flex align-items-center justify-content-between">
+                            <h4>Attendance List</h4>
+                          </div>
+
+                          <div class="px-4 pb-4">
+                            <div class="row align-items-md-end">
+                              <div class="col-md-3">
+                                <div class="form-group">
+                                  <label for="">Type</label>
+                                  <div class="d-flex align-items-center">
+                                    <div class="form-check">
+                                      <input class="form-check-input" type="radio" name="flexRadioDefault"
+                                        id="flexRadioDefault1" />
+                                      <label class="form-check-label" for="flexRadioDefault1">
+                                        Monthly
+                                      </label>
+                                    </div>
+                                    <div class="form-check ms-3">
+                                      <input class="form-check-input" type="radio" name="flexRadioDefault"
+                                        id="flexRadioDefault2" checked />
+                                      <label class="form-check-label" for="flexRadioDefault2">
+                                        Daily
+                                      </label>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div class="col-md-4">
+                                <div class="form-group">
+                                  <label for="date_range_from">Date Range</label>
+                                  <div class="d-flex align-items-start">
+                                    <input type="date" class="form-control" name="date_range_from" id="date_range_from"
+                                      value="<%= today %>" />
+                                    <input type="date" class="form-control ms-3" name="date_range_to" id="date_range_to"
+                                      value="<%= today %>" />
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div class="col-md-3 my-3 my-md-0">
+                                <div class="form-group">
+                                    <label for="">Employee</label>
+                                    <select name="user" class="form-control" id="userSelect">
+                                      <option value="">Select Employee</option>
+                                      <% users.forEach(user=> { %>
+                                        <option value="<%= user._id %>">
+                                          <%= user.name %>
+                                        </option>
+                                        <% }) %>
+                                    </select>
+                                  </div>
+                              </div>
+
+                              <div class="col-md-2">
+                                <button type="button" class="btn btn-primary">
+                                  <i class="fa-solid fa-magnifying-glass"></i>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="card border-0 bg-transparent">
+                      <div class="card-body p-0">
+                        <div class="bg-white py-3">
+                          <div class="table-responsive">
+                            <table class="table">
+                              <thead>
+                                <tr>
+                                  <th>Employee</th>
+                                  <th>Date</th>
+                                  <th>Status</th>
+                                  <th>Clock In</th>
+                                  <th>Clock Out</th>
+                                  <th>Late</th>
+                                  <th>Early Leaving</th>
+                                  <th>Overtime</th>
+                                  <% if (hasPermission('HR', 'edit' ) || hasPermission('HR', 'delete' )) { %>
+                                    <th>Actions</th>
+                                    <% } %>
+                                </tr>
+                              </thead>
+
+                              <tbody>
+                                <!-- <tr>
+                                  <td>Jhon Smith</td>
+                                  <td>Jan 15, 2024</td>
+                                  <td>Leave</td>
+                                  <td>00:00</td>
+                                  <td>00:00</td>
+                                  <td>00:00:00</td>
+                                  <td>00:00:00</td>
+                                  <td>00:00:00</td>
+                                  <% if (hasPermission('HR', 'edit' ) || hasPermission('HR', 'delete' )) { %>
+                                    <td>
+                                      <div class="">
+                                        <% if (hasPermission('HR', 'edit' )) { %>
+                                          <a href="#" class="btn btn-primary">Edit</a>
+                                          <% } %>
+                                            <% if (hasPermission('HR', 'delete' )) { %>
+                                              <a href="#" class="btn btn-default">Delete</a>
+                                              <% } %>
+                                      </div>
+                                    </td>
+                                    <% } %>
+                                </tr> -->
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!------listing-wrapper END-------->
+  </div>
+  <!------Page-wrapper END-------->
+  <%- include('partials/linkfooter.ejs') %>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">
+              Create New Leave
+            </h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body">
+            <form action="">
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label for="">Leave Type<span class="text-danger">*</span></label>
+                    <select name="" class="form-control">
+                      <option value="">Casual Leave (12)</option>
+                      <option value=""></option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Start Date<span class="text-danger">*</span></label>
+                    <input type="date" name="" class="form-control" />
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">End Date<span class="text-danger">*</span></label>
+                    <input type="date" name="" class="form-control" />
+                  </div>
+                </div>
+
+                <div class="col-md-12 mt-4">
+                  <div class="form-group">
+                    <label for="">Leave Reason<span class="text-danger">*</span></label>
+                    <textarea name="" class="form-control" placeholder="" style="height: 130px"></textarea>
+                  </div>
+                </div>
+
+                <div class="col-md-12 mt-4">
+                  <div class="form-group">
+                    <label for="">Remark<span class="text-danger">*</span></label>
+                    <textarea name="" class="form-control" placeholder="" style="height: 130px"></textarea>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <div class="modal-footer text-end">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              Close
+            </button>
+            <button type="button" class="btn btn-primary">Create</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="terminationModal" tabindex="-1" aria-labelledby="terminationModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="terminationModalLabel">
+              Create New Termination
+            </h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body">
+            <form action="">
+              <div class="row">
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Employee<span class="text-danger">*</span></label>
+                    <select name="" class="form-control">
+                      <option value="">Anne Harrington</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Termination Type<span class="text-danger">*</span></label>
+                    <select name="" class="form-control">
+                      <option value="">Other Termination</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Notice Date<span class="text-danger">*</span></label>
+                    <input type="date" name="" class="form-control" placeholder="DD/MM/YYYY" />
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Termination Date<span class="text-danger">*</span></label>
+                    <input type="date" name="" class="form-control" placeholder="DD/MM/YYYY" />
+                  </div>
+                </div>
+
+                <div class="col-md-12 mt-4">
+                  <div class="form-group">
+                    <label for="">Description</label>
+                    <textarea name="" class="form-control" placeholder="Enter Description"
+                      style="height: 100px"></textarea>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <div class="modal-footer text-end">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              Close
+            </button>
+            <button type="button" class="btn btn-primary">Create</button>
+          </div>
+        </div>
+      </div>
+    </div>
+</body>
+
+</html>

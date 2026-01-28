@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EZ Door || Accounts</title>
+  <%- include('partials/linkheader.ejs') %>
+</head>
+
+<body>
+  <span id="pageId" style="display: none">accounts</span>
+  <div class="page-wrapper">
+    <!------Header END-------->
+
+    <section class="listing-wrapper distributer-wrapper position-relative vh-100">
+      <div class="container-fluid px-0 h-100">
+        <div class="row mx-0 h-100">
+          <div class="col-md-12 px-0">
+            <div class="h-100">
+              <%- include('partials/sidebar.ejs') %>
+                <div class="right-side-block">
+                  <%- include('partials/header.ejs') %>
+
+                    <div class="card border-0 bg-transparent">
+                      <div class="card-body p-0">
+                        <div class="bg-white p-4">
+                          <h4>Create Purchase Invoice</h4>
+                          <form id="createForm" class="purchase_invoice mt-4">
+                            <div class="row">
+                              <div class="col-md-6">
+                                <div class="form-group">
+                                  <label for="">Customer</label>
+                                  <select name="customer_name" id="customer_name" class="form-control">
+                                    <option value="">Select Customer</option>
+                                    <% contactPersons.forEach(function(person) {%>
+                                      <option value="<%= person %>">
+                                        <%= person %>
+                                      </option>
+                                      <% }) %>
+                                  </select>
+                                </div>
+                              </div>
+
+                              <div class="col-md-6 mt-4 mt-md-0">
+                                <div class="form-group">
+                                  <label for="">Sale Agent</label>
+                                  <select name="user_id" id="user_id" class="form-control">
+                                    <option value="">Select Sale Agent</option>
+                                    <% users.forEach(user=> { %>
+                                      <option value="<%= user._id %>">
+                                        <%= user.name %>
+                                      </option>
+                                      <% }) %>
+                                  </select>
+                                </div>
+                              </div>
+
+                              <div class="col-md-6 mt-4">
+                                <input type="hidden" name="billing_address[address]" id="hidden_billing_address" />
+                                <input type="hidden" name="billing_address[city]" id="hidden_billing_city" />
+                                <input type="hidden" name="billing_address[state]" id="hidden_billing_state" />
+                                <input type="hidden" name="billing_address[pincode]" id="hidden_billing_pincode" />
+
+                                <input type="hidden" name="shipping_address[address]" id="hidden_shipping_address" />
+                                <input type="hidden" name="shipping_address[city]" id="hidden_shipping_city" />
+                                <input type="hidden" name="shipping_address[state]" id="hidden_shipping_state" />
+                                <input type="hidden" name="shipping_address[pincode]" id="hidden_shipping_pincode" />
+                                <p>
+                                  <a href="javascript:void(0);" class="text-black" data-bs-toggle="modal"
+                                    data-bs-target="#exampleModal"><i class="fa-regular fa-pen-to-square"></i></a>
+                                </p>
+                                <div class="row">
+                                  <div class="col-md-6">
+                                    <div class="form-group" name="billing_address" id="billing_address">
+                                      <label for="">Bill To</label>
+                                      <p>--</p>
+                                      <p>--,--</p>
+                                      <p>--</p>
+                                    </div>
+                                  </div>
+                                  <div class="col-md-6">
+                                    <div class="form-group" name="shipping_address" id="shipping_address">
+                                      <label for="">Ship To</label>
+                                      <p>--</p>
+                                      <p>--,--</p>
+                                      <p>--</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div class="col-md-3 mt-4">
+                                <div class="form-group">
+                                  <label for="">Invoice Number</label>
+                                  <input type="text" class="form-control" name="invoice_number" id="invoice_number"
+                                    value="<%= invoiceNumber %>" readonly />
+                                </div>
+                              </div>
+
+                              <div class="col-md-3 mt-4">
+                                <div class="form-group">
+                                  <label for="">GST Number</label>
+                                  <input type="text" class="form-control" name="gst_num" id="gst_num" />
+                                </div>
+                              </div>
+
+                              <div class="row mt-4">
+                                <div class="col-md-3">
+                                  <div class="form-group">
+                                    <label for="">Invoice Date</label>
+                                    <input type="date" class="form-control" name="invoice_date" id="invoice_date" />
+                                  </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                  <div class="form-group">
+                                    <label for="">Due Date</label>
+                                    <input type="date" class="form-control" name="due_date" id="due_date" />
+                                  </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                  <div class="form-group">
+                                    <label for="">Payment Mode</label>
+                                    <select class="form-control" name="payment_mode" id="payment_mode">
+                                      <option value="">Select Payment Mode</option>
+                                      <option value="cash">Cash</option>
+                                      <option value="upi">UPI</option>
+                                      <option value="bank_transfer">Bank Transfer</option>
+                                      <option value="credit_card">Credit Card</option>
+                                    </select>
+                                  </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                  <div class="form-group">
+                                    <label for="">Payment Status</label>
+                                    <select class="form-control" name="payment_status" id="payment_status">
+                                      <option value="">Select Status</option>
+                                      <option value="paid">Paid</option>
+                                      <option value="unpaid">Unpaid</option>
+                                      <option value="partial">Partial</option>
+                                    </select>
+                                  </div>
+                                </div>
+                              </div>
+
+
+                              <div class="row mt-4">
+                                <div class="col-md-3">
+                                  <div class="form-group">
+                                    <label for="">Product </label>
+                                    <select name="product_id" id="product_id" class="form-control">
+                                      <option value="">Select Product</option>
+                                      <% products.forEach(product=> { %>
+                                        <option value="<%= product._id %>">
+                                          <%= product.door_name %>
+                                        </option>
+                                        <% }) %>
+                                    </select>
+                                  </div>
+                                </div>
+                                <div class="col-md-1">
+                                  <div class="form-group">
+                                    <label for="">Quantity</label>
+                                    <input type="number" class="form-control" name="quantity" id="quantity"
+                                      placeholder="1" />
+                                  </div>
+                                </div>
+                                <div class="col-md-1">
+                                  <div class="form-group">
+                                    <label for="">Rate</label>
+                                    <input type="text" class="form-control" name="rate" id="rate" placeholder="Rate" />
+                                  </div>
+                                </div>
+                                <div class="col-md-2">
+                                  <div class="form-group">
+                                    <label for="">Product Code</label>
+                                    <input type="text" class="form-control" name="door_code" id="door_code"
+                                      placeholder="Product Code" />
+                                  </div>
+                                </div>
+                                <div class="col-md-2">
+                                  <div class="form-group">
+                                    <label for="">HSN Code</label>
+                                    <input type="text" class="form-control" name="hsn_code" id="hsn_code"
+                                      placeholder="HSN Code" />
+                                  </div>
+                                </div>
+                                <div class="col-md-3">
+                                  <div class="form-group">
+                                    <label for="">Size</label>
+                                    <select name="size[]" id="size" class="form-control js-states" multiple="multiple">
+                                      <option value="" disabled>Select Sizes</option>
+                                      <option value="32x79">32x79</option>
+                                      <option value="32x82">32x82</option>
+                                      <option value="32x97">32x97</option>
+                                      <option value="33x79">33x79</option>
+                                      <option value="33x84">33x84</option>
+                                      <option value="33x96">33x96</option>
+                                      <option value="36x79">36x79</option>
+                                      <option value="36x84">36x84</option>
+                                      <option value="36x96">36x96</option>
+                                      <option value="39x79">39x79</option>
+                                      <option value="39x84">39x84</option>
+                                      <option value="39x96">39x96</option>
+                                      <option value="42x79">42x79</option>
+                                      <option value="42x84">42x84</option>
+                                      <option value="42x96">42x96</option>
+                                    </select>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="row mt-4">
+                                <div class="col-md-3">
+                                  <div class="form-group">
+                                    <label for="">SGST (%)</label>
+                                    <input type="number" class="form-control" name="sgst" id="sgst"
+                                      placeholder="SGST" />
+                                  </div>
+                                </div>
+                                <div class="col-md-3">
+                                  <div class="form-group">
+                                    <label for="">CGST (%)</label>
+                                    <input type="number" class="form-control" name="cgst" id="cgst"
+                                      placeholder="CGST" />
+                                  </div>
+                                </div>
+                                <div class="col-md-3">
+                                  <div class="form-group">
+                                    <label for="">IGST (%)</label>
+                                    <input type="number" class="form-control" name="igst" id="igst"
+                                      placeholder="IGST" />
+                                  </div>
+                                </div>
+                                <div class="col-md-3">
+                                  <div class="form-group">
+                                    <label for="">Total Tax Amount (₹)</label>
+                                    <input type="number" class="form-control" name="total_tax" id="total_tax"
+                                      step="0.01" placeholder="Total Tax Amount" />
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="mt-4">
+                                <div class="row">
+                                  <div class="col-md-9 col-lg-8 ms-auto">
+                                    <div class="table-responsive">
+                                      <table class="table">
+                                        <tbody>
+                                          <tr class="subtotal-row">
+                                            <th style="text-align: right" colspan="2">
+                                              Sub Total:
+                                            </th>
+                                            <input type="hidden" name="subtotal" id="subtotal" />
+                                            <td>₹0.00</td>
+                                          </tr>
+                                          <tr class="discount-row">
+                                            <th style="text-align: right">
+                                              Discount
+                                            </th>
+                                            <td>
+                                              <div class="input-group mb-3">
+                                                <input type="text" class="form-control discount-input" name="discount"
+                                                  placeholder="0" />
+                                                <select class="form-select discount-type" name="discount_type">
+                                                  <option value="%">%</option>
+                                                  <option value="fixed">
+                                                    Fixed Amount
+                                                  </option>
+                                                </select>
+                                              </div>
+                                            </td>
+                                            <td class="discount-value">-₹0.00</td>
+                                          </tr>
+                                          <tr>
+                                            <th style="text-align: right">
+                                              Adjustment
+                                            </th>
+                                            <td>
+                                              <input type="text" class="form-control adjustment-input"
+                                                placeholder="0" />
+                                            </td>
+                                            <td>₹0.00</td>
+                                          </tr>
+                                          <tr class="total-row">
+                                            <th colspan="2" style="text-align: right">
+                                              Total:
+                                            </th>
+                                            <input type="hidden" name="total" id="total" />
+                                            <td>₹0.00</td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <!-- button submit  -->
+                              <div class="text-end mt-4">
+                                <button type="submit" class="btn btn-primary" id="createInvoiceBtn">
+                                  Submit
+                                </button>
+                              </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!------listing-wrapper END-------->
+  </div>
+  <!------Page-wrapper END-------->
+  <%- include('partials/linkfooter.ejs') %>
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form action="">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="">Address</label>
+                    <textarea id="billing_address_input" name="billing_address" class="form-control" rows="3"
+                      placeholder="Address"></textarea>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4 mt-md-0">
+                  <div class="form-group">
+                    <label for="">City</label>
+                    <input type="text" id="billing_city" name="billing_city" class="form-control" placeholder="City" />
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">State</label>
+                    <input type="text" class="form-control" id="billing_state" name="billing_state"
+                      placeholder="State" />
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Pin Code</label>
+                    <input type="text" class="form-control" id="billing_pincode" name="billing_pincode"
+                      placeholder="Pin Code" />
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" />
+                  <label class="form-check-label" for="flexCheckDefault">
+                    Shipping Address
+                  </label>
+                </div>
+              </div>
+
+              <div class="shipping_add">
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="">Address</label>
+                      <textarea id="shipping_address_input" name="shipping_address" placeholder="Address"
+                        class="form-control" rows="3"></textarea>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6 mt-4 mt-md-0">
+                    <div class="form-group">
+                      <label for="">City</label>
+                      <input type="text" id="shipping_city" name="shipping_city" placeholder="City"
+                        class="form-control" />
+                    </div>
+                  </div>
+
+                  <div class="col-md-6 mt-4">
+                    <div class="form-group">
+                      <label for="">State</label>
+                      <input type="text" id="shipping_state" name="shipping_state" placeholder="State"
+                        class="form-control" />
+                    </div>
+                  </div>
+
+                  <div class="col-md-6 mt-4">
+                    <div class="form-group">
+                      <label for="">Pin Code</label>
+                      <input type="text" id="shipping_pincode" name="shipping_pincode" placeholder="Pin Code"
+                        class="form-control" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
+            <button type="button" class="btn btn-primary" id="applyAddressBtn">
+              Apply
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Copy Billing to Shipping on Checkbox toggle
+      document
+        .getElementById("flexCheckDefault")
+        .addEventListener("change", function () {
+          if (this.checked) {
+            // Copy values
+            document.getElementById("shipping_address_input").value =
+              document.getElementById("billing_address_input").value;
+            document.getElementById("shipping_city").value =
+              document.getElementById("billing_city").value;
+            document.getElementById("shipping_state").value =
+              document.getElementById("billing_state").value;
+            document.getElementById("shipping_pincode").value =
+              document.getElementById("billing_pincode").value;
+          } else {
+            // Clear values
+            document.getElementById("shipping_address_input").value = "";
+            document.getElementById("shipping_city").value = "";
+            document.getElementById("shipping_state").value = "";
+            document.getElementById("shipping_pincode").value = "";
+          }
+        });
+
+      // Apply button logic
+      document
+        .getElementById("applyAddressBtn")
+        .addEventListener("click", function () {
+          // Billing
+          const bAddress = document.getElementById("billing_address_input").value;
+          const bCity = document.getElementById("billing_city").value;
+          const bState = document.getElementById("billing_state").value;
+          const bPin = document.getElementById("billing_pincode").value;
+
+          // Shipping
+          const sAddress = document.getElementById("shipping_address_input").value;
+          const sCity = document.getElementById("shipping_city").value;
+          const sState = document.getElementById("shipping_state").value;
+          const sPin = document.getElementById("shipping_pincode").value;
+
+          // Update hidden inputs
+          document.getElementById("hidden_billing_address").value = bAddress;
+          document.getElementById("hidden_billing_city").value = bCity;
+          document.getElementById("hidden_billing_state").value = bState;
+          document.getElementById("hidden_billing_pincode").value = bPin;
+
+          document.getElementById("hidden_shipping_address").value = sAddress;
+          document.getElementById("hidden_shipping_city").value = sCity;
+          document.getElementById("hidden_shipping_state").value = sState;
+          document.getElementById("hidden_shipping_pincode").value = sPin;
+
+          // Update preview section
+          const billingAddressEl = document.getElementById("billing_address");
+          const shippingAddressEl = document.getElementById("shipping_address");
+
+          if (billingAddressEl) {
+            billingAddressEl.innerHTML = `
+        <label>Bill To</label>
+        <p>${bAddress || "--"}</p>
+        <p>${bCity || "--"}, ${bState || "--"}</p>
+        <p>${bPin || "--"}</p>
+      `;
+          }
+
+          if (shippingAddressEl) {
+            shippingAddressEl.innerHTML = `
+        <label>Ship To</label>
+        <p>${sAddress || "--"}</p>
+        <p>${sCity || "--"}, ${sState || "--"}</p>
+        <p>${sPin || "--"}</p>
+      `;
+          }
+
+          // Close modal
+          const modalEl = document.getElementById("exampleModal");
+          const modal = bootstrap.Modal.getInstance(modalEl);
+          if (modal) modal.hide();
+        });
+    </script>
+
+    <script>
+      const productsData = <%- JSON.stringify(products) %>;
+
+      const quantityInput = document.getElementById("quantity");
+      const rateInput = document.getElementById("rate");
+      const productCodeInput = document.getElementById("door_code");
+      const sizeSelect = document.getElementById("size");
+      const productSelect = document.getElementById("product_id");
+
+      const sgstInput = document.getElementById("sgst");
+      const cgstInput = document.getElementById("cgst");
+      const igstInput = document.getElementById("igst");
+      const totalTaxInput = document.getElementById("total_tax");
+
+      const subtotalDisplay = document.querySelector("tr.subtotal-row td");
+      const discountInput = document.querySelector(".discount-input");
+      const discountType = document.querySelector(".discount-type");
+      const discountDisplay = document.querySelector(".discount-value");
+      const adjustmentInput = document.querySelector(".adjustment-input");
+      const adjustmentDisplay = adjustmentInput.closest("tr").querySelector("td:last-child");
+      const totalDisplay = document.querySelector("tr.total-row td");
+
+      let subtotal = 0;
+      let discountAmount = 0;
+      let adjustment = 0;
+      let totalTaxAmount = 0;
+      let total = 0;
+
+      const formatCurrency = (val) => "₹" + parseFloat(val || 0).toFixed(2);
+
+      // ================= SUBTOTAL =================
+      function calculateSubtotal() {
+        const quantity = parseFloat(quantityInput.value) || 0;
+        const rate = parseFloat(rateInput.value) || 0;
+
+        subtotal = quantity * rate;
+
+        subtotalDisplay.textContent = formatCurrency(subtotal);
+        document.getElementById("subtotal").value = subtotal.toFixed(2);
+
+        calculateTotal();
+      }
+
+      // ================= TOTAL =================
+      function calculateTotal() {
+        // 🔹 Discount
+        const discountVal = parseFloat(discountInput.value) || 0;
+        const isPercent = discountType.value === "%";
+
+        discountAmount = isPercent
+          ? (subtotal * discountVal) / 100
+          : discountVal;
+
+        discountDisplay.textContent = "- " + formatCurrency(discountAmount);
+
+        // 🔹 Tax %
+        const sgstPercent = parseFloat(sgstInput.value) || 0;
+        const cgstPercent = parseFloat(cgstInput.value) || 0;
+        const igstPercent = parseFloat(igstInput.value) || 0;
+
+        // 🔹 Tax ₹
+        const sgstAmount = (subtotal * sgstPercent) / 100;
+        const cgstAmount = (subtotal * cgstPercent) / 100;
+        const igstAmount = (subtotal * igstPercent) / 100;
+
+        totalTaxAmount = sgstAmount + cgstAmount + igstAmount;
+        totalTaxInput.value = totalTaxAmount.toFixed(2);
+
+        // 🔹 Adjustment
+        adjustment = parseFloat(adjustmentInput.value) || 0;
+        adjustmentDisplay.textContent = formatCurrency(adjustment);
+
+        // 🔹 Grand Total
+        total = subtotal + totalTaxAmount - discountAmount + adjustment;
+
+        totalDisplay.textContent = formatCurrency(total);
+        document.getElementById("total").value = total.toFixed(2);
+      }
+
+      // ================= PRODUCT AUTO FILL =================
+      function setMultipleSelectValues(selectElement, values = []) {
+        if (!Array.isArray(values)) values = [values];
+        Array.from(selectElement.options).forEach(option => {
+          option.selected = values.includes(option.value);
+        });
+      }
+
+      productSelect.addEventListener("change", function () {
+        const selectedProduct = productsData.find(p => p._id === this.value);
+
+        if (selectedProduct) {
+          quantityInput.value = 1;
+          rateInput.value = selectedProduct.purchase_price || 0;
+          productCodeInput.value = selectedProduct.door_code || "";
+
+          setMultipleSelectValues(sizeSelect, selectedProduct.size || []);
+          if ($(sizeSelect).hasClass("js-states")) {
+            $(sizeSelect).trigger("change");
+          }
+
+          calculateSubtotal();
+        } else {
+          quantityInput.value = "";
+          rateInput.value = "";
+          productCodeInput.value = "";
+          setMultipleSelectValues(sizeSelect, []);
+          subtotalDisplay.textContent = "₹0.00";
+        }
+      });
+
+      // ================= EVENTS =================
+      quantityInput.addEventListener("input", calculateSubtotal);
+      rateInput.addEventListener("input", calculateSubtotal);
+
+      discountInput.addEventListener("input", calculateTotal);
+      discountType.addEventListener("change", calculateTotal);
+      adjustmentInput.addEventListener("input", calculateTotal);
+
+      sgstInput.addEventListener("input", calculateTotal);
+      cgstInput.addEventListener("input", calculateTotal);
+      igstInput.addEventListener("input", calculateTotal);
+
+      calculateSubtotal();
+    </script>
+
+    <script>
+      $("#createForm").on("submit", function (e) {
+        e.preventDefault();
+
+        // Assign calculated values to hidden inputs
+        $("#subtotal").val(subtotal);
+        $("#total").val(total);
+        $("#total_tax").val(totalTaxAmount);
+
+        const formData = $(this).serialize();
+
+        // Validation
+        if ($("#customer_name").val() === "") {
+          renderToast({
+            message: "Please select a Customer",
+            icon: "warning",
+          });
+          return;
+        }
+        if ($("#user_id").val() === "") {
+          renderToast({
+            message: "Please select a Sale Agent",
+            icon: "warning",
+          });
+          return;
+        }
+        if ($("#invoice_date").val() === "") {
+          renderToast({
+            message: "Please select an Invoice Date",
+            icon: "warning",
+          });
+          return;
+        }
+        if ($("#due_date").val() === "") {
+          renderToast({
+            message: "Please select a Due Date",
+            icon: "warning",
+          });
+          return;
+        }
+        if ($("#product_id").val() === "") {
+          renderToast({
+            message: "Please select a Product",
+            icon: "warning",
+          });
+          return;
+        }
+        if ($("#quantity").val() === "" || $("#quantity").val() <= 0) {
+          renderToast({
+            message: "Please enter a valid Quantity",
+            icon: "warning",
+          });
+          return;
+        }
+        if ($("#rate").val() === "" || $("#rate").val() <= 0) {
+          renderToast({
+            message: "Please enter a valid Rate",
+            icon: "warning",
+          });
+          return;
+        }
+        if ($("payment_mode").val() === "") {
+          renderToast({
+            message: "Please select a Payment Mode",
+            icon: "warning",
+          });
+          return;
+        }
+        if ($("payment_status").val() === "") {
+          renderToast({
+            message: "Please select a Payment Status",
+            icon: "warning",
+          });
+          return;
+        }
+
+        $.ajax({
+          url: "/admin/create-purchase-invoice", // Your route
+          type: "POST",
+          data: formData,
+          success: (res) => {
+            renderToast({
+              message: res.message,
+              icon: "success",
+            });
+            setTimeout(() => {
+              window.location.href = "/admin/accounts-purchase-invoice";
+            }, 1000);
+          },
+          error: (res) => {
+            console.error(res);
+
+            const errorMessage =
+              res.responseJSON && res.responseJSON.message
+                ? res.responseJSON.message
+                : "Something went wrong";
+
+            renderToast({
+              message: errorMessage,
+              icon: "warning", // Change icon to "warning" instead of "error"
+            });
+          },
+        });
+      });
+    </script>
+
+    <script>
+      document.getElementById("customer_name").addEventListener("change", function () {
+        const customerName = this.value;
+        if (!customerName) return;
+
+        fetch(`/admin/user-address?name=${encodeURIComponent(customerName)}`)
+          .then(res => res.json())
+          .then(result => {
+            if (!result.success) return;
+
+            const { address, city, state, pincode, gst_num } = result.data;
+
+            // ✅ Hidden inputs (form submit ke liye)
+            document.getElementById("gst_num").value = gst_num || "";
+            document.getElementById("hidden_billing_address").value = address || "";
+            document.getElementById("hidden_billing_city").value = city || "";
+            document.getElementById("hidden_billing_state").value = state || "";
+            document.getElementById("hidden_billing_pincode").value = pincode || "";
+
+            document.getElementById("hidden_shipping_address").value = address || "";
+            document.getElementById("hidden_shipping_city").value = city || "";
+            document.getElementById("hidden_shipping_state").value = state || "";
+            document.getElementById("hidden_shipping_pincode").value = pincode || "";
+
+            // ✅ Preview update (Bill To / Ship To)
+            document.getElementById("billing_address").innerHTML = `
+        <label>Bill To</label>
+        <p>${address || "--"}</p>
+        <p>${city || "--"}, ${state || "--"}</p>
+        <p>${pincode || "--"}</p>
+      `;
+
+            document.getElementById("shipping_address").innerHTML = `
+        <label>Ship To</label>
+        <p>${address || "--"}</p>
+        <p>${city || "--"}, ${state || "--"}</p>
+        <p>${pincode || "--"}</p>
+      `;
+          })
+          .catch(err => console.error(err));
+      });
+    </script>
+</body>
+
+</html>

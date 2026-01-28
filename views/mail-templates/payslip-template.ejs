@@ -1,0 +1,253 @@
+<!-- <!DOCTYPE html>
+<html>
+  <head>
+    <title>Payslip</title>
+    <style>
+      body {
+        font-family: Arial;
+        padding: 20px;
+      }
+      .slip {
+        border: 1px solid #000;
+        padding: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slip">
+      <h2>Payslip for <%= user.name %></h2>
+      <p>Month: <%= slip.month %></p>
+      <p>Year: <%= slip.year %></p>
+      <p>Salary: ₹<%= slip.salary %></p>
+      <p>Net Salary: ₹<%= slip.net_salary %></p>
+    </div>
+  </body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Salary Annexure</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 40px;
+        font-size: 14px;
+      }
+
+      .header {
+        text-align: left;
+        margin-bottom: 20px;
+      }
+
+      .header h2 {
+        margin: 0;
+      }
+
+      .company-info {
+        line-height: 1.4;
+      }
+
+      .date {
+        text-align: right;
+        margin-top: -60px;
+      }
+
+      .title {
+        text-align: center;
+        font-weight: bold;
+        margin: 20px 0;
+        margin-top: 60px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 30px;
+      }
+
+      th,
+      td {
+        border: 1px solid #000;
+        padding: 6px 10px;
+        text-align: left;
+      }
+
+      .no-border {
+        border: none;
+      }
+
+      .footer {
+        margin-top: 40px;
+      }
+
+      .signature-section {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 60px;
+      }
+
+      .signature-section div {
+        text-align: center;
+      }
+
+      .confidential {
+        font-style: italic;
+        margin-top: 30px;
+      }
+    </style>
+  </head>
+  <body>
+    <%
+      function formatDate(dateStr) {
+        const date = new Date(dateStr);
+        const day = date.getDate();
+        const month = date.toLocaleString('default', { month: 'long' });
+        const year = date.getFullYear();
+
+        function getOrdinal(n) {
+          const s = ["th", "st", "nd", "rd"],
+                v = n % 100;
+          return n + (s[(v - 20) % 10] || s[v] || s[0]);
+        }
+
+        return `${getOrdinal(day)} ${month} ${year}`;
+      }
+    %>
+
+    <div class="header">
+      <div class="company-info">
+        <strong>EZ-Doors Pvt Ltd</strong><br />
+        123 Door Avenue, Luxury Lane Mumbai, Maharashtra 400001<br />
+        Ph: +91 9876543211 | support@ezdoors.com | sales@ez-doors.com
+      </div>
+      <div class="date">
+        <strong>Date:</strong> <%= formatDate(slip.createdAt) %>
+      </div>
+    </div>
+
+    <div class="title">ANNEXURE A</div>
+
+    <table>
+      <tr>
+        <td><strong>Name:</strong> <%= user.name %></td>
+        <td><strong>Designation:</strong> <%= user.designation.name %></td>
+      </tr>
+      <tr>
+        <td><strong>D.O.J:</strong> <%= formatDate(slip.createdAt) %></td>
+        <td><strong>Location:</strong> <%= user.city %></td>
+      </tr>
+    </table>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Salary Components</th>
+          <th>Per Month</th>
+          <th>Per Annum</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Basic</td>
+          <td>₹<%= slip.salary %></td>
+          <td>₹<%= slip.net_salary %></td>
+        </tr>
+        <tr>
+          <td>HRA</td>
+          <td>0</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <td>Travel Allowance</td>
+          <td>0</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <td>Medical Allowance</td>
+          <td>0</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <td>Special Allowance</td>
+          <td>0</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <td>Fixed Travel Reimbursement</td>
+          <td>0</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <td>Mobile Reimbursement</td>
+          <td>0</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <td><strong>GROSS</strong></td>
+          <td><strong>₹<%= slip.salary %></strong></td>
+          <td><strong>₹<%= slip.net_salary %></strong></td>
+        </tr>
+        <tr>
+          <td>PF (Employer)</td>
+          <td>0</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <td>PF (Employee)</td>
+          <td>0</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <td>ESI (Employer)</td>
+          <td>0</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <td>ESI (Employee)</td>
+          <td>0</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <td>Staff Welfare Fund</td>
+          <td>0</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <td>Professional Tax</td>
+          <td>0</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <td><strong>NET</strong></td>
+          <td><strong>₹<%= slip.salary %></strong></td>
+          <td><strong>₹<%= slip.net_salary %></strong></td>
+        </tr>
+        <tr>
+          <td><strong>CTC</strong></td>
+          <td><strong>₹<%= slip.salary %></strong></td>
+          <td><strong>₹<%= slip.net_salary %></strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="confidential">
+      Your remuneration package is confidential and should not be shared with
+      anyone except HR. Any violation may result in serious action and may lead
+      to termination of employment.
+    </div>
+
+    <div class="signature-section">
+      <div>
+        <strong>Ramanujam S</strong><br />
+        Authorized Signatory
+      </div>
+      <div>
+        <strong>Shaheen Banu</strong><br />
+        Employee Signature
+      </div>
+    </div>
+  </body>
+</html>
+

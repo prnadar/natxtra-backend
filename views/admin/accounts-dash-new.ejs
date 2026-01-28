@@ -1,0 +1,233 @@
+<% 
+  // Helper function to check permissions
+  const hasPermission = (module, permissionType = 'manage') => {
+    // Admins have all permissions
+    if (typeof isAdmin !== 'undefined' && isAdmin) return true;
+    // Check if user has the module and the specific permission
+    return typeof userPermissions !== 'undefined' && userPermissions && userPermissions[module] && userPermissions[module][permissionType];
+  };
+%>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EZ Door || Accounts Dashboard</title>
+  <%- include('partials/linkheader.ejs') %>
+</head>
+
+<body>
+  <span id="pageId" style="display:none;">accounts</span>
+  <div class="page-wrapper">
+    <!------Header END-------->
+
+    <section class="listing-wrapper distributer-wrapper position-relative vh-100">
+      <div class="container-fluid px-0 h-100">
+        <div class="row mx-0 h-100">
+          <div class="col-md-12 px-0">
+            <div class="h-100">
+              <%- include('partials/sidebar.ejs') %>
+              <div class="right-side-block">
+                <%- include('partials/header.ejs') %>
+
+                <div class="card border-0 bg-transparent">
+                  <div class="card-body p-0">
+                    <div class="bg-white p-4">
+                      <div class="row justify-content-between align-items-center">
+                        <div class="col-md-4 col-lg-3">
+                          <div class="form-group position-relative">
+                            <input type="text" class="form-control ps-5" placeholder="Search Transactions">
+                            <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+                          </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-5">
+                          <div class="d-flex align-items-center justify-content-end">
+                            <% if (hasPermission('Accounts', 'create')) { %>
+                            <a href="#" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add Sale</a>
+                            <!-- <a href="#" class="btn btn-primary mx-3"><i class="fa-solid fa-plus"></i> Add Sale</a> -->
+                            <% } %>
+                            <% if (hasPermission('Accounts', 'view')) { %>
+                            <a href="#" class="btn btn-primary"><i class="fa-solid fa-plus"></i></a>
+                            <% } %>
+                            <div class="px-3 border-left"><a href="#" class="text-black"><i class="fa-solid fa-ellipsis-vertical"></i></a></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card border-0 bg-transparent pt-0">
+                  <div class="card-body p-0">
+                    <div class="row">
+                      <div class="col-md-8 col-lg-9">
+                        <div class="row">
+                          <div class="col-md-6">
+                            <div class="bg-white position-relative rounded-3 p-4">
+                              <span style="color:#777781;">Total Receivable</span>
+                              <h2 class="my-3"><strong><i class="fa-solid fa-indian-rupee-sign"></i> 1,000</strong></h2>
+                              <span style="color:#b4b9bf;">From 1 Party</span>
+                              <span class="arrow-down"><i class="fa-solid fa-arrow-down-long"></i></span>
+                            </div>
+                          </div>
+
+                          <div class="col-md-6">
+                            <div class="bg-white position-relative rounded-3 p-4">
+                              <span style="color:#777781;">Total Payable</span>
+                              <h2 class="my-3"><strong><i class="fa-solid fa-indian-rupee-sign"></i> 1,000</strong></h2>
+                              <span style="color:#b4b9bf;">You don't have any payables as of now.</span>
+                              <span class="arrow-down" style="background:#fee5e9;color:#f36e89;"><i class="fa-solid fa-arrow-up-long"></i></span>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="bg-white rounded-3 p-4 mt-3">
+                          <div class="d-flex align-items-center justify-content-between">
+                            <div class="">
+                              <span>Total Sale</span>
+                              <h4 class="mt-2"><strong><span class="me-3"><i class="fa-solid fa-indian-rupee-sign"></i></span>1,000</strong></h4>
+                            </div>
+
+                            <div class="form-group mb-0">
+                              <select name="" class="form-control this_month bg-white rounded-3">
+                                <option value="">This Month</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="bg-white rounded-3 p-4 mt-3">
+                          <div class="d-flex align-items-center justify-content-between">
+                            <p>Most Used Reports</p>
+
+                            <a href="#" class="text-info">View All</a>
+                          </div>
+
+                          <div class="row mt-4">
+                            <div class="col-md-3">
+                              <div class="used_reports">
+                                Sale Report
+                                <span><i class="fa-solid fa-chevron-right"></i></span>
+                              </div>
+                            </div>
+
+                            <div class="col-md-3">
+                              <div class="used_reports">
+                                All Transactions
+                                <span><i class="fa-solid fa-chevron-right"></i></span>
+                              </div>
+                            </div>
+
+                            <div class="col-md-3">
+                              <div class="used_reports">
+                                Daybook Report
+                                <span><i class="fa-solid fa-chevron-right"></i></span>
+                              </div>
+                            </div>
+
+                            <div class="col-md-3">
+                              <div class="used_reports">
+                                Party Statement
+                                <span><i class="fa-solid fa-chevron-right"></i></span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md=4 col-lg-3 mt-4 mt-md-0">
+                        <div class="right_widget bg-white">
+                          <figure class="text-center">
+                            <img src="images/widget-img.png" class="img-fluid" alt="">
+                          </figure>
+
+                          <div class="text-center">
+                            <h6>It Looks So Empty in Here!</h6>
+                            <p>Add one of our widget to get started and view your business operations</p>
+                          </div>
+
+                          <div class="form-group position-relative">
+                            <input type="text" class="form-control" placeholder="Add Widget of Your Choice">
+                            <span style="position:absolute;top:50%;transform:translateY(-50%);right:15px;font-size:20px"><i class="fa-solid fa-plus"></i></span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!------listing-wrapper END-------->
+  </div>
+  <!------Page-wrapper END-------->
+  <%- include('partials/linkfooter.ejs') %>
+
+  <!-- Modal -->
+  <div class="modal fade" id="invoiceModal" tabindex="-1" aria-labelledby="invoiceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="invoiceModalLabel"><strong>Create Invoice</strong></h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form action="">
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="">Issue Date<span class="text-danger">*</span></label>
+                  <input type="date" class="form-control" placeholder="DD/MM/YYYY">
+                </div>
+              </div>
+
+              <div class="col-md-6 mt-4 mt-md-0">
+                <div class="form-group">
+                  <label for="">Due Date<span class="text-danger">*</span></label>
+                  <input type="date" class="form-control" placeholder="DD/MM/YYYY">
+                </div>
+              </div>
+
+              <div class="col-md-6 mt-4">
+                <div class="form-check mb-0">
+                  <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked>
+                  <label class="form-check-label" for="flexRadioDefault2">
+                    Product
+                  </label>
+                </div>
+              </div>
+
+              <div class="col-md-6 mt-4">
+                <div class="form-group">
+                  <label for="">Client<span class="text-danger">*</span></label>
+                  <select name="" class="form-control">
+                    <option value="">Select Client</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-md-12 mt-4">
+                <div class="form-group">
+                  <label for="">Description</label>
+                  <textarea name="" class="form-control" style="height:80px;"></textarea>
+                </div>
+              </div>
+
+              <div class="col-md-12 mt-4">
+                <div class="text-end">
+                  <button type="button" class="btn btn-default bg-white border-0" data-bs-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-primary ms-2">Create</button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

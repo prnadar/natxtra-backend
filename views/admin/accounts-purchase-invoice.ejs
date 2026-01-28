@@ -1,0 +1,121 @@
+<% 
+  // Helper function to check permissions
+  const hasPermission = (module, permissionType = 'manage') => {
+    // Admins have all permissions
+    if (typeof isAdmin !== 'undefined' && isAdmin) return true;
+    // Check if user has the module and the specific permission
+    return typeof userPermissions !== 'undefined' && userPermissions && userPermissions[module] && userPermissions[module][permissionType];
+  };
+%>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EZ Door || Accounts</title>
+  <%- include('partials/linkheader.ejs') %>
+</head>
+
+<body>
+  <span id="pageId" style="display: none">accounts</span>
+  <div class="page-wrapper">
+    <!------Header END-------->
+
+    <section class="listing-wrapper distributer-wrapper position-relative vh-100">
+      <div class="container-fluid px-0 h-100">
+        <div class="row mx-0 h-100">
+          <div class="col-md-12 px-0">
+            <div class="h-100">
+              <%- include('partials/sidebar.ejs') %>
+              <div class="right-side-block">
+                <%- include('partials/header.ejs') %>
+
+                <div class="card border-0 bg-transparent">
+                  <div class="card-body p-0">
+                    <div class="estimation_topbar bg-white p-3 p-md-4 d-flex align-items-center justify-content-between">
+                      <h4>Purchase Invoice</h4>
+
+                      <div class="d-flex align-items-center">
+                        <!-- <p class="mb-0 border py-1 px-3 rounded-2">
+                          <span class="text-success">Paid Invoice</span>
+                          $9,149.00
+                        </p>
+                        <p class="mb-0 mx-2 border py-1 px-3 rounded-2">
+                          <span class="text-danger">Paid Due Invoices</span>
+                          $0.00
+                        </p> -->
+                        <!-- <p class="mb-0 border py-1 px-3 rounded-2">
+                          <span class="text-warning">Outstanding Invoice</span>
+                        </p> -->
+                        <% if (hasPermission('Accounts', 'create')) { %>
+                        <p>
+                          <a href="create-purchase-invoice" class="btn btn-primary ms-2">Create New invoice</a>
+                        </p>
+                        <% } %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card border-0 bg-transparent pt-0">
+                  <div class="card-body p-0">
+                    <div class="bg-white web_manage p-4">
+                      <div class="table-responsive distributor-table">
+                        <table class="table">
+                          <thead>
+                            <tr>
+                              <th>Invoice#</th>
+                              <th>Amount</th>
+                              <th>Date</th>
+                              <th>Customer</th>
+                              <th>Product</th>
+                              <th>Due Date</th>
+                              <th>Status</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                             <% if (!purchaseInvoices[0]) { %>
+                                <tr>
+                                  <td colspan="100%">No Data</td>
+                                </tr>
+                                <% } else {%>
+                            <% purchaseInvoices.forEach(purchaseInvoice => { %>
+                            <tr>
+                              <td>
+                                  <%= purchaseInvoice.invoice_number %>
+                              </td>
+                              <td>
+                                <%= purchaseInvoice.total %>
+                              </td>
+                              <td><%= new Date(purchaseInvoice.invoice_date).toLocaleDateString("en-GB") %></td>
+                              <td>
+                                <%= purchaseInvoice.customer_name %>
+                              </td>
+                              <td>
+                                <%= purchaseInvoice?.product_id?.door_name || '' %>
+                              </td>
+                              <td><%= new Date(purchaseInvoice.due_date).toLocaleDateString("en-GB") %></td>
+                              <td><span class="p-2 green-bg">
+                                <%= purchaseInvoice.status === 'paid' ? 'Paid' : purchaseInvoice.status === 'due' ? 'Due' : 'Due' %>
+                              </span></td>
+                            </tr>
+                            <% });} %>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!------listing-wrapper END-------->
+  </div>
+  <!------Page-wrapper END-------->
+  <%- include('partials/linkfooter.ejs') %>
+</body>
+</html>

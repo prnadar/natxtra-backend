@@ -1,0 +1,749 @@
+<% 
+  // Helper function to check permissions
+  const hasPermission = (module, permissionType = 'manage') => {
+    // Admins have all permissions
+    if (typeof isAdmin !== 'undefined' && isAdmin) return true;
+    // Check if user has the module and the specific permission
+    return typeof userPermissions !== 'undefined' && userPermissions && userPermissions[module] && userPermissions[module][permissionType];
+  };
+%>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EZ Door || User Management</title>
+  <%- include('partials/linkheader.ejs') %>
+</head>
+<style>
+  a#s_show_hide {
+    position: absolute;
+    top: 50%;
+    transform: translateY(20%);
+    right: 10px;
+    font-size: 14px;
+    z-index: 10;
+    cursor: pointer;
+  }
+</style>
+
+<body>
+  <span id="pageId" style="display: none">user</span>
+  <div class="page-wrapper">
+    <!------Header END-------->
+
+    <section class="listing-wrapper distributer-wrapper position-relative vh-100">
+      <div class="container-fluid px-0 h-100">
+        <div class="row mx-0 h-100">
+          <div class="col-md-12 px-0">
+            <div class="h-100">
+              <%- include('partials/sidebar.ejs') %>
+                <div class="right-side-block">
+                  <%- include('partials/header.ejs') %>
+
+                    <!-- <div class="card border-0 bg-transparent">
+                            <div class="card-body p-0">
+                                
+                            </div>
+                        </div> -->
+
+                    <div class="card border-0 bg-transparent">
+                      <div class="card-body p-0">
+                        <div class="bg-white p-4">
+                          <div class="d-flex align-items-center justify-content-between mb-2">
+                            <h4 class="title-head">User List</h4>
+                            <% if (hasPermission('User', 'create' )) { %>
+                              <a href="javascript:void(0);" class="btn btn-primary" data-bs-toggle="modal"
+                                data-bs-target="#adduserModal">+ Add New User</a>
+                              <% } %>
+                          </div>
+                          <form method="GET" action="/admin/user-management" class="">
+                            <div class="row col-md-12 mt-4">
+                              <div class="col-md-4">
+                                <div class="form-group">
+                                  <label for="">Role Filter</label>
+                                  <select name="role" class="form-control">
+                                    <option value="">Select Role</option>
+                                    <% roles.forEach(function(element) { %>
+                                      <option value="<%= element._id %>" <%=selectedRole==element._id ? 'selected' : ''
+                                        %>>
+                                        <%= element.name %>
+                                      </option>
+                                      <% }); %>
+                                  </select>
+                                </div>
+                              </div>
+                              <div class="col-md-4 mt-4 mt-md-0">
+                                <div class="form-group">
+                                  <label for="">Status</label>
+                                  <select name="status" class="form-control">
+                                    <option value="">Select Status</option>
+                                    <% status.forEach(function(element) { %>
+                                      <option value="<%= element._id %>" <%=selectedStatus==element._id ? 'selected'
+                                        : '' %>>
+                                        <%= element.name %>
+                                      </option>
+                                      <% }); %>
+                                  </select>
+                                </div>
+                              </div>
+                              <div class="col-md-4 mt-4">
+                                <button type="submit" class="btn btn-primary">
+                                  Search
+                                </button>
+                                <button type="button" class="btn btn-default ms-2" onclick="clearQueryParams()">
+                                  Clear
+                                </button>
+                              </div>
+                            </div>
+
+                            <!-- <div class="col-md-6 mt-4 mt-md-0 d-flex align-items-center justify-content-end">
+                              <div class="form-group">
+                                <label for="">Search Users</label>
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  placeholder="Search by name or email..."
+                                />
+                              </div>
+                            </div> -->
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="card border-0 bg-transparent">
+                      <div class="card-body p-0">
+                        <div class="distributor-table bg-white p-4">
+                          <div class="table-responsive">
+                            <table class="table">
+                              <thead>
+                                <tr>
+                                  <th>Employee ID</th>
+                                  <th>Name</th>
+                                  <th>Email</th>
+                                  <th>Mobile</th>
+                                  <th>Department</th>
+                                  <th>Designation</th>
+                                  <th>Reporting Manager</th>
+                                  <th>City</th>
+                                  <th>Status</th>
+                                  <th>CreatedAt</th>
+                                  <th>Exit Date</th>
+                                  <th>Actions</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <% users.forEach(function(user, index) { %>
+                                  <tr>
+                                    <td>
+                                      <%= user.employee_id ? user.employee_id : '--' %>
+                                    </td>
+                                    <td>
+                                      <%= user.name ? user.name : '--' %>
+                                    </td>
+                                    <td>
+                                      <%= user.email ? user.email : '--' %>
+                                    </td>
+                                    <td>
+                                      <%= user.mobile_number ? user.mobile_number : '--' %>
+                                    </td>
+                                    <td>
+                                      <%= user.role ? user.role.name : '--' %>
+                                    </td>
+                                    <td>
+                                      <%= user.designation ? user.designation.name : '--' %>
+                                    </td>
+                                    <td>
+                                      <%= user.reporting_to ? user.reporting_to.name : '--' %>
+                                    </td>
+                                    <td>
+                                      <%= user.city ? user.city : '--' %>
+                                    </td>
+                                    <td>
+                                      <label class="status">
+                                        <%= user.status ? 'Active' : 'Inactive' %>
+                                          %>
+                                      </label>
+                                    </td>
+                                    <td>
+                                      <%= user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-GB') : '--'
+                                        %>
+                                    </td>
+                                    <td>
+                                      <%= user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-GB') : '--'
+                                        %>
+                                    </td>
+                                    <td>
+                                      <% if (hasPermission('User', 'edit' )) { %>
+                                        <a href="#" id="edit_btn" data-bs-toggle="modal" data-id="<%= user._id %>"
+                                          data-model="<%= JSON.stringify(user) %>" data-bs-target="#edituserModal"
+                                          class="edit-text btn btn-primary text-white edit-btn">Edit</a>
+                                        <% } %>
+                                          <% if (hasPermission('User', 'delete' )) { %>
+                                            <a href="#"
+                                              class="delete-btn red-status btn btn-primary text-white">Delete</a>
+                                            <% } %>
+                                    </td>
+                                  </tr>
+                                  <% }); %>
+                              </tbody>
+                            </table>
+                          </div>
+                          <div class="d-flex align-items-center justify-content-between">
+                            <p>
+                              Showing
+                              <%= Math.min(currentPage * pageSize, totalItems) %>
+                                of
+                                <%= totalItems %>
+                                  entries
+                            </p>
+
+                            <nav aria-label="Page navigation">
+                              <ul class="pagination mb-0">
+
+                                <!-- Previous Button -->
+                                <li class="page-item <%= currentPage <= 1 ? 'disabled' : '' %>">
+                                  <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
+                                </li>
+
+                                <% let startPage=Math.max(1, currentPage - 1); let endPage=Math.min(totalPages,
+                                  startPage + 2); // Adjust startPage if we're near the end if (endPage - startPage < 2)
+                                  { startPage=Math.max(1, endPage - 2); } %>
+
+                                  <% for (let i=startPage; i <=endPage; i++) { %>
+                                    <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                      <a class="page-link" href="?page=<%= i %>">
+                                        <%= i %>
+                                      </a>
+                                    </li>
+                                    <% } %>
+
+                                      <!-- Next Button -->
+                                      <li class="page-item <%= currentPage >= totalPages ? 'disabled' : '' %>">
+                                        <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
+                                      </li>
+                              </ul>
+                            </nav>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!------listing-wrapper END-------->
+  </div>
+  <!------Page-wrapper END-------->
+  <%- include('partials/linkfooter.ejs') %>
+
+    <!-- Add Modal -->
+    <div class="modal fade" id="adduserModal" tabindex="-1" aria-labelledby="adduserModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="adduserModalLabel">
+              Add New Users
+            </h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="addUserForm">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="">Full Name</label>
+                    <input type="text" id="name" name="name" class="form-control" placeholder="Name" />
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4 mt-md-0">
+                  <div class="form-group">
+                    <label for="">Email Address</label>
+                    <input type="email" id="email" class="form-control" name="email" placeholder="Enter Email" />
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Role</label>
+                    <select name="role" id="role" class="form-control">
+                      <option value="" selected>Select Role</option>
+                      <% roles.forEach(function(element) { %>
+                        <option value="<%= element._id %>">
+                          <%= element.name %>
+                        </option>
+                        <% }); %>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Designation</label>
+                    <select name="designation" id="designation" class="form-control">
+                      <option value="" selected>Select Designation</option>
+                      <% designations.forEach(function(element) { %>
+                        <option value="<%= element._id %>">
+                          <%= element.name %>
+                        </option>
+                        <% }); %>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Reporting To</label>
+                    <select name="reporting_to" id="reporting_to" class="form-control">
+                      <option value="" selected>Select Reporting to</option>
+                      <% users.forEach(function(element) { %>
+                        <option value="<%= element._id %>">
+                          <%= element.name %>
+                        </option>
+                        <% }); %>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Mobile</label>
+                    <input type="text" id="mobile_number" name="mobile_number" class="form-control"
+                      placeholder="Phone Number" maxlength="10"
+                      oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);" required />
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Address</label>
+                    <input type="text" id="address" name="address" class="form-control" placeholder="Address" />
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">State</label>
+                    <input type="text" id="state" name="state" class="form-control" placeholder="State" />
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">City</label>
+                    <input type="text" id="city" name="city" class="form-control" placeholder="City" />
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Pin Code</label>
+                    <input type="text" id="pincode" name="pincode" class="form-control" placeholder="Pin Code"
+                      maxlength="6" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);" />
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group position-relative">
+                    <label for="">Password</label>
+                    <input id="password" name="password" type="password" class="form-control password"
+                      placeholder="Enter your password" />
+                    <a id="s_show_hide" onclick="show();"><i class="fa-regular fa-eye-slash"></i></a>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group position-relative">
+                    <label for="">Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" class="form-control password"
+                      placeholder="Enter your confirm password" />
+                    <a id="s_show_hide" onclick="show();"><i class="fa-regular fa-eye-slash"></i></a>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-primary" id="add-btn">
+                    Submit
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal fade" id="edituserModal" tabindex="-1" aria-labelledby="edituserModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="edituserModalLabel">Edit User</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="editform">
+              <input type="hidden" id="editid" name="editid" />
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="">Full Name</label>
+                    <input type="text" id="edit_name" name="edit_name" class="form-control" placeholder="Name" />
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4 mt-md-0">
+                  <div class="form-group">
+                    <label for="">Email Address</label>
+                    <input type="email" id="edit_email" name="edit_email" class="form-control"
+                      placeholder="Enter Email" />
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Role</label>
+                    <select name="edit_role" id="edit_role" class="form-control">
+                      <option value="" selected>Select Role</option>
+                      <% roles.forEach(function(element) { %>
+                        <option value="<%= element._id %>">
+                          <%= element.name %>
+                        </option>
+                        <% }); %>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Designation</label>
+                    <select name="edit_designation" id="edit_designation" class="form-control">
+                      <option value="" selected>Select Designation</option>
+                      <% designations.forEach(function(element) { %>
+                        <option value="<%= element._id %>">
+                          <%= element.name %>
+                        </option>
+                        <% }); %>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Reporting To</label>
+                    <select name="edit_reporting_to" id="edit_reporting_to" class="form-control">
+                      <option value="" selected>Select Reporting to</option>
+                      <% users.forEach(function(element) { %>
+                        <option value="<%= element._id %>">
+                          <%= element.name %>
+                        </option>
+                        <% }); %>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Mobile</label>
+                    <input type="text" id="edit_mobile_number" name="edit_mobile_number" class="form-control"
+                      placeholder="Phone Number" maxlength="10"
+                      oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);" required />
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Address</label>
+                    <input type="text" id="edit_address" name="edit_address" class="form-control"
+                      placeholder="Address" />
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">State</label>
+                    <input type="text" id="edit_state" name="edit_state" class="form-control" placeholder="State" />
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">City</label>
+                    <input type="text" id="edit_city" name="edit_city" class="form-control" placeholder="City" />
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Pin Code</label>
+                    <input type="text" id="edit_pincode" name="edit_pincode" class="form-control" placeholder="Pin Code"
+                      maxlength="6" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);" />
+                  </div>
+                </div>
+
+                <!-- <div class="col-md-6 mt-4">
+                  <div class="form-group position-relative">
+                    <label for="">Password</label>
+                    <input
+                      type="password"
+                      id="edit_password"
+                      name="edit_password"
+                      class="form-control password"
+                      placeholder="Enter your password"
+                    />
+                    <a id="s_show_hide" onclick="show();"
+                      ><i class="fa-regular fa-eye-slash"></i
+                    ></a>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group position-relative">
+                    <label for="">Confirm Password</label>
+                    <input
+                      type="password"
+                      id="edit_confirm_password"
+                      name="edit_confirm_password"
+                      class="form-control password"
+                      placeholder="Enter your confirm password"
+                    />
+                    <a id="s_show_hide" onclick="show();"
+                      ><i class="fa-regular fa-eye-slash"></i
+                    ></a>
+                  </div>
+                </div> -->
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-primary" id="edit-submit-btn">
+                    Submit
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      //#region Add User
+      var addform = $("#addUserForm");
+      addform.on("submit", submitFormHandler);
+
+      function submitFormHandler(e) {
+        e.preventDefault();
+
+        //validate
+        if ($("#role").val() == "") {
+          renderToast({
+            message: "Please select a role",
+            icon: "error",
+          });
+          return;
+        }
+        if ($("#mobile_number").val().trim().length !== 10) {
+          renderToast({
+            message: "Please enter a valid 10-digit mobile number",
+            icon: "error",
+          });
+          return;
+        }
+
+        var formData = getFormData(addform);
+        if (formData.reporting_to === "") {
+          delete formData.reporting_to;
+        }
+
+        // DO POST
+        $.ajax({
+          type: "POST",
+          contentType: "application/json",
+          url: "/admin/create-user",
+          data: JSON.stringify(formData),
+          success: (res) => {
+            renderToast({
+              message: res.message,
+              icon: "success",
+            });
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          },
+          error: (res) => {
+            console.error(res);
+            renderToast({
+              message: res.message,
+              icon: "error",
+            });
+          },
+        });
+      }
+      //#endregion Add User
+    </script>
+
+    <script>
+      //#region edit User
+      $(document).on("click", "#edit_btn", function (e) {
+        var data = $(this).attr("data-model");
+        data = JSON.parse(data);
+
+        $("#editid").val(data._id);
+        $("#edit_name").val(data.name);
+        $("#edit_email").val(data.email);
+        $("#edit_mobile_number").val(data.mobile_number);
+        $("#edit_address").val(data.address);
+        $("#edit_state").val(data.state);
+        $("#edit_city").val(data.city);
+        $("#edit_pincode").val(data.pincode);
+        $("#edit_role").val(data.role ? data.role._id : "");
+        $("#edit_designation").val(data.designation ? data.designation._id : "");
+        $("#edit_reporting_to").val(data.reporting_to ? data.reporting_to._id : "");
+        // $("#edit_password").val(data.password);
+        // $("#edit_confirm_password").val(data.confirm_password);
+      });
+
+      var editform = $("#editform");
+      editform.on("submit", submitFormHandler);
+
+      function submitFormHandler(e) {
+        e.preventDefault();
+
+        //validate
+        if ($("#edit_role").val() == "") {
+          renderToast({
+            message: "Please select a role",
+            icon: "error",
+          });
+          return;
+        }
+        if ($("#edit_mobile_number").val().trim().length !== 10) {
+          renderToast({
+            message: "Please enter a valid 10-digit mobile number",
+            icon: "error",
+          });
+          return;
+        }
+
+        var formData = getFormData(editform);
+
+        // DO POST
+        $.ajax({
+          type: "POST",
+          contentType: "application/json",
+          url: "/admin/update-user",
+          data: JSON.stringify(formData),
+          success: (res) => {
+            renderToast({
+              message: res.message,
+              icon: "success",
+            });
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          },
+          error: (res) => {
+            console.error(res);
+            renderToast({
+              message: res.message,
+              icon: "error",
+            });
+          },
+        });
+      }
+
+      //#endregion Edit User
+    </script>
+
+    <script>
+      let selectedUsers = [];
+      $(document).ready(function () {
+        $(".form-check-input").on("change", function () {
+          const value = $(this).val();
+          if ($(this).is(":checked")) {
+            if (!selectedUsers.includes(value)) {
+              selectedUsers.push(value);
+            }
+          } else {
+            // Remove value
+            selectedUsers = selectedUsers.filter((item) => item !== value);
+          }
+          if (selectedUsers.length == 0) {
+            $(".edit-btn").show();
+          } else {
+            $(".edit-btn").hide();
+          }
+        });
+
+        $(".delete-btn").on("click", function (e) {
+          const id = $(this).data("id");
+          if (selectedUsers.length == 0) {
+            if (confirm("Do you really want to delete this record")) {
+              $.ajax({
+                type: "POST",
+                contentType: "application/json",
+                url: "/admin/delete-user",
+                data: JSON.stringify({
+                  id: id,
+                }),
+                success: (res) => {
+                  renderToast({
+                    message: res.message,
+                    icon: "success",
+                  });
+                  setTimeout(() => {
+                    window.location.reload();
+                  }, 1000);
+                },
+                error: (res) => {
+                  renderToast({
+                    message: res.message,
+                    icon: "error",
+                  });
+                  console.error(res);
+                },
+              });
+            }
+          } else {
+            $.ajax({
+              type: "POST",
+              contentType: "application/json",
+              url: "/admin/delete-users",
+              data: JSON.stringify(selectedUsers),
+              success: (res) => {
+                renderToast({
+                  message: res.message,
+                  icon: "success",
+                });
+                setTimeout(() => {
+                  window.location.reload();
+                }, 1000);
+              },
+              error: (res) => {
+                renderToast({
+                  message: res.message,
+                  icon: "error",
+                });
+                console.error(res);
+              },
+            });
+          }
+        });
+      });
+    </script>
+    <script>
+      function clearQueryParams() {
+        // Reset select fields
+        $("select[name='role']").val("");
+        $("select[name='status']").val("");
+
+        // Reload the page without any query parameters
+        const url = window.location.origin + window.location.pathname;
+        window.location.href = url; // Triggers reload with no query
+      }
+    </script>
+</body>
+
+</html>

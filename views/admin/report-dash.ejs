@@ -1,0 +1,212 @@
+<% 
+  // Helper function to check permissions
+  const hasPermission = (module, permissionType = 'manage') => {
+    // Admins have all permissions
+    if (typeof isAdmin !== 'undefined' && isAdmin) return true;
+    // Check if user has the module and the specific permission
+    return typeof userPermissions !== 'undefined' && userPermissions && userPermissions[module] && userPermissions[module][permissionType];
+  };
+%>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EZ Door || Report Dashboard</title>
+  <%- include('partials/linkheader.ejs') %>
+</head>
+
+<body>
+  <div class="page-wrapper">
+    <section class="listing-wrapper distributer-wrapper position-relative vh-100">
+      <div class="container-fluid px-0 h-100">
+        <div class="row mx-0 h-100">
+          <div class="col-md-12 px-0">
+            <div class="h-100">
+              <%- include('partials/sidebar.ejs') %>
+              <div class="right-side-block">
+                <%- include('partials/header.ejs') %>
+
+                <div class="card border-0 bg-transparent">
+                  <div class="card-body p-0">
+                    <div class="p-3 bg-white report-filter rounded-3">
+                      <div class="row align-items-center">
+                        <div class="col-md-4 col-lg-4 col-xl-4">
+                          <h4>Sales Report dashboard</h4>
+                        </div>
+                        <div class="col-md-8 col-lg-8 col-xl-8">
+                          <div class="row report-filter align-items-center justify-content-md-end">
+                            <% if (hasPermission('Reports', 'create')) { %>
+                            <div class="form-group col-md-3 col-lg-2 col-xl-2 mb-0">
+                              <input type="date" class="form-control" placeholder="dd-mm-yyyy" />
+                            </div>
+                            <div class="form-group col-md-3 col-lg-2 col-xl-2 mb-0 ">
+                              <input type="date" class="form-control" placeholder="dd-mm-yyyy" />
+                            </div>
+                            <% } %>
+                            <% if (hasPermission('Reports', 'edit')) { %>
+                            <div class="form-group col-md-3 col-lg-3 col-xl-3 mb-0">
+                              <select name="" class="form-control">
+                                <option value="">Select Status</option>
+                              </select>
+                            </div>
+                            <% } %>
+                            <% if (hasPermission('Reports', 'delete')) { %>
+                            <div class="form-group col-md-3 col-lg-3 col-xl-3 mb-0">
+                              <select name="" class="form-control">
+                                <option value="">Select Client</option>
+                              </select>
+                            </div>
+                            <% } %>
+                            <% if (hasPermission('Reports', 'create') || hasPermission('Reports', 'delete')) { %>
+                            <div class="form-button col-md-3 col-lg-2 col-xl-2">
+                              <% if (hasPermission('Reports', 'create')) { %>
+                              <a href="#" class="btn search-click"><i class="fa-solid fa-magnifying-glass"></i></a>
+                              <% } %>
+                              <% if (hasPermission('Reports', 'delete')) { %>
+                              <a href="#" class="btn trash-click"><i class="fa-solid fa-trash"></i></a>
+                              <% } %>
+                            </div>
+                            <% } %>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="report-grid mt-4">
+                      <div class="row">
+                        <div class="col-md-3 col-6">
+                          <div class="report_block">
+                            <figure class="mb-2">
+                              <img src="images/report-icon.jpg" class="img-fluid" alt="" />
+                            </figure>
+                            <p class="mb-3"><strong>Total Invioce</strong></p>
+                            <h4><strong>0.00₹</strong></h4>
+                          </div>
+                        </div>
+
+                        <div class="col-md-3 col-6 mt-4 mt-md-0">
+                          <div class="report_block">
+                            <figure class="mb-2">
+                              <img src="images/report-icon2.jpg" class="img-fluid" alt="" />
+                            </figure>
+                            <p class="mb-3"><strong>Total Due</strong></p>
+                            <h4><strong>0.00₹</strong></h4>
+                          </div>
+                        </div>
+
+                        <div class="col-md-3 col-6 mt-4 mt-md-0">
+                          <div class="report_block">
+                            <figure class="mb-2">
+                              <img src="images/report-icon3.jpg" class="img-fluid" alt="" />
+                            </figure>
+                            <p class="mb-3"><strong>Total Tax</strong></p>
+                            <h4><strong>0.00₹</strong></h4>
+                          </div>
+                        </div>
+
+                        <div class="col-md-3 col-6 mt-4 mt-md-0">
+                          <div class="report_block">
+                            <figure class="mb-2">
+                              <img src="images/report-icon4.jpg" class="img-fluid" alt="" />
+                            </figure>
+                            <p class="mb-3">
+                              <strong>Total Discount</strong>
+                            </p>
+                            <h4><strong>0.00₹</strong></h4>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="leave_report_block mt-4">
+                      <h4><strong>Leave Report</strong></h4>
+                      <div class="row mt-4">
+                        <div class="col-md-4">
+                          <div class="leave_summary d-flex align-items-start">
+                            <figure class="mb-0">
+                              <img src="images/summary-icon.jpg" class="img-fluid" alt="" />
+                            </figure>
+                            <div class="ms-3">
+                              <span>Report</span>
+                              <p class="text-success">Estimation Summary</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-4 mt-4 mt-md-0">
+                          <div class="leave_summary d-flex align-items-start">
+                            <figure class="mb-0">
+                              <img src="images/calendar-icon.jpg" class="img-fluid" alt="" />
+                            </figure>
+                            <div class="ms-3">
+                              <span>Duration:</span>
+                              <p class="text-danger">Jan-2025 to Dec-2025</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="bg-white distributor-table rounded-3 mt-4">
+                      <div class="table-responsive">
+                        <table class="table">
+                          <thead>
+                            <tr>
+                              <th>#</th>
+                              <th>Client</th>
+                              <th>Issue date</th>
+                              <th>Send Date</th>
+                              <th>Expiry Date</th>
+                              <th>Sub total</th>
+                              <th>Total tax</th>
+                              <th>Discount</th>
+                              <th>Total</th>
+                              <% if (hasPermission('Reports', 'edit') || hasPermission('Reports', 'delete')) { %>
+                              <th>Actions</th>
+                              <% } %>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td></td>
+                              <td></td>
+                              <td></td>
+                              <td></td>
+                              <td></td>
+                              <td></td>
+                              <td></td>
+                              <td></td>
+                              <td></td>
+                              <% if (hasPermission('Reports', 'edit') || hasPermission('Reports', 'delete')) { %>
+                              <td>
+                                <div class="">
+                                  <% if (hasPermission('Reports', 'edit')) { %>
+                                  <a href="#" class="btn btn-primary">Edit</a>
+                                  <% } %>
+                                  <% if (hasPermission('Reports', 'delete')) { %>
+                                  <a href="#" class="btn btn-danger">Delete</a>
+                                  <% } %>
+                                </div>
+                              </td>
+                              <% } %>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!------listing-wrapper END-------->
+  </div>
+  <!------Page-wrapper END-------->
+  <%- include('partials/linkfooter.ejs') %>
+</body>
+
+</html>

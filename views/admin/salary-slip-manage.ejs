@@ -1,0 +1,254 @@
+<% 
+  // Helper function to check permissions
+  const hasPermission = (module, permissionType = 'manage') => {
+    // Admins have all permissions
+    if (typeof isAdmin !== 'undefined' && isAdmin) return true;
+    // Check if user has the module and the specific permission
+    return typeof userPermissions !== 'undefined' && userPermissions && userPermissions[module] && userPermissions[module][permissionType];
+  };
+%>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EZ Door || Salary Slip</title>
+    <%- include('partials/linkheader.ejs') %>
+  </head>
+
+  <body>
+    <div class="page-wrapper">
+      <!------Header END-------->
+
+      <section
+        class="listing-wrapper distributer-wrapper position-relative vh-100"
+      >
+        <div class="container-fluid px-0 h-100">
+          <div class="row mx-0 h-100">
+            <div class="col-md-12 px-0">
+              <div class="h-100">
+                <%- include('partials/sidebar.ejs') %>
+                <div class="right-side-block">
+                  <%- include('partials/header.ejs') %>
+
+                  <div class="card border-0 bg-transparent">
+                    <div class="card-body p-0">
+                      <div class="bg-white p-4">
+                        <div class="row align-items-center">
+                          <div class="col-md-3">
+                            <h4>Attendance List</h4>
+                          </div>
+                          <div class="col-md-3">
+                            <div class="form-group">
+                              <select name="month" class="form-control">
+                                <option value="">Select Month</option>
+                                <option value="Jan">Jan</option>
+                                <option value="Feb">Feb</option>
+                                <option value="Mar">Mar</option>
+                                <option value="Apr">Apr</option>
+                                <option value="May">May</option>
+                                <option value="Jun">Jun</option>
+                                <option value="Jul">Jul</option>
+                                <option value="Aug">Aug</option>
+                                <option value="Sep">Sep</option>
+                                <option value="Oct">Oct</option>
+                                <option value="Nov">Nov</option>
+                                <option value="Dec">Dec</option>
+                              </select>
+                            </div>
+                          </div>
+                          <div class="col-md-3">
+                            <div class="form-group">
+                              <select name="year" class="form-control">
+                                <option value="">Select Year</option>
+                                <option value="2025">2025</option>
+                                <option value="2024">2024</option>
+                                <option value="2023">2023</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          <div class="col-md-3">
+                            <button
+                              type="button"
+                              class="btn btn-primary btn-generate-slip"
+                            >
+                              Generate Payslip
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card border-0 bg-transparent">
+                    <div class="card-body p-0">
+                      <div class="bg-white py-3">
+                        <div class="table-responsive">
+                          <table class="table">
+                            <thead>
+                              <tr>
+                                <th>Employee ID</th>
+                                <th>Name</th>
+                                <th>Payroll Type</th>
+                                <th>Salary</th>
+                                <th>Net Salary</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              <% if (!salarySlips[0]) { %>
+                              <tr>
+                                <td colspan="100%">No Data</td>
+                              </tr>
+                              <% } else {%> <%
+                              salarySlips.forEach(function(salarySlips,index){%>
+                              <tr>
+                                <td>#<%= salarySlips.user_id ? salarySlips.user_id._id : '--' %></td>
+                                <td><%= salarySlips.user_id? salarySlips.user_id.name : '--' %></td>
+                                <td><%= salarySlips.payroll_type ? salarySlips.payroll_type : '--' %></td>
+                                <td><%= salarySlips.salary ? salarySlips.salary : '--' %></td>
+                                <td><%= salarySlips.net_salary ? salarySlips.net_salary : '--' %></td>
+                                <td>
+                                  <span
+                                    class="bg-danger text-white p-2 rounded-3"
+                                    >Unpaid</span
+                                  >
+                                </td>
+                                <td>
+                                  <div class="">
+                                    <% if (hasPermission('SalarySlip', 'edit'))
+                                    { %>
+                                    <a href="#" class="btn btn-primary">Edit</a>
+                                    <% } %> <% if (hasPermission('SalarySlip',
+                                    'delete')) { %>
+                                    <a href="#" class="btn btn-default"
+                                      >Delete</a
+                                    >
+                                    <% } %>
+                                  </div>
+                                </td>
+                              </tr>
+                              <% });} %>
+                            </tbody>
+                          </table>
+                        </div>
+                        <div
+                          class="d-flex align-items-center justify-content-between"
+                        >
+                          <p>
+                            Showing <%= Math.min(currentPage * pageSize,
+                            totalItems) %> of <%= totalItems %> entries
+                          </p>
+
+                          <nav aria-label="Page navigation">
+                            <ul class="pagination mb-0">
+                              <!-- Previous Button -->
+                              <li
+                                class="page-item <%= currentPage <= 1 ? 'disabled' : '' %>"
+                              >
+                                <a
+                                  class="page-link"
+                                  href="?page=<%= currentPage - 1 %>"
+                                  >Previous</a
+                                >
+                              </li>
+
+                              <% 
+                                 let startPage = Math.max(1, currentPage - 1);
+                                 let endPage = Math.min(totalPages, startPage + 2);
+
+                                // Adjust startPage if we're near the end 
+                                if (endPage - startPage < 2) { 
+                                startPage = Math.max(1, endPage - 2); 
+                              } 
+                              %> 
+                              <% for (let i = startPage; i <= endPage; i++) { %>
+                              <li
+                                class="page-item <%= i === currentPage ? 'active' : '' %>"
+                              >
+                                <a class="page-link" href="?page=<%= i %>"
+                                  ><%= i %></a
+                                >
+                              </li>
+                              <% } %>
+
+                              <!-- Next Button -->
+                              <li
+                                class="page-item <%= currentPage >= totalPages ? 'disabled' : '' %>"
+                              >
+                                <a
+                                  class="page-link"
+                                  href="?page=<%= currentPage + 1 %>"
+                                  >Next</a
+                                >
+                              </li>
+                            </ul>
+                          </nav>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!------listing-wrapper END-------->
+    </div>
+    <!------Page-wrapper END-------->
+    <%- include('partials/linkfooter.ejs') %>
+    <script>
+      $(".btn-generate-slip").click(function () {
+        const month = $("select[name='month']").val();
+        const year = $("select[name='year']").val();
+
+        if (!month || !year) {
+          renderToast({
+            message: "Please select month and year",
+            icon: "error",
+          });
+          return;
+        }
+
+        const $btn = $(this);
+        $btn.prop("disabled", true).text("Generating...");
+
+        $.ajax({
+          url: "/admin/generate-salary-slip",
+          type: "POST",
+          data: { month, year },
+          success: function (res) {
+            renderToast({ message: res.message, icon: "success" });
+
+            res.slips.forEach((slip, index) => {
+              const delay = index * 1000;
+              setTimeout(() => {
+                const url = `/admin/download-salary-slip?userId=${slip.user_id}&month=${slip.month}&year=${slip.year}`;
+                fetch(url)
+                  .then((res) => res.json())
+                  .then((data) => {
+                    if (data.file) {
+                      window.open(data.file, "_blank");
+                    }
+                  });
+              }, delay);
+            });
+
+            $btn.prop("disabled", false).text("Generate Payslip");
+          },
+          error: function (err) {
+            renderToast({
+              message: err.responseJSON?.message || "Error generating slip",
+              icon: "error",
+            });
+            $btn.prop("disabled", false).text("Generate Payslip");
+          },
+        });
+      });
+    </script>
+  </body>
+</html>

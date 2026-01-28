@@ -1,0 +1,322 @@
+<% 
+  // Helper function to check permissions
+  const hasPermission = (module, permissionType = 'manage') => {
+    // Admins have all permissions
+    if (typeof isAdmin !== 'undefined' && isAdmin) return true;
+    // Check if user has the module and the specific permission
+    return typeof userPermissions !== 'undefined' && userPermissions && userPermissions[module] && userPermissions[module][permissionType];
+  };
+%>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EZ Door || Report Sales</title>
+  <%- include('partials/linkheader.ejs') %>
+</head>
+
+<body>
+  <div class="page-wrapper">
+    <section class="listing-wrapper distributer-wrapper position-relative vh-100">
+      <div class="container-fluid px-0 h-100">
+        <div class="row mx-0 h-100">
+          <div class="col-md-12 px-0">
+            <div class="h-100">
+              <%- include('partials/sidebar.ejs') %>
+                <div class="right-side-block">
+                  <%- include('partials/header.ejs') %>
+
+                    <!-- <div class="card border-0 bg-transparent">
+                  <div class="card-body p-0">
+                    <div class="bg-white p-md-5 p-3">
+                      <div class="row">
+                        <div class="col-md-4 col-6">
+                          <div class="sales_report_block">
+                            <h5>Sales Analysis</h5>
+                            <p class="pt-2">Revenue, trends, and forecasts</p>
+                            <div class="mt-3">
+                              <a href="#" class="btn btn-primary">Generate</a>
+                              <a href="#" class="btn btn-default bg-white border-0">Schedule</a>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-4 col-6">
+                          <div class="sales_report_block">
+                            <h5>Inventory Status</h5>
+                            <p class="pt-2">Stock levels and movements</p>
+                            <div class="mt-3">
+                              <a href="#" class="btn btn-primary">Generate</a>
+                              <a href="#" class="btn btn-default bg-white border-0">Schedule</a>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-4 col-12">
+                          <div class="sales_report_block">
+                            <h5>Financial Reports</h5>
+                            <p class="pt-2">P&L, balance sheets</p>
+                            <div class="mt-3">
+                              <a href="#" class="btn btn-primary">Generate</a>
+                              <a href="#" class="btn btn-default bg-white border-0">Schedule</a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div> -->
+
+                    <div class="card border-0 bg-transparent">
+                      <div class="card-body p-0">
+                        <div class="bg-white">
+                          <h4 class="p-4 border-bottom">
+                            <strong>Custom Report Generator</strong>
+                          </h4>
+                          <div class="p-4">
+                            <form action="addForm">
+                              <div class="row">
+                                <div class="col-md-3">
+                                  <div class="form-group">
+                                    <label for="">Report Type</label>
+                                    <select name="report_type" id="report_type" class="form-control">
+                                      <option value="sales">Sales Report</option>
+                                    </select>
+                                  </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                  <div class="form-group">
+                                    <label for="">Whole Company</label>
+                                    <select name="all" class="form-control">
+                                      <option value="">Select Company</option>
+                                      <option value="all">All Company</option>
+                                    </select>
+                                  </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                  <div class="form-group">
+                                    <label for="">Individual</label>
+                                    <select name="user" class="form-control" id="userSelect">
+                                      <option value="">Select User</option>
+                                      <% users.forEach(user=> { %>
+                                        <option value="<%= user._id %>">
+                                          <%= user.name %>
+                                        </option>
+                                        <% }) %>
+                                    </select>
+                                  </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                  <div class="form-group">
+                                    <label for="">Manager Wise</label>
+                                    <select name="manager" class="form-control" id="managerSelect">
+                                      <option value="">Select Manager</option>
+                                      <% managers.forEach(manager=> { %>
+                                        <option value="<%= manager._id %>">
+                                          <%= manager.name %>
+                                        </option>
+                                        <% }) %>
+                                    </select>
+                                  </div>
+                                </div>
+
+                                <div class="col-md-3 my-3">
+                                  <div class="form-group">
+                                    <label for="">Firm</label>
+                                    <select name="firm" class="form-control">
+                                      <option value="">Select Firm</option>
+                                      <option value="EZ Doors">EZ Doors</option>
+                                      <option value="Hindustan Doors">Hindustan Doors</option>
+                                    </select>
+                                  </div>
+                                </div>
+
+                                <div class="col-md-4 my-3">
+                                  <div class="form-group">
+                                    <label for="date_range_from">Date Range</label>
+                                    <div class="d-flex align-items-start">
+                                      <input type="date" class="form-control" name="date_range_from"
+                                        id="date_range_from" value="<%= today %>" />
+                                      <input type="date" class="form-control ms-3" name="date_range_to"
+                                        id="date_range_to" value="<%= today %>" />
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div class="col-md-12 text-end">
+                                  <button type="button" class="btn btn-primary">
+                                    Generate Report
+                                  </button>
+                                </div>
+                              </div>
+                            </form>
+                          </div>
+                        </div>
+
+                        <div class="bg-white p-4 mt-4">
+                          <h4>Sales Reports</h4>
+                          <div class="distributor-table mt-4">
+                            <div class="table-responsive">
+                              <table class="table">
+                                <thead>
+                                  <tr>
+                                    <th>Report Name</th>
+                                    <th>Generated On</th>
+                                    <th>User</th>
+                                    <th>Manager</th>
+                                    <th>Firm</th>
+                                    <th>Actions</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <% if (!report[0]) { %>
+                                    <tr>
+                                      <td colspan="100%">No Data</td>
+                                    </tr>
+                                    <% } else {%>
+                                      <% report.forEach(report=> { %>
+                                        <tr>
+                                          <td>
+                                            <%= report.report_type %>
+                                          </td>
+                                          <td>
+                                            <%= new Date(report.createdAt).toLocaleDateString() %>
+                                          </td>
+                                          <td>
+                                            <%= report.user ? report.user.name : '--' %>
+                                          </td>
+                                          <td>
+                                            <%= report.manager ? report.manager.name : '--' %>
+                                          </td>
+                                          <td>
+                                            <%= report.firm || '--' %>
+                                          </td>
+                                          <td>
+                                            <a href="/admin/download-sales-report/<%= report._id %>"
+                                              class="text-info downloadReport">Download</a>
+                                          </td>
+                                        </tr>
+                                        <% });} %>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!------listing-wrapper END-------->
+  </div>
+  <!------Page-wrapper END-------->
+  <%- include('partials/linkfooter.ejs') %>
+    <script>
+      document.querySelector(".btn-primary").addEventListener("click", async () => {
+        const report_type = document.getElementById("report_type").value.trim();
+        const all = document.querySelector("select[name='all']").value.trim();
+        const user = document.getElementById("userSelect").value.trim();
+        const manager = document.getElementById("managerSelect").value.trim();
+        const firm = document.querySelector("select[name='firm']").value.trim();
+        const date_range_from = document.getElementById("date_range_from").value.trim();
+        const date_range_to = document.getElementById("date_range_to").value.trim();
+
+        // ✅ Only one among user, manager, or firm should be selected
+        const selectedFilters = [all, user, manager, firm].filter(val => val !== "");
+        if (selectedFilters.length > 1) {
+          renderToast({
+            icon: "error",
+            message: "Please select only one: User OR Manager OR Firm."
+          });
+          return false;
+        }
+
+        if (selectedFilters.length === 0) {
+          renderToast({
+            icon: "error",
+            message: "Please select at least one: User OR Manager OR Firm."
+          });
+          return false;
+        }
+
+        try {
+          const res = await fetch("/admin/sales-report-generate", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              report_type,
+              user,
+              manager,
+              firm,
+              date_range_from,
+              date_range_to,
+            }),
+          });
+
+          const result = await res.json();
+          if (result.success) {
+            renderToast({
+              icon: "success",
+              message: "Report generated successfully",
+            });
+            location.reload();
+          } else {
+            renderToast({
+              icon: "error",
+              message: result.message || "Error generating report",
+            });
+          }
+        } catch (err) {
+          console.error(err);
+          renderToast({
+            icon: "error",
+            message: err.message || "Error generating report",
+          });
+        }
+      });
+    </script>
+
+    <script>
+      $(document).ready(function () {
+        $(".downloadReport").on("click", function (e) {
+          e.preventDefault();
+          const url = $(this).attr("href");
+          const btn = $(this);
+          btn.text("Generating...");
+          fetch(url)
+            .then((response) => {
+              if (!response.ok) throw new Error("Failed to download report");
+              return response.blob();
+            })
+            .then((blob) => {
+              const link = document.createElement("a");
+              link.href = window.URL.createObjectURL(blob);
+              link.download = "sales_report.pdf";
+              window.open(link.href, "_blank");
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              btn.text("Download");
+            })
+            .catch((error) => {
+              renderToast({
+                icon: "error",
+                message: error.message || "Error downloading report",
+              });
+              console.error("Download error:", error);
+              btn.text("Download");
+            });
+        });
+      });
+    </script>
+</body>
+
+</html>

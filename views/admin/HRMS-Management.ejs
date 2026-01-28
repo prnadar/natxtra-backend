@@ -1,0 +1,128 @@
+<% 
+  // Helper function to check permissions
+  const hasPermission = (module, permissionType = 'manage') => {
+    // Admins have all permissions
+    if (typeof isAdmin !== 'undefined' && isAdmin) return true;
+    // Check if user has the module and the specific permission
+    return typeof userPermissions !== 'undefined' && userPermissions && userPermissions[module] && userPermissions[module][permissionType];
+  };
+%>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EZ Door || HRMS Management</title>
+  <%- include('partials/linkheader.ejs') %>
+</head>
+
+<body>
+  <div class="page-wrapper">
+    <!------Header END-------->
+    <section class="listing-wrapper distributer-wrapper position-relative vh-100">
+      <div class="container-fluid px-0 h-100">
+        <div class="row mx-0 h-100">
+          <div class="col-md-12 px-0">
+            <div class="h-100">
+              <%- include('partials/sidebar.ejs') %>
+              <div class="right-side-block">
+                <%- include('partials/header.ejs') %>
+
+                <div class="card border-0 bg-transparent">
+                  <div class="card-body p-0">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <h4 class="title-head">HRMS Dashboard</h4>
+                    </div>
+
+                    <div class="p-4">
+                      <ul class="nav nav-tabs bg-white border-0" id="myTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home-tab-pane" type="button" role="tab" aria-controls="home-tab-pane" aria-selected="true">Attendance</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="false">Leave
+                            Management</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact-tab-pane" type="button" role="tab" aria-controls="contact-tab-pane" aria-selected="false">Calendar</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link" id="disabled-tab" data-bs-toggle="tab" data-bs-target="#disabled-tab-pane" type="button" role="tab" aria-controls="disabled-tab-pane" aria-selected="false">Salary
+                            Slips</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link" id="disabled-tab" data-bs-toggle="tab" data-bs-target="#disabled-tab-pane" type="button" role="tab" aria-controls="disabled-tab-pane" aria-selected="false">Employee
+                            Records</button>
+                        </li>
+                      </ul>
+                      <div class="tab-content mt-4" id="myTabContent">
+                        <div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
+                          <div class="row">
+                            <% if (hasPermission('HRMS', 'edit')) { %>
+                            <div class="col-md-3">
+                              <div class="attendance_box bg-white d-flex align-items-center justify-content-between p-4">
+                                <div class="">
+                                  <h5>Clock In</h5>
+                                  <span>Start your day</span>
+                                </div>
+                                <p class="green text-success">09:00</p>
+                              </div>
+                            </div>
+                            <% } %>
+                            <% if (hasPermission('HRMS', 'create')) { %>
+                            <div class="col-md-3">
+                              <div class="attendance_box bg-white d-flex align-items-center justify-content-between p-4">
+                                <div class="">
+                                  <h5>Apply Leave</h5>
+                                  <span>Request time off</span>
+                                </div>
+                                <p class="green"><i class="fa-solid fa-plus"></i></p>
+                              </div>
+                            </div>
+                            <% } %>
+
+                            <div class="col-md-3">
+                              <div class="attendance_box bg-white d-flex align-items-center justify-content-between p-4" data-bs-toggle="modal" data-bs-target="#terminationModal">
+                                <div class="">
+                                  <h5>Timesheet</h5>
+                                  <span>View hours</span>
+                                </div>
+                                <p class="green"><i class="fa-solid fa-arrow-right"></i>
+                                </p>
+                              </div>
+                            </div>
+
+                            <div class="col-md-3">
+                              <div class="attendance_box bg-white d-flex align-items-center justify-content-between p-4">
+                                <div class="">
+                                  <h5>Latest Payslip</h5>
+                                  <span>January 2024</span>
+                                </div>
+                                <p class="green"><i class="fa-solid fa-arrow-right"></i>
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="tab-pane fade" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">...</div>
+                        <div class="tab-pane fade" id="contact-tab-pane" role="tabpanel" aria-labelledby="contact-tab" tabindex="0">...</div>
+                        <div class="tab-pane fade" id="disabled-tab-pane" role="tabpanel" aria-labelledby="disabled-tab" tabindex="0">...</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!------listing-wrapper END-------->
+  </div>
+  <!------Page-wrapper END-------->
+  <%- include('partials/linkfooter.ejs') %>
+</body>
+
+</html>

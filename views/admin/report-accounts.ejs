@@ -1,0 +1,263 @@
+<% 
+  // Helper function to check permissions
+  const hasPermission = (module, permissionType = 'manage') => {
+    // Admins have all permissions
+    if (typeof isAdmin !== 'undefined' && isAdmin) return true;
+    // Check if user has the module and the specific permission
+    return typeof userPermissions !== 'undefined' && userPermissions && userPermissions[module] && userPermissions[module][permissionType];
+  };
+%>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EZ Door || Report Accounts</title>
+  <%- include('partials/linkheader.ejs') %>
+</head>
+
+<body>
+  <div class="page-wrapper">
+    <section class="listing-wrapper distributer-wrapper position-relative vh-100">
+      <div class="container-fluid px-0 h-100">
+        <div class="row mx-0 h-100">
+          <div class="col-md-12 px-0">
+            <div class="h-100">
+              <%- include('partials/sidebar.ejs') %>
+                <div class="right-side-block">
+                  <%- include('partials/header.ejs') %>
+
+                    <div class="card border-0 bg-transparent">
+                      <div class="card-body p-0">
+                        <div class="bg-white">
+                          <h4 class="p-4 border-bottom">
+                            <strong>Custom Report Generator</strong>
+                          </h4>
+                          <div class="p-4">
+                            <div class="row">
+                              <div class="col-md-4">
+                                <div class="form-group">
+                                  <label for="">Report Type</label>
+                                  <select name="report_type" id="report_type" class="form-control">
+                                    <option value="" <%=!query.report_type ? "selected" : "" %>>All Reports</option>
+                                    <option value="accounts_purchase" <%=query.report_type==="accounts_purchase"
+                                      ? "selected" : "" %>>Purchase Report</option>
+                                    <option value="accounts_sales" <%=query.report_type==="accounts_sales" ? "selected"
+                                      : "" %>>Sales Report</option>
+                                    <option value="accounts_estimation" <%=query.report_type==="accounts_estimation"
+                                      ? "selected" : "" %>>Estimation Report</option>
+                                  </select>
+                                </div>
+                              </div>
+
+                              <div class="col-md-4">
+                                <div class="form-group">
+                                  <label for="">Date Range</label>
+                                  <div class="d-flex align-items-start">
+                                    <input type="date" class="form-control" name="date_range_from" id="date_range_from"
+                                      value="<%= query.date_range_from || today %>">
+                                    <input type="date" class="form-control ms-3" name="date_range_to" id="date_range_to"
+                                      value="<%= query.date_range_to || today %>">
+                                  </div>
+                                </div>
+                              </div>
+
+
+                              <!-- <div class="col-md-4">
+                                <div class="form-group">
+                                  <label for="">Format</label>
+                                  <select name="format" id="format" class="form-control">
+                                    <option value="pdf">PDF</option>
+                                  </select>
+                                </div>
+
+                              </div> -->
+
+                              <!-- <div class="col-md-4 mt-4 mt-md-0">
+                            <div class="form-group">
+                              <label>Matrics</label>
+                              <div class="matric_checkboxes">
+                                <div class="form-check">
+                                  <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" />
+                                  <label class="form-check-label" for="flexCheckDefault">
+                                    Revenue
+                                  </label>
+                                </div>
+                                <div class="form-check mt-md-2">
+                                  <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" />
+                                  <label class="form-check-label" for="flexCheckChecked">
+                                    Qunatity Sold
+                                  </label>
+                                </div>
+                                <div class="form-check mt-2">
+                                  <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" />
+                                  <label class="form-check-label" for="flexCheckChecked">
+                                    Profit Margin
+                                  </label>
+                                </div>
+                                <div class="form-check mt-2">
+                                  <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" />
+                                  <label class="form-check-label" for="flexCheckChecked">
+                                    Customer Count
+                                  </label>
+                                </div>
+                              </div>
+                            </div>
+                          </div> -->
+
+                              <div class="col-md-12 text-end mt-4">
+                                <button type="button" class="btn btn-primary" id="generateReportBtn">Generate
+                                  Report</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="bg-white p-4 mt-4">
+                          <h4>Accounts Reports</h4>
+                          <div class="distributor-table mt-4">
+                            <div class="table-responsive">
+                              <table class="table">
+                                <thead>
+                                  <tr>
+                                    <th>Type</th>
+                                    <th>Generated On</th>
+                                    <th>Actions</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <% if (!report[0]) { %>
+                                    <tr>
+                                      <td colspan="100%">No Data</td>
+                                    </tr>
+                                    <% } else {%>
+                                      <% report.forEach(report=> { %>
+                                        <tr>
+                                          <td>
+                                            <%= report.report_type %>
+                                          </td>
+                                          <td>
+                                            <%= new Date(report.createdAt).toLocaleDateString() %>
+                                          </td>
+                                          <td>
+                                            <a href="/admin/download-accounts-report/<%= report._id %>"
+                                              class="text-info downloadReport">Download</a>
+                                          </td>
+                                        </tr>
+                                        <% });} %>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!------listing-wrapper END-------->
+  </div>
+  <!------Page-wrapper END-------->
+  <%- include('partials/linkfooter.ejs') %>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const generateBtn = document.getElementById("generateReportBtn");
+
+        generateBtn.addEventListener("click", async () => {
+          const report_type = document.getElementById("report_type").value;
+          const date_range_from = document.getElementById("date_range_from").value;
+          const date_range_to = document.getElementById("date_range_to").value;
+
+          if (!date_range_from || !date_range_to) {
+            renderToast("error", "Please select a valid date range");
+            return;
+          }
+
+          try {
+            const res = await fetch("/admin/accounts-report-generate", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ report_type, date_range_from, date_range_to }),
+            });
+
+            const result = await res.json();
+
+            if (result.success) {
+              renderToast({
+                icon: "success",
+                message: "Accounts Report generated successfully",
+              });
+              location.reload();
+            } else {
+              renderToast({
+                icon: "error",
+                message: result.message || "Error generating report",
+              });
+            }
+
+            // Reload table with filtered data
+            const queryParams = new URLSearchParams({
+              report_type,
+              date_range_from,
+              date_range_to,
+            });
+
+            const tableRes = await fetch("/admin/report-accounts?" + queryParams.toString());
+            const tableHTML = await tableRes.text();
+
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(tableHTML, "text/html");
+            const newTable = doc.querySelector("#reportTable");
+            document.querySelector("#reportTable").innerHTML = newTable.innerHTML;
+
+            attachDownloadHandlers(); // reattach download events
+          } catch (err) {
+            console.error(err);
+            renderToast({
+              icon: "error",
+              message: error.message || "Error downloading report",
+            });
+          }
+        });
+
+        function attachDownloadHandlers() {
+          document.querySelectorAll(".downloadReport").forEach(el => {
+            el.addEventListener("click", async function (e) {
+              e.preventDefault();
+              const url = this.href;
+              const originalText = this.textContent;
+              this.textContent = "Generating...";
+              try {
+                const res = await fetch(url);
+                if (!res.ok) throw new Error("Failed to download report");
+                const blob = await res.blob();
+                const link = document.createElement("a");
+                link.href = window.URL.createObjectURL(blob);
+                link.download = "accounts_report.pdf";
+                window.open(link.href, "_blank");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+              } catch (err) {
+                console.error(err);
+                renderToast({
+                  icon: "error",
+                  message: err.message || "Error downloading report",
+                });
+              } finally {
+                this.textContent = originalText;
+              }
+            });
+          });
+        }
+
+        attachDownloadHandlers(); // initial load
+      });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,126 @@
+<% 
+  // Helper function to check permissions
+  const hasPermission = (module, permissionType = 'manage') => {
+    // Admins have all permissions
+    if (typeof isAdmin !== 'undefined' && isAdmin) return true;
+    // Check if user has the module and the specific permission
+    return typeof userPermissions !== 'undefined' && userPermissions && userPermissions[module] && userPermissions[module][permissionType];
+  };
+%>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EZ Door || HRMS Dashboard</title>
+  <%- include('partials/linkheader.ejs') %>
+</head>
+
+<body>
+  <div class="page-wrapper">
+    <!------Header END-------->
+
+    <section class="listing-wrapper distributer-wrapper position-relative vh-100">
+      <div class="container-fluid px-0 h-100">
+        <div class="row mx-0 h-100">
+          <div class="col-md-12 px-0">
+            <div class="h-100">
+              <%- include('partials/sidebar.ejs') %>
+              <div class="right-side-block">
+                <%- include('partials/header.ejs') %>
+
+                <div class="card border-0 bg-transparent">
+                  <div class="card-body p-0">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <h4 class="title-head">HRMS Dashboard</h4>
+                    </div>
+
+                    <div class="row mt-5">
+                      <div class="col-md-3 col-6">
+                        <div class="hrms-block d-flex align-items-center">
+                          <figure class="mb-0 me-3"><img src="images/icon1.png" class="img-fluid" alt=""></figure>
+                          <h6>Clock In/Out/</h6>
+                        </div>
+                      </div>
+
+                      <div class="col-md-3 col-6">
+                        <div class="hrms-block d-flex align-items-center">
+                          <figure class="mb-0 me-3"><img src="images/icon2.png" class="img-fluid" alt=""></figure>
+                          <h6>Apply Leave</h6>
+                        </div>
+                      </div>
+
+                      <div class="col-md-3 col-6 mt-4 mt-md-0">
+                        <div class="hrms-block d-flex align-items-center">
+                          <figure class="mb-0 me-3"><img src="images/icon3.png" class="img-fluid" alt=""></figure>
+                          <h6>View Reports</h6>
+                        </div>
+                      </div>
+
+                      <div class="col-md-3 col-6 mt-4 mt-md-0">
+                        <div class="hrms-block d-flex align-items-center">
+                          <figure class="mb-0 me-3"><img src="images/icon4.png" class="img-fluid" alt=""></figure>
+                          <h6>Calendar</h6>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="bg-white p-4 mt-5">
+                      <h4 class="">Attendance Calendar</h4>
+                    </div>
+
+                    <div class="bg-white mt-5">
+                      <div class="p-4">
+                        <h4>Leave Requests</h4>
+                      </div>
+                      <div class="table-responsive">
+                        <table class="table">
+                          <thead>
+                            <tr>
+                              <th>Employee</th>
+                              <th>Type</th>
+                              <th>From</th>
+                              <th>To</th>
+                              <th>Status</th>
+                              <th>Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td>Jhon Smith</td>
+                              <td>Annual Leave</td>
+                              <td>Jan 15, 2024</td>
+                              <td>Jan 20, 2024</td>
+                              <td><label class="pending-label">Pending</label></td>
+                              <td>
+                                <div class="">
+                                  <% if (hasPermission('HRMS', 'edit')) { %>
+                                  <a href="#" class="">Approve</a>
+                                  <% } %>
+                                  <% if (hasPermission('HRMS', 'delete')) { %>
+                                  <a href="#" class="">Reject</a>
+                                  <% } %>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!------listing-wrapper END-------->
+  </div>
+  <!------Page-wrapper END-------->
+  <%- include('partials/linkfooter.ejs') %>
+</body>
+
+</html>

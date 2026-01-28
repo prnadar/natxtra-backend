@@ -1,0 +1,649 @@
+<% 
+  // Helper function to check permissions
+  const hasPermission = (module, permissionType = 'manage') => {
+    // Admins have all permissions
+    if (typeof isAdmin !== 'undefined' && isAdmin) return true;
+    // Check if user has the module and the specific permission
+    return typeof userPermissions !== 'undefined' && userPermissions && userPermissions[module] && userPermissions[module][permissionType];
+  };
+%>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EZ Door || HRMS Dashboard</title>
+    <%- include('partials/linkheader.ejs') %>
+  </head>
+
+  <body>
+    <div class="page-wrapper">
+      <!------Header END-------->
+
+      <section
+        class="listing-wrapper distributer-wrapper position-relative vh-100"
+      >
+        <div class="container-fluid px-0 h-100">
+          <div class="row mx-0 h-100">
+            <div class="col-md-12 px-0">
+              <div class="h-100">
+                <%- include('partials/sidebar.ejs') %>
+                <div class="right-side-block">
+                  <%- include('partials/header.ejs') %>
+
+                  <div class="card border-0 bg-transparent">
+                    <div class="card-body p-0">
+                      <div class="bg-white">
+                        <div
+                          class="employee_topbar p-md-4 p-3 d-flex align-items-center justify-content-between"
+                        >
+                          <h4>Employee Resign & Termination</h4>
+                          <% if (hasPermission('HR', 'create')) { %>
+                          <a
+                            href="#"
+                            class="btn btn-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#terminationModal"
+                            >Create New Termination</a
+                          >
+                          <% } %>
+                        </div>
+                        <div class="table-responsive">
+                          <table class="table">
+                            <thead>
+                              <tr>
+                                <th>Employee</th>
+                                <th>Type</th>
+                                <th>Notice Date</th>
+                                <th>Termination Date</th>
+                                <th>Status</th>
+                                <% if (hasPermission('HR', 'edit') ||
+                                hasPermission('HR', 'delete')) { %>
+                                <th>Actions</th>
+                                <% } %>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              <% if (!termination[0]) { %>
+                              <tr>
+                                <td colspan="100%">No Data</td>
+                              </tr>
+                              <% } else {%> <%
+                              termination.forEach(function(termination,index){%>
+                              <tr>
+                                <td><%= termination.user_id?.name %></td>
+                                <td><%= termination.type %></td>
+                                <td><%= termination.notice_date %></td>
+                                <td><%= termination.termination_date %></td>
+                                <td>
+                                  <span
+                                    id="status-badge-<%= termination._id %>"
+                                    class="badge <%= termination.status === 'approved' ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' %>"
+                                    data-id="<%= termination._id %>"
+                                    data-status="<%= termination.status %>"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="Click to change status"
+                                    style="cursor: pointer"
+                                  >
+                                    <%= termination.status === 'approved' ?
+                                    'Approved' : 'Pending' %>
+                                  </span>
+                                </td>
+                                <% if (hasPermission('HR', 'edit') ||
+                                hasPermission('HR', 'delete')) { %>
+                                <td>
+                                  <div class="">
+                                    <% if (hasPermission('HR', 'edit')) { %>
+                                    <a
+                                      href="#"
+                                      class="btn btn-primary text-white edit-btn"
+                                      data-model="<%= JSON.stringify(termination) %>"
+                                      id="edit_btn"
+                                      data-bs-toggle="modal"
+                                      data-bs-target="#editterminationModal"
+                                      >Edit</a
+                                    >
+                                    <% } %> <% if (hasPermission('HR',
+                                    'delete')) { %>
+                                    <a
+                                      href="#"
+                                      class="delete-btn red-status text-black bg-transparent btn btn-default ms-2"
+                                      data-id="<%=termination._id%>"
+                                      >Delete</a
+                                    >
+                                    <% } %>
+                                  </div>
+                                </td>
+                                <% } %>
+                              </tr>
+                              <% });} %>
+                            </tbody>
+                          </table>
+                        </div>
+                       <div class="d-flex align-items-center justify-content-between">
+  <p>
+    Showing
+    <%= Math.min(currentPage * pageSize, totalItems) %>
+    of
+    <%= totalItems %>
+    entries
+  </p>
+
+  <nav aria-label="Page navigation">
+    <ul class="pagination mb-0">
+
+      <!-- Previous Button -->
+      <li class="page-item <%= currentPage <= 1 ? 'disabled' : '' %>">
+        <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
+      </li>
+
+      <% 
+        let startPage = Math.max(1, currentPage - 1);
+        let endPage = Math.min(totalPages, startPage + 2);
+
+        // Adjust startPage if we're near the end
+        if (endPage - startPage < 2) {
+          startPage = Math.max(1, endPage - 2);
+        }
+      %>
+
+      <% for (let i = startPage; i <= endPage; i++) { %>
+        <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+          <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+        </li>
+      <% } %>
+
+      <!-- Next Button -->
+      <li class="page-item <%= currentPage >= totalPages ? 'disabled' : '' %>">
+        <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
+      </li>
+    </ul>
+  </nav>
+</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!------listing-wrapper END-------->
+    </div>
+    <!------Page-wrapper END-------->
+    <%- include('partials/linkfooter.ejs') %>
+
+    <!-- Modal -->
+    <div
+      class="modal fade"
+      id="terminationModal"
+      tabindex="-1"
+      aria-labelledby="terminationModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="terminationModalLabel">
+              Create New Termination
+            </h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+
+          <div class="modal-body">
+            <form id="addTerminationForm">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="">User<span class="text-danger">*</span></label>
+                    <select
+                      name="user_id"
+                      class="form-control js-states"
+                      id="user_id"
+                    >
+                      <option value="">Select User</option>
+                      <% users.forEach(user => { %>
+                      <option value="<%= user._id %>"><%= user.name %></option>
+                      <% }) %>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for=""
+                      >Termination Type<span class="text-danger">*</span></label
+                    >
+                    <select name="type" id="type" class="form-control">
+                      <option value="">Select Type</option>
+                      <option value="Manual">Manual</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for=""
+                      >Notice Date<span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="date"
+                      name="notice_date"
+                      id="notice_date"
+                      class="form-control"
+                      placeholder="DD/MM/YYYY"
+                    />
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for=""
+                      >Termination Date<span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="date"
+                      name="termination_date"
+                      id="termination_date"
+                      class="form-control"
+                      placeholder="DD/MM/YYYY"
+                    />
+                  </div>
+                </div>
+
+                <div class="col-md-12 mt-4">
+                  <div class="form-group">
+                    <label for="">Description</label>
+                    <textarea
+                      name="description"
+                      id="description"
+                      class="form-control"
+                      placeholder="Enter Description"
+                      style="height: 100px"
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer text-end">
+                <button
+                  type="button"
+                  class="btn btn-default"
+                  data-bs-dismiss="modal"
+                >
+                  Close
+                </button>
+                <button type="submit" id="add-btn" class="btn btn-primary">
+                  Create
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div
+      class="modal fade"
+      id="editterminationModal"
+      tabindex="-1"
+      aria-labelledby="editterminationModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="editterminationModalLabel">
+              Edit Termination
+            </h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+
+          <div class="modal-body">
+            <form id="editform">
+              <div class="row">
+                <input type="hidden" name="editid" id="editid" />
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">User<span class="text-danger">*</span></label>
+                    <select
+                      name="edit_user_id"
+                      class="form-control js-states"
+                      id="edit_user_id"
+                    >
+                      <option value="">Select User</option>
+                      <% users.forEach(user => { %>
+                      <option value="<%= user._id %>"><%= user.name %></option>
+                      <% }) %>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for=""
+                      >Termination Type<span class="text-danger">*</span></label
+                    >
+                    <select
+                      name="edit_type"
+                      id="edit_type"
+                      class="form-control"
+                    >
+                      <option value="">Select Type</option>
+                      <option value="Manual">Manual</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for=""
+                      >Notice Date<span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="date"
+                      name="edit_notice_date"
+                      id="edit_notice_date"
+                      class="form-control"
+                      placeholder="DD/MM/YYYY"
+                    />
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for=""
+                      >Termination Date<span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="date"
+                      name="edit_termination_date"
+                      id="edit_termination_date"
+                      class="form-control"
+                      placeholder="DD/MM/YYYY"
+                    />
+                  </div>
+                </div>
+
+                <div class="col-md-12 mt-4">
+                  <div class="form-group">
+                    <label for="">Description</label>
+                    <textarea
+                      name="edit_description"
+                      id="edit_description"
+                      class="form-control"
+                      placeholder="Enter Description"
+                      style="height: 100px"
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer text-end">
+                <button
+                  type="button"
+                  class="btn btn-default"
+                  data-bs-dismiss="modal"
+                >
+                  Close
+                </button>
+                <button type="submit" id="edit-btn" class="btn btn-primary">
+                  Save
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      //#region Add leave
+      var addTerminationForm = $("#addTerminationForm");
+      addTerminationForm.on("submit", submitFormHandler);
+
+      function submitFormHandler(e) {
+        e.preventDefault();
+
+        var formData = getFormData(addTerminationForm);
+
+        // Client-side validation
+        const requiredFields = [
+          { field: "user_id", label: "User" },
+          { field: "type", label: "Termination Type" },
+          { field: "notice_date", label: "Notice Date" },
+          { field: "termination_date", label: "Termination Date" },
+        ];
+
+        for (const { field, label } of requiredFields) {
+          if (!formData[field]) {
+            renderToast({
+              message: `${label} is required.`,
+              icon: "error",
+            });
+            return;
+          }
+        }
+
+        // DO POST
+        $.ajax({
+          type: "POST",
+          processData: false,
+          contentType: "application/json",
+          url: "/admin/termination-add",
+          data: JSON.stringify(formData),
+          success: (res) => {
+            renderToast({
+              message: res.message,
+              icon: "success",
+            });
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          },
+          error: (res) => {
+            renderToast({
+              message: res.message,
+              icon: "error",
+            });
+            console.log(res);
+          },
+        });
+      }
+      //#endregion Add leave
+
+      //#region starts Edit leave
+      $(document).on("click", "#edit_btn", function (e) {
+        var data = $(this).attr("data-model");
+        leave = JSON.parse(data);
+
+        $("#editid").val(leave._id);
+        $("#edit_user_id").val(leave.user_id._id);
+        $("#edit_type").val(leave.type);
+        $("#edit_notice_date").val(leave.notice_date);
+        $("#edit_termination_date").val(leave.termination_date);
+        $("#edit_description").val(leave.description);
+      });
+
+      var editform = $("#editform");
+      editform.on("submit", editSubmitHandler);
+
+      function editSubmitHandler(e) {
+        e.preventDefault();
+        // Prepare form data
+        var formData = getFormData(editform);
+
+         // Client-side validation
+        const requiredFields = [
+          { field: "edit_user_id", label: "User" },
+          { field: "edit_type", label: "Termination Type" },
+          { field: "edit_notice_date", label: "Notice Date" },
+          { field: "edit_termination_date", label: "Termination Date" },
+        ];
+        for (const { field, label } of requiredFields) {
+          if (!formData[field]) {
+            renderToast({
+              message: `${label} is required.`,
+              icon: "error",
+            });
+            return;
+          }
+        }
+
+        // Perform AJAX request
+        $.ajax({
+          type: "POST",
+          url: "/admin/termination-edit",
+          contentType: "application/json",
+          processData: false,
+          data: JSON.stringify(formData),
+          success: (res) => {
+            renderToast({
+              message: res.message,
+              icon: "success",
+            });
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          },
+          error: (res) => {
+            renderToast({
+              message: res.message,
+              icon: "error",
+            });
+            console.log(res);
+          },
+        });
+      }
+
+      //#endregion Edit leave
+    </script>
+
+    <script>
+      let selectedtermination = [];
+      $(document).ready(function () {
+        $(".form-check-input").on("change", function () {
+          const value = $(this).val();
+          if ($(this).is(":checked")) {
+            if (!selectedtermination.includes(value)) {
+              selectedtermination.push(value);
+            }
+          } else {
+            // Remove value
+            selectedtermination = selectedtermination.filter(
+              (item) => item !== value
+            );
+          }
+          if (selectedtermination.length == 0) {
+            $(".edit-btn").show();
+          } else {
+            $(".edit-btn").hide();
+          }
+        });
+
+        $(".delete-btn").on("click", function (e) {
+          const id = $(this).data("id");
+          if (selectedtermination.length == 0) {
+            if (confirm("Do you really want to delete this record")) {
+              $.ajax({
+                type: "POST",
+                contentType: "application/json",
+                url: "/admin/termination-delete",
+                data: JSON.stringify({
+                  id: id,
+                }),
+                success: (res) => {
+                  renderToast({
+                    message: res.message,
+                    icon: "success",
+                  });
+                  setTimeout(() => {
+                    window.location.reload();
+                  }, 1000);
+                },
+                error: (res) => {
+                  renderToast({
+                    message: res.message,
+                    icon: "error",
+                  });
+                  console.error(res);
+                },
+              });
+            }
+          } else {
+            $.ajax({
+              type: "POST",
+              contentType: "application/json",
+              url: "/admin/terminations-delete",
+              data: JSON.stringify(selectedtermination),
+              success: (res) => {
+                renderToast({
+                  message: res.message,
+                  icon: "success",
+                });
+                setTimeout(() => {
+                  window.location.reload();
+                }, 1000);
+              },
+              error: (res) => {
+                renderToast({
+                  message: res.message,
+                  icon: "error",
+                });
+                console.error(res);
+              },
+            });
+          }
+        });
+      });
+    </script>
+
+    <script>
+      // Update termination status on badge click
+      $(document).on("click", ".badge", function () {
+        const terminationId = $(this).data("id");
+        let currentStatus = $(this).data("status");
+        const newStatus = currentStatus === "pending" ? "approved" : "pending";
+
+        $.ajax({
+          url: "/admin/termination-update-status",
+          type: "POST",
+          data: {
+            terminationId: terminationId,
+            status: newStatus,
+          },
+          success: function (res) {
+            renderToast({
+              message: res.message,
+              icon: "success",
+            });
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          },
+          error: function (res) {
+            renderToast({
+              message: res.message,
+              icon: "error",
+            });
+            console.log(res);
+          },
+        });
+      });
+    </script>
+  </body>
+</html>

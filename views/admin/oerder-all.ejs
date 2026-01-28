@@ -1,0 +1,359 @@
+<% 
+  // Helper function to check permissions
+  const hasPermission = (module, permissionType = 'manage') => {
+    // Admins have all permissions
+    if (typeof isAdmin !== 'undefined' && isAdmin) return true;
+    // Check if user has the module and the specific permission
+    return typeof userPermissions !== 'undefined' && userPermissions && userPermissions[module] && userPermissions[module][permissionType];
+  };
+%>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EZ Door || All Orders</title>
+  <%- include('partials/linkheader.ejs') %>
+</head>
+
+<body>
+  <span id="pageId" style="display: none">order</span>
+  <div class="page-wrapper">
+    <section class="listing-wrapper distributer-wrapper position-relative vh-100">
+      <div class="container-fluid px-0 h-100">
+        <div class="row mx-0 h-100">
+          <div class="col-md-12 px-0">
+            <div class="h-100">
+              <%- include('partials/sidebar.ejs') %>
+              <div class="right-side-block">
+                <%- include('partials/header.ejs') %>
+
+                <div class="card border-0 bg-transparent">
+                  <div class="card-body bg-white">
+                    <h4>All Orders</h4>
+                    <div class="distributor-table table-responsive bg-white mt-4">
+                      <table class="table">
+                        <thead>
+                          <tr>
+                            <th>SL</th>
+                            <th>OrderId</th>
+                            <th>User</th>
+                            <th>Products</th>
+                            <th>Size</th>
+                            <th>Quantity</th>
+                            <th>Total Amount</th>
+                            <th>Payment Method</th>
+                            <th>Status</th>
+                            <% if (hasPermission('Order', 'view') || hasPermission('Order', 'edit') || hasPermission('Order', 'delete')) { %>
+                            <th>Action</th>
+                            <% } %>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <% if (!orders[0]) { %>
+                                <tr>
+                                  <td colspan="100%">No Data</td>
+                                </tr>
+                                <% } else {%> <%
+                                orders.forEach(function(orders,index){%>
+                          <tr>
+                            <td><%= index + 1 %></td>
+                            <td>
+                              <%= orders.orderId ? orders.orderId : '--' %>
+                            </td>
+                            <td>
+                              <%= orders.user_id ? orders.user_id.name : '--' %>
+                            </td>
+                            <td>
+                              <figure class="m-0">
+                                 <% if (orders?.product_id?.image) { %>
+                                  <img
+                                    src="../../uploads/product/<%= orders?.product_id?.image %>"
+                                    alt="Product Image"
+                                    class="img-fluid"
+                                    style="width: 45px; height: 45px;"
+                                  />
+                                  <% } else { %>
+                                  <img
+                                    src="../../admin/images/logo.png"
+                                    alt="No Image"
+                                    class="img-fluid"
+                                    style="width: 45px; height: 45px;"
+                                  />
+                                  <% } %>
+                              </figure>
+                            </td>
+                            <td>
+                              <%= orders.size ? orders.size : '--' %>
+                            </td>
+                            <td>
+                              <%= orders.quantity ? orders.quantity : '--' %>
+                            </td>
+                            <td>
+                              <%= orders.sub_total ? '₹' + orders.sub_total : '--' %>
+                            </td>
+                            <td>
+                              <%= orders.payment_mode ? orders.payment_mode : '--' %>
+                            </td>
+                            <td>
+                              <% if (orders.status === 'pending') { %>
+                              <span class="badge bg-warning text-white">Pending</span>
+                              <% } else if (orders.status === 'shifted') { %>
+                              <span class="badge bg-info text-white">Shifted</span>
+                              <% } else if (orders.status === 'process') { %>
+                              <span class="badge bg-primary text-white">Process</span>
+                              <% } else if (orders.status === 'delivered') { %>
+                              <span class="badge bg-success text-white">Delivered</span>
+                              <% } %>
+                            </td>
+                            <% if (hasPermission('Order', 'view') || hasPermission('Order', 'edit') || hasPermission('Order', 'delete')) { %>
+                            <td>
+                              <!-- <% if (hasPermission('Order', 'view')) { %>
+                              <a href="#" data-bs-toggle="modal" data-bs-target="#generateModal"><i class="fa-solid fa-file"></i></a>
+                              <% } %> -->
+                              <% if (hasPermission('Order', 'edit')) { %>
+                              <a href="#" class="ms-2"
+   data-id="<%= orders.order_id %>"
+   data-bs-toggle="modal"
+   data-bs-target="#exampleModal">
+   <i class="fa-solid fa-circle-exclamation"></i>
+</a><% } %>
+                              <!-- <% if (hasPermission('Order', 'delete')) { %>
+                              <a href="#" class="ms-2" data-bs-toggle="modal" data-bs-target="#deleteModal"><i class="fa-solid fa-trash"></i></a>
+                              <% } %> -->
+                            </td>
+                            <% } %>
+                          </tr>
+                           <% });} %>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!------listing-wrapper END-------->
+  </div>
+  <!------Page-wrapper END-------->
+  <%- include('partials/linkfooter.ejs') %>
+
+  <!-- Modal -->
+  <div class="modal fade" id="generateModal" tabindex="-1" aria-labelledby="generateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="generateModalLabel">Invoice</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="invoice_block">
+            <figure class=""></figure>
+            <div class="invoice_detail">
+              <p><strong>Order Number:</strong> T4JTAy</p>
+              <p><strong>Name:</strong> Rahul</p>
+              <p><strong>Email:</strong> rahulsaini@gmail.com</p>
+              <p><strong>Payment Method:</strong> COD</p>
+              <p><strong>TXN:</strong> dEC83AJy</p>
+            </div>
+
+            <div class="row mt-4">
+              <div class="col-md-5">
+                <div class="invoice_detail">
+                  <h5>Billing Address</h5>
+                  <ul class="list-inline">
+                    <li>Rahul Saini</li>
+                    <li>rahulsaini@gmail.com</li>
+                    <li>
+                      14 First Floor, Katta Compex Rajsthan, India 303313
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="col-md-5">
+                <div class="invoice_detail">
+                  <h5>Shipping Address</h5>
+                  <ul class="list-inline">
+                    <li>Rahul Saini</li>
+                    <li>rahulsaini@gmail.com</li>
+                    <li>
+                      14 First Floor, Katta Compex Rajsthan, India 303313
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <h4>Products</h4>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>thikness</th>
+                    <th>Quantity</th>
+                    <th>Size</th>
+                    <th>Color</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Wooden Door</td>
+                    <td>25cm</td>
+                    <td>2.00</td>
+                    <td>N/A</td>
+                    <td>N/A</td>
+                    <td>1499.50</td>
+                    <td>2999.50</td>
+                  </tr>
+                  <tr>
+                    <td colspan="7">
+                      <p><span>Subtotal</span> 2999.00</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colspan="7">
+                      <p><span>shiping Charge</span> 00.00</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colspan="7">
+                      <p><span>Tax</span> 00.00</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colspan="7">
+                      <p><span>Grand Total</span> 2999.00</p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default bg-white" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button type="button" class="btn btn-primary">Print</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <!-- <div class="modal-header">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div> -->
+        <div class="modal-body">
+          <div class="text-center">
+            <div class="cicle-exclamation text-danger">
+              <i class="fa-solid fa-exclamation"></i>
+            </div>
+            <h4>Are you Sure ?</h4>
+            <p>You won't be able to revert this!</p>
+
+            <div class="text-center mt-4">
+              <button type="button" class="btn btn-default bg-white">
+                Yes, delete it
+              </button>
+              <button type="button" class="btn btn-primary ms-2" data-bs-dismiss="modal">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">
+            Change Status
+          </h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="updateStatusForm">
+          <input type="hidden" name="order_id" id="modalOrderId" />
+        <div class="modal-body">
+          <div class="form-group mb-0">
+            <label for="">Status</label>
+            <select class="form-select" name="status" id="statusSelect" aria-label="Default select example">
+              <option selected>Select status</option>
+              <option value="pending">Pending</option>
+              <option value="shifted">Shifted</option>
+              <option value="process">Process</option>
+              <option value="delivered">Delivered</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default bg-white" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button type="submit" class="btn btn-primary border-0">
+            Update
+          </button>
+        </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+
+<script>
+  // When modal opens, set hidden order_id
+  $('#exampleModal').on('show.bs.modal', function (event) {
+    const button = $(event.relatedTarget);
+    const orderId = button.data('id');
+    $('#modalOrderId').val(orderId);
+  });
+
+  // Handle form submit
+  $("#updateStatusForm").on("submit", function (e) {
+    e.preventDefault();
+
+    const order_id = $("#modalOrderId").val();
+    const status = $("#statusSelect").val();
+
+    if (!status || !order_id) {
+      renderToast({ message: "Status and order ID are required", icon: "error" });
+      return;
+    }
+
+    const payload = { order_id, status };
+
+    $.ajax({
+      type: "POST",
+      url: "/admin/update_order_status",
+      contentType: "application/json",
+      data: JSON.stringify(payload),
+      success: (res) => {
+        renderToast({ message: res.message, icon: "success" });
+        setTimeout(() => {
+          window.location.href = "/admin/oerder-all";
+        }, 1000);
+      },
+      error: (err) => {
+        const message = err.responseJSON?.message || "Something went wrong";
+        renderToast({ message, icon: "error" });
+        console.error(err);
+      },
+    });
+  });
+</script>

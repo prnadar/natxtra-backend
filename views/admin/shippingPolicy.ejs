@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EZ Door || Shipping Policy</title>
+    <%- include('partials/linkheader.ejs') %>
+  </head>
+  <body>
+    <span id="pageId" style="display: none">Shipping Policy</span>
+    <div class="page-wrapper">
+      <!------Header END-------->
+
+      <section
+        class="listing-wrapper distributer-wrapper position-relative vh-100"
+      >
+        <div class="container-fluid px-0 h-100">
+          <div class="row mx-0 h-100">
+            <div class="col-md-12 px-0">
+              <div class="h-100">
+                <%- include('partials/sidebar.ejs') %>
+                <div class="right-side-block">
+                  <%- include('partials/header.ejs') %>
+
+                  <!-- <div class="card border-0 bg-transparent">
+                            <div class="card-body p-0">
+                                
+                            </div>
+                        </div> -->
+
+                  <div class="card border-0 bg-transparent">
+                    <div class="card-body p-0">
+                      <div class="bg-white p-4">
+                        <div
+                          class="d-flex align-items-center justify-content-between"
+                        >
+                          <h4 class="title-head">Shipping Policy List</h4>
+                          <a
+                            href="javascript:void(0);"
+                            class="btn btn-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#addsliderModal"
+                            >+ Add Shipping Policy</a
+                          >
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card border-0 bg-transparent">
+                    <div class="card-body p-0">
+                      <div class="distributor-table bg-white p-4">
+                        <div class="table-responsive">
+                          <table class="table">
+                            <thead>
+                              <tr>
+                                <th>Sr.</th>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <% if(!shippingpolicy[0]) { %>
+                              <tr>
+                                <td colspan="100%">No Data</td>
+                              </tr>
+                               <% } else {%> <%
+                                shippingpolicy.forEach(function(shippingpolicy,index){%>
+                              <tr>
+                                <td><%= index + 1 %></td>
+                                <td><%= shippingpolicy.title %></td>
+                                <td><%= shippingpolicy.description %></td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    class="-btn red-status btn btn-primary text-white"
+                                     onclick="deletePolicy('<%= shippingpolicy._id %>');"
+                                    >Delete</a
+                                  >
+                                </td>
+                              </tr>
+                              <% }); %> <% } %>
+                            </tbody>
+                          </table>
+                        </div>
+                        <!-- Page Size Dropdown (Right side) -->
+                        <div
+                          class="d-flex align-items-center justify-content-between"
+                        >
+                          <p>
+                            Showing <%= Math.min(currentPage * pageSize,
+                            totalItems) %> of <%= totalItems %> entries
+                          </p>
+
+                          <nav aria-label="Page navigation">
+                            <ul class="pagination mb-0">
+                              <!-- Previous Button -->
+                              <li
+                                class="page-item <%= currentPage <= 1 ? 'disabled' : '' %>"
+                              >
+                                <a
+                                  class="page-link"
+                                  href="?page=<%= currentPage - 1 %>"
+                                  >Previous</a
+                                >
+                              </li>
+
+                              <% 
+        let startPage = Math.max(1, currentPage - 1);
+        let endPage = Math.min(totalPages, startPage + 2);
+
+        // Adjust startPage if we're near the end
+        if (endPage - startPage < 2) {
+          startPage = Math.max(1, endPage - 2);
+        }
+      %>
+
+      <% for (let i = startPage; i <= endPage; i++) { %>
+        <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+          <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+        </li>
+      <% } %>
+
+      <% if (endPage < totalPages) { %>
+        <li class="page-item disabled">
+          <a class="page-link" href="#">...</a>
+        </li>
+      <% } %>
+
+                              <!-- Next Button -->
+                              <li
+                                class="page-item <%= currentPage >= totalPages ? 'disabled' : '' %>"
+                              >
+                                <a
+                                  class="page-link"
+                                  href="?page=<%= currentPage + 1 %>"
+                                  >Next</a
+                                >
+                              </li>
+                            </ul>
+                          </nav>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!------listing-wrapper END-------->
+    </div>
+    <!------Page-wrapper END-------->
+    <%- include('partials/linkfooter.ejs') %>
+
+    <!-- Add Modal -->
+    <div
+      class="modal fade"
+      id="addsliderModal"
+      tabindex="-1"
+      aria-labelledby="addsliderModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="addsliderModalLabel">Add Shipping Policy</h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="addform">
+              <div class="row">
+                <div class="col-md-12 mt-4 mt-md-0">
+                  <div class="form-group">
+                    <label for="">Title</label>
+                    <input
+                      type="text"
+                      id="title"
+                      class="form-control"
+                      name="title"
+                      placeholder="Enter title"
+                    />
+                  </div>
+                </div>
+
+                <div class="col-md-12 mt-4">
+                  <div class="form-group">
+                    <label for="">Description</label>
+                    <textarea
+                      class="form-control"
+                      name="description"
+                      id="description"
+                      placeholder="Enter Description"
+                    ></textarea>
+                  </div>
+                </div>
+
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-primary" id="add-btn">
+                    Submit
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const form = $("#addform");
+      form.on("submit", submitHandler);
+
+      function submitHandler(e) {
+        e.preventDefault();
+
+        // PREPARE FORM DATA
+        let formData = $("form");
+        let data = {
+          title: $("#title").val(),
+          description: $("#description").val(),
+        };
+
+        // DO POST
+        $.ajax({
+          type: "POST",
+          contentType: "application/json",
+          url: "/admin/shippingpolicy",
+          data: JSON.stringify(data),
+        })
+
+          .done((res) => {
+            if (res.error == true) {
+              renderToast({ message: res.message, icon: "error" });
+            } else {
+              renderToast({ message: res.message, icon: "success" });
+              setTimeout(() => {
+                window.location.reload();
+              }, 2000);
+            }
+          })
+          .fail(function (xhr, status, error) {
+            console.log(xhr.responseText);
+          });
+      }
+    </script>
+    <script>
+      function deletePolicy(id) {
+        if (confirm("Do you really want to delete this record")) {
+          // DO POST
+          $.ajax({
+            type: "POST",
+            contentType: "application/json",
+            url: `/admin/shippingpolicy-delete/${id}`,
+            data: JSON.stringify({
+              id: id,
+            }),
+            success: (res) => {
+              renderToast({
+                message: res.message,
+                icon: "success",
+              });
+              setTimeout(() => {
+                window.location.reload();
+              }, 1000);
+            },
+            error: (res) => {
+              renderToast({
+                message: res.message,
+                icon: "error",
+              });
+              console.log(res);
+            },
+          });
+        }
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EZ Door || Terms & Conditions</title>
+    <%- include('partials/linkheader.ejs') %>
+  </head>
+  <body>
+    <span id="pageId" style="display: none">Terms & Conditions</span>
+    <div class="page-wrapper">
+      <!------Header END-------->
+
+      <section
+        class="listing-wrapper distributer-wrapper position-relative vh-100"
+      >
+        <div class="container-fluid px-0 h-100">
+          <div class="row mx-0 h-100">
+            <div class="col-md-12 px-0">
+              <div class="h-100">
+                <%- include('partials/sidebar.ejs') %>
+                <div class="right-side-block">
+                  <%- include('partials/header.ejs') %>
+                  <div class="card border-0 bg-transparent">
+                    <div class="card-body p-0">
+                      <div class="bg-white p-4">
+                        <div
+                          class="d-flex align-items-center justify-content-between"
+                        >
+                          <h4 class="title-head">Terms & Conditions</h4>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card border-0 bg-transparent">
+                    <div class="card-body p-0">
+                      <form id="addForm">
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="bg-white p-4">
+                              <div class="col-md-6">
+                                <div class="form-group">
+                                  <label for="">Content:-</label>
+                                  <textarea
+                                    name="content"
+                                    class="form-control"
+                                    style="height: 80px"
+                                    rows="5"
+                                  ><%= content %></textarea>
+                                </div>
+                              </div>
+                              <div class="col-md-12 mt-4">
+                                <div class="text-end">
+                                  <button
+                                    type="submit"
+                                    class="btn btn-primary ms-2"
+                                  >
+                                    Save
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!------listing-wrapper END-------->
+    </div>
+    <!------Page-wrapper END-------->
+    <%- include('partials/linkfooter.ejs') %>
+
+    <script>
+      const form = $("#addForm");
+      form.on("submit", submitHandler);
+
+      function submitHandler(e) {
+        e.preventDefault();
+
+        var formData = getFormData($("#addForm"));
+
+        // DO POST
+        $.ajax({
+          type: "POST",
+          contentType: "application/json",
+          url: "/admin/termscondition",
+          data: JSON.stringify(formData),
+          success: (res) => {
+            renderToast({
+              message: res.message,
+              icon: "success",
+            });
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          },
+          error: (res) => {
+            renderToast({
+              message: res.message,
+              icon: "error",
+            });
+            console.log(res);
+          },
+        });
+      }
+    </script>
+  </body>
+</html>

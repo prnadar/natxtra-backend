@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EZ Door || Store</title>
+    <%- include('partials/linkheader.ejs') %>
+  </head>
+
+  <body>
+    <span id="pageId" style="display: none">Store</span>
+    <div class="page-wrapper">
+      <!------Header END-------->
+
+      <section
+        class="listing-wrapper distributer-wrapper position-relative vh-100"
+      >
+        <div class="container-fluid px-0 h-100">
+          <div class="row mx-0 h-100">
+            <div class="col-md-12 px-0">
+              <div class="h-100">
+                <%- include('partials/sidebar.ejs') %>
+                <div class="right-side-block">
+                  <%- include('partials/header.ejs') %>
+
+                  <div class="card border-0 bg-transparent">
+                    <div class="card-body p-0">
+                      <div class="bg-white">
+                        <div
+                          class="d-flex align-items-center justify-content-between p-4"
+                        >
+                          <h4 class="title-head">Store List</h4>
+                          <a
+                            href=""
+                            class="btn btn-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#newStoreModal"
+                            >Add Store</a
+                          >
+                        </div>
+                        <div class="distributor-table">
+                          <div class="table-responsive">
+                            <table class="table bg-white w-100">
+                              <thead>
+                                <tr>
+                                  <th>Sr.</th>
+                                  <th>Name</th>
+                                  <th>Phone</th>
+                                  <th>Address</th>
+                                  <th>State</th>
+                                  <th>City</th>
+                                  <th>Pincode</th>
+                                  <th>URL</th>
+                                  <th>Actions</th>
+                                </tr>
+                              </thead>
+                              <tbody class="text-center">
+                                <% if (!store[0]) { %>
+                                <tr>
+                                  <td colspan="100%">No Data</td>
+                                </tr>
+                                <% } else {%> <%
+                                store.forEach(function(store,index){%>
+                                <tr>
+                                  <td><%= index + 1 %></td>
+                                  <td><%= store.name %></td>
+                                  <td><%= store.phone %></td>
+                                  <td><%= store.address %></td>
+                                  <td><%= store.state %></td>
+                                  <td><%= store.city %></td>
+                                  <td><%= store.pincode %></td>
+                                  <td><%= store.url %></td>
+                                  <td>
+                                    <a
+                                      href="#"
+                                      class="btn btn-primary text-white edit-btn"
+                                      data-model="<%= JSON.stringify(store) %>"
+                                      id="edit_btn"
+                                      data-bs-toggle="modal"
+                                      data-bs-target="#editStoreModal"
+                                      >Edit</a
+                                    >
+                                    <a
+                                      href="#"
+                                      class="delete-btn red-status text-black bg-transparent btn btn-default ms-2"
+                                      data-id="<%=store._id%>"
+                                      >Delete</a
+                                    >
+                                  </td>
+                                </tr>
+                                <% });} %>
+                              </tbody>
+                            </table>
+                          </div>
+                          <div
+                            class="d-flex align-items-center justify-content-between"
+                          >
+                            <p>
+                              Showing <%= Math.min(currentPage * pageSize,
+                              totalItems) %> of <%= totalItems %> entries
+                            </p>
+
+                            <nav aria-label="Page navigation">
+                              <ul class="pagination mb-0">
+                                <!-- Previous Button -->
+                                <li
+                                  class="page-item <%= currentPage <= 1 ? 'disabled' : '' %>"
+                                >
+                                  <a
+                                    class="page-link"
+                                    href="?page=<%= currentPage - 1 %>"
+                                    >Previous</a
+                                  >
+                                </li>
+
+                                <% let startPage = Math.max(1, currentPage - 1);
+                                let endPage = Math.min(totalPages, startPage +2); 
+                                // Adjust startPage if we're near the end
+                                if (endPage - startPage < 2) { startPage = Math.max(1, endPage - 2); } %> 
+                                <% for (let i = startPage; i <= endPage; i++) { %>
+                                <li
+                                  class="page-item <%= i === currentPage ? 'active' : '' %>"
+                                >
+                                  <a class="page-link" href="?page=<%= i %>"
+                                    ><%= i %></a
+                                  >
+                                </li>
+                                <% } %>
+
+                                <!-- Next Button -->
+                                <li
+                                  class="page-item <%= currentPage >= totalPages ? 'disabled' : '' %>"
+                                >
+                                  <a
+                                    class="page-link"
+                                    href="?page=<%= currentPage + 1 %>"
+                                    >Next</a
+                                  >
+                                </li>
+                              </ul>
+                            </nav>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!------listing-wrapper END-------->
+    </div>
+    <!------Page-wrapper END-------->
+    <%- include('partials/linkfooter.ejs') %>
+
+    <!-- Add role Modal -->
+    <div
+      class="modal fade"
+      id="newStoreModal"
+      tabindex="-1"
+      aria-labelledby="newStoreModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title" id="newStoreModalLabel">
+              Create New Store
+            </h3>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="addStoreForm">
+              <div class="row align-items-center">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="">Name</label>
+                    <input
+                      type="text"
+                      id="name"
+                      class="form-control"
+                      name="name"
+                      placeholder="Enter name"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="">Phone</label>
+                    <input
+                      type="text"
+                      id="phone"
+                      class="form-control"
+                      name="phone"
+                      placeholder="Enter phone"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Address</label>
+                    <textarea
+                      class="form-control"
+                      id="address"
+                      name="address"
+                      placeholder="Enter address"
+                      required
+                    ></textarea>
+                  </div>
+                </div>
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">State</label>
+                    <input
+                      type="text"
+                      id="state"
+                      class="form-control"
+                      name="state"
+                      placeholder="Enter state"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">City</label>
+                    <input
+                      type="text"
+                      id="city"
+                      class="form-control"
+                      name="city"
+                      placeholder="Enter city"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Pincode</label>
+                    <input
+                      type="number"
+                      id="pincode"
+                      class="form-control"
+                      name="pincode"
+                      placeholder="Enter pincode"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">URL</label>
+                    <input
+                      type="text"
+                      id="url"
+                      class="form-control"
+                      name="url"
+                      placeholder="Enter URL"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-12 mt-4">
+                <div class="text-end">
+                  <button
+                    type="submit"
+                    id="add-btn"
+                    class="btn btn-primary ms-2"
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Store Modal -->
+    <div
+      class="modal fade"
+      id="editStoreModal"
+      tabindex="-1"
+      aria-labelledby="editStoreModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title" id="editStoreModalLabel">Edit New Unit</h3>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="editform">
+              <div class="row align-items-center">
+                <input type="text" name="editid" hidden id="editid" />
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="">Name</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      name="edit_name"
+                      id="edit_name"
+                      placeholder="Enter name"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-12 mt-4">
+                  <div class="text-end">
+                    <button
+                      type="submit"
+                      id="edit-btn"
+                      class="btn btn-primary ms-2"
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      //#region Add Store
+      var addform = $("#addStoreForm");
+      addform.on("submit", submitFormHandler);
+
+      function submitFormHandler(e) {
+        e.preventDefault();
+
+        var formData = getFormData(addform);
+        // DO POST
+        $.ajax({
+          type: "POST",
+          processData: false,
+          contentType: "application/json",
+          url: "/admin/add-store",
+          data: JSON.stringify(formData),
+          success: (res) => {
+            renderToast({
+              message: res.message,
+              icon: "success",
+            });
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          },
+          error: (res) => {
+            renderToast({
+              message: res.message,
+              icon: "error",
+            });
+            console.log(res);
+          },
+        });
+      }
+      //#endregion Add store
+    </script>
+
+    <script>
+      $(document).ready(function () {
+        $(".delete-btn").on("click", function (e) {
+          const id = $(this).data("id");
+          console.log(id)
+            if (confirm("Do you really want to delete this record")) {
+              $.ajax({
+                type: "POST",
+                contentType: "application/json",
+                url: "/admin/delete-store",
+                data: JSON.stringify({
+                  id: id,
+                }),
+                success: (res) => {
+                  renderToast({
+                    message: res.message,
+                    icon: "success",
+                  });
+                  setTimeout(() => {
+                    // window.location.reload();
+                  }, 1000);
+                },
+                error: (res) => {
+                  renderToast({
+                    message: res.message,
+                    icon: "error",
+                  });
+                  console.error(res);
+                },
+              });
+            }
+        });
+      });
+    </script>
+  </body>
+</html>

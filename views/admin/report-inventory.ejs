@@ -1,0 +1,254 @@
+<% 
+  // Helper function to check permissions
+  const hasPermission = (module, permissionType = 'manage') => {
+    // Admins have all permissions
+    if (typeof isAdmin !== 'undefined' && isAdmin) return true;
+    // Check if user has the module and the specific permission
+    return typeof userPermissions !== 'undefined' && userPermissions && userPermissions[module] && userPermissions[module][permissionType];
+  };
+%>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EZ Door || Report Inventory</title>
+  <%- include('partials/linkheader.ejs') %>
+</head>
+
+<body>
+  <div class="page-wrapper">
+    <section class="listing-wrapper distributer-wrapper position-relative vh-100">
+      <div class="container-fluid px-0 h-100">
+        <div class="row mx-0 h-100">
+          <div class="col-md-12 px-0">
+            <div class="h-100">
+              <%- include('partials/sidebar.ejs') %>
+                <div class="right-side-block">
+                  <%- include('partials/header.ejs') %>
+
+                    <div class="card border-0 bg-transparent">
+                      <div class="card-body p-0">
+                        <div class="bg-white">
+                          <h4 class="p-4 border-bottom">
+                            <strong>Custom Report Generator</strong>
+                          </h4>
+                          <div class="p-4">
+                            <form id="addForm">
+                              <div class="row">
+                                <!-- Report Type -->
+                                <div class="col-md-2">
+                                  <div class="form-group">
+                                    <label for="report_type">Report Type</label>
+                                    <select name="report_type" id="report_type" class="form-control">
+                                      <option value="inventory">Inventory Report</option>
+                                    </select>
+                                  </div>
+                                </div>
+
+                                <!-- User Type -->
+                                <div class="col-md-3">
+                                  <div class="form-group">
+                                    <label for="typeSelect">User</label>
+                                    <select name="type" class="form-control" id="typeSelect">
+                                      <option value="">Select</option>
+                                      <option value="all">All Company</option>
+                                      <option value="distributor_wise">Distributor Wise</option>
+                                      <option value="dealer_wise">Dealer Wise</option>
+                                    </select>
+                                  </div>
+                                </div>
+
+                                <!-- Inventory Type -->
+                                <div class="col-md-3">
+                                  <div class="form-group">
+                                    <label for="inventory_typeSelect">Inventory Type</label>
+                                    <select name="inventory_type" class="form-control" id="inventory_typeSelect">
+                                      <option value="">Select Type</option>
+                                      <% categories.forEach(category=> { %>
+                                        <option value="<%= category._id %>">
+                                          <%= category.name %>
+                                        </option>
+                                        <% }) %>
+                                    </select>
+                                  </div>
+                                </div>
+
+                                <!-- Date Range -->
+                                <div class="col-md-4">
+                                  <div class="form-group">
+                                    <label for="date_range_from">Date Range</label>
+                                    <div class="d-flex align-items-start">
+                                      <input type="date" class="form-control" name="date_range_from"
+                                        id="date_range_from" value="<%= today %>" />
+                                      <input type="date" class="form-control ms-3" name="date_range_to"
+                                        id="date_range_to" value="<%= today %>" />
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <!-- Submit Button -->
+                                <div class="col-md-12 text-end mt-4">
+                                  <button type="button" class="btn btn-primary" id="generateBtn">
+                                    Generate Report
+                                  </button>
+                                </div>
+                              </div>
+                            </form>
+                          </div>
+                        </div>
+                        <div class="bg-white p-4 mt-4">
+                          <h4>Inventory Reports</h4>
+                          <div class="distributor-table mt-4">
+                            <div class="table-responsive">
+                              <table class="table">
+                                <thead>
+                                  <tr>
+                                    <th>Report type</th>
+                                    <th>Generated On</th>
+                                    <th>User</th>
+                                    <th>Inventory Type</th>
+                                    <th>Actions</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <% if (!report[0]) { %>
+                                    <tr>
+                                      <td colspan="100%">No Data</td>
+                                    </tr>
+                                    <% } else {%>
+                                      <% report.forEach(report=> { %>
+                                        <tr>
+                                          <td>
+                                            <%= report.report_type %>
+                                          </td>
+                                          <td>
+                                            <%= new Date(report.createdAt).toLocaleDateString() %>
+                                          </td>
+                                          <td>
+                                            <%= report.type ? report.type.charAt(0).toUpperCase() + report.type.slice(1)
+                                              : '--' %>
+                                          </td>
+                                          <td>
+                                            <%= report.inventory_type ? report.inventory_type.name : '--' %>
+                                          </td>
+                                          <td>
+                                            <a href="/admin/download-inventory-report/<%= report._id %>"
+                                              class="text-info downloadReport">Download</a>
+                                          </td>
+                                        </tr>
+                                        <% });} %>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!------listing-wrapper END-------->
+  </div>
+  <!------Page-wrapper END-------->
+  <%- include('partials/linkfooter.ejs') %>
+    <script>
+      document.getElementById("generateBtn").addEventListener("click", async () => {
+        const report_type = document.getElementById("report_type").value.trim();
+        const type = document.getElementById("typeSelect").value.trim();
+        const inventory_type = document.getElementById("inventory_typeSelect").value.trim();
+        const date_range_from = document.getElementById("date_range_from").value.trim();
+        const date_range_to = document.getElementById("date_range_to").value.trim();
+
+        // Validation
+        if (type !== "" && inventory_type !== "") {
+          renderToast({
+            message: "Please select only one filter (User Type or Inventory Type)",
+            icon: "warning",
+          });
+          return false;
+        }
+
+        if (type === "" && inventory_type === "") {
+          renderToast({
+            message: "Please select at least one filter (User Type or Inventory Type)",
+            icon: "warning",
+          });
+          return false;
+        }
+
+        try {
+          const res = await fetch("/admin/inventory-report-generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              report_type,
+              type,
+              inventory_type,
+              date_range_from,
+              date_range_to
+            }),
+          });
+
+          const result = await res.json();
+          if (result.success) {
+            renderToast({
+              icon: "success",
+              message: "Report generated successfully",
+            });
+            location.reload();
+          } else {
+            renderToast({
+              icon: "error",
+              message: result.message || "Error generating report",
+            });
+          }
+        } catch (err) {
+          console.error(err);
+          renderToast({
+            icon: "error",
+            message: err.message || "Error generating report",
+          });
+        }
+      });
+
+      // Download Report
+      $(document).ready(function () {
+        $(".downloadReport").on("click", function (e) {
+          e.preventDefault();
+          const url = $(this).attr("href");
+          $(this).text("Generating...");
+          fetch(url)
+            .then((response) => {
+              if (!response.ok) throw new Error("Failed to download report");
+              return response.blob();
+            })
+            .then((blob) => {
+              const link = document.createElement("a");
+              link.href = window.URL.createObjectURL(blob);
+              link.download = "inventory_report.pdf";
+              window.open(link.href, "_blank");
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              $(this).text("Download");
+            })
+            .catch((error) => {
+              renderToast({
+                icon: "error",
+                message: error.message || "Error downloading report",
+              });
+              $(this).text("Download");
+            });
+        });
+      });
+    </script>
+
+
+</body>
+
+</html>

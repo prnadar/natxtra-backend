@@ -1,0 +1,595 @@
+<% 
+  // Helper function to check permissions
+  const hasPermission = (module, permissionType = 'manage') => {
+    // Admins have all permissions
+    if (typeof isAdmin !== 'undefined' && isAdmin) return true;
+    // Check if user has the module and the specific permission
+    return typeof userPermissions !== 'undefined' && userPermissions && userPermissions[module] && userPermissions[module][permissionType];
+  };
+%>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iclick Distributor || Sales Listing</title>
+  <%- include('partials/linkheader.ejs') %>
+
+</head>
+
+<body>
+  <span id="pageId" style="display:none;">sales</span>
+  <div class="page-wrapper">
+    <!------Header END-------->
+    <section class="listing-wrapper position-relative vh-100">
+      <div class="container-fluid px-0 h-100">
+        <div class="row mx-0 h-100">
+          <div class="col-md-12 px-0">
+            <div class="h-100">
+              <%- include('partials/sidebar.ejs') %>
+                <div class="right-side-block">
+                  <%- include('partials/header.ejs') %>
+                    <div class="card border-0">
+                      <div class="card-body p-0">
+                        <div class="fliter_bar">
+                          <div class="row align-items-md-center">
+                            <div class="col-md-10 col-lg-9 col-xl-8">
+                              <div class="d-grid filter_grid">
+                                <div class="form-group d-flex align-items-center mb-0">
+                                  <label class="mb-0" for="from">From</label>
+                                  <input type="date" class="form-control ms-2" name="from" value="<%= from %>">
+                                </div>
+
+                                <div class="form-group d-flex align-items-center mx-md-3 mx-sm-3 mb-0">
+                                  <label class="mb-0" for="to">To</label>
+                                  <input type="date" class="form-control ms-2" name="to" value="<%= to %>">
+                                </div>
+
+                                <div class="form-group select_name me-md-3 me-sm-3">
+                                  <select name="filter" class="form-control" id="userSelect">
+                                    <option value="">Select Name</option>
+                                    <% users.forEach(user=> { %>
+                                      <option value="<%= user._id %>">
+                                        <%= user.name %>
+                                      </option>
+                                      <% }) %>
+                                  </select>
+                                </div>
+                                <button type="button" class="btn btn-primary">Search</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="card border-0 py-0 mt-1">
+                      <div class="card-body p-0">
+                        <div class="chart-block">
+                          <!-- <img src="images/sales-chart.svg" class="img-fluid w-100" alt=""> -->
+                          <canvas id="barChartnew" style="height:400px;width:100%;"></canvas>
+                        </div>
+
+                        <div class="table-responsive mt-5">
+                          <table class="table table-bordered table-striped">
+                            <thead>
+                              <tr>
+                                <th>Sales Executive Name</th>
+                                <th>Call Back</th>
+                                <th>FollowUp</th>
+                                <th>Not Interested</th>
+                                <th>Presentation</th>
+                                <th>Payment</th>
+                                <th>Become Distributor</th>
+                                <th>Deal Done</th>
+                                <th>Prospect</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <% if (userStats.length> 0) { %>
+                                <% userStats.forEach(stat=> { %>
+                                  <tr>
+                                    <td>
+                                      <%= stat.name ? stat.name : '--' %>
+                                    </td>
+                                    <td>
+                                      <%= stat.call_back || 0 %>
+                                    </td>
+                                    <td>
+                                      <%= stat.follow_up || 0 %>
+                                    </td>
+                                    <td>
+                                      <%= stat.not_interested || 0 %>
+                                    </td>
+                                    <td>
+                                      <%= stat.presentation || 0 %>
+                                    </td>
+                                    <td>
+                                      <%= stat.payment || 0 %>
+                                    </td>
+                                    <td>
+                                      <%= stat.become_distibutor || 0 %>
+                                    </td>
+                                    <td>
+                                      <%= stat.deal_done || 0 %>
+                                    </td>
+                                    <td>
+                                      <%= stat.prospect || 0 %>
+                                    </td>
+                                  </tr>
+                                  <% }) %>
+                                    <% } else { %>
+                                      <tr>
+                                        <td colspan="9" class="text-center">No data available</td>
+                                      </tr>
+                                      <% } %>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!------listing-wrapper END-------->
+  </div>
+  <!------Page-wrapper END-------->
+  <!-- Modal -->
+  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="modal-content">
+        <!-- <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div> -->
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-5 col-lg-4 col-xl-3 col-xxl-3">
+              <div class="left_aside">
+                <div class="user_circle">
+                  <figure class="">
+                    <img src="images/circle_img.png" class="img-fluid" alt="">
+                  </figure>
+                  <p>Anjan kumar Giri</p>
+                </div>
+                <div class="user_details mt-2">
+                  <ul class="list-inline">
+                    <li><span>Contact Number:</span>6360145362</li>
+                    <li><span>Company Name:</span>Asutosh</li>
+                    <li><span>City:</span>Champua</li>
+                    <li><span>Contact Number:</span>6360145362</li>
+                    <li><span>Requirement:</span>NA</li>
+                  </ul>
+
+                  <ul class="list-inline">
+                    <li><span>Disposition:</span>Not Interested</li>
+                    <li><span>Sub-Disposition:</span>Price Issue</li>
+                    <li><span>Last Call Back:</span>18-01-2025 08:00 PM</li>
+                    <li><span>Next Call Back:</span>18-01-2025 01:30 PM</li>
+                    <li><span>Remarks:</span></li>
+                  </ul>
+
+                  <p class="text-start">Lorem ipsum dolor sit amet consectetur.</p>
+
+                  <div class="text-center mt-5">
+                    <button type="button" class="btn btn-primary update_btn">Update</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-7 col-lg-8 col-xl-9 col-xxl-9">
+              <div class="right_aside">
+                <div class="nav nav-tabs border-0" id="nav-tab" role="tablist">
+                  <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home"
+                    type="button" role="tab" aria-controls="nav-home" aria-selected="true">Billing Details</button>
+                  <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile"
+                    type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Business
+                    Details</button>
+                  <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact"
+                    type="button" role="tab" aria-controls="nav-contact" aria-selected="false">Activity
+                    History</button>
+                  <button class="nav-link" id="nav-products-tab" data-bs-toggle="tab" data-bs-target="#nav-products"
+                    type="button" role="tab" aria-controls="nav-products" aria-selected="false">Products
+                    Details</button>
+                  <button class="nav-link" id="nav-contract-tab" data-bs-toggle="tab" data-bs-target="#nav-contract"
+                    type="button" role="tab" aria-controls="nav-contract" aria-selected="false">Contract
+                    Details</button>
+                </div>
+                <div class="tab-content" id="nav-tabContent">
+                  <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+                    <div class="billing_block">
+                      <div class="row">
+                        <div class="col-md-6">
+                          <div class="billing_box">
+                            <h5>Basic info <span><a class="click_to_edit" href="#"><img src="images/edit_icon.svg"
+                                    class="img-fluid" alt=""></a> <a class="click_to_read" href="#"><img
+                                    src="images/close_icon.svg" class="img-fluid" alt=""></a></span></h5>
+                            <ul class="list-inline">
+                              <li><span>Name:</span>
+                                <p class="read_text">6360145362</p> <input type="text" class="form-control edit_input"
+                                  value="0">
+                              </li>
+                              <li><span>Designation:</span>
+                                <p class="read_text">Asutosh</p> <input type="text" class="form-control edit_input"
+                                  value="0">
+                              </li>
+                              <li><span>Contact Number:</span>
+                                <p class="read_text">Champua</p> <input type="text" class="form-control edit_input"
+                                  value="0">
+                              </li>
+                              <li><span>Alt Contact Number:</span>
+                                <p class="read_text">6360145362</p> <input type="text" class="form-control edit_input"
+                                  value="0">
+                              </li>
+                              <li><span>Contact Number-3:</span>
+                                <p class="read_text">NA</p> <input type="text" class="form-control edit_input"
+                                  value="0">
+                              </li>
+                              <li><span>Contact Number-4:</span>
+                                <p class="read_text">NA</p> <input type="text" class="form-control edit_input"
+                                  value="0">
+                              </li>
+                              <li><span>Mail-1:</span>
+                                <p class="read_text">NA</p> <input type="text" class="form-control edit_input"
+                                  value="0">
+                              </li>
+                              <li><span>Mail-2:</span>
+                                <p class="read_text">NA</p> <input type="text" class="form-control edit_input"
+                                  value="0">
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+
+                        <div class="col-md-6 mt-4 mt-md-0">
+                          <div class="billing_box">
+                            <h5>Alternative Contact Details <span><a class="click_to_edit" href="#"><img
+                                    src="images/edit_icon.svg" class="img-fluid" alt=""></a> <a class="click_to_read"
+                                  href="#"><img src="images/close_icon.svg" class="img-fluid" alt=""></a></span></h5>
+                            <ul class="list-inline">
+                              <li><span>Name:</span>
+                                <p class="read_text">6360145362</p> <input type="text" class="form-control edit_input"
+                                  value="0">
+                              </li>
+                              <li><span>Designation:</span>
+                                <p class="read_text">Asutosh</p> <input type="text" class="form-control edit_input"
+                                  value="0">
+                              </li>
+                              <li><span>Contact Number:</span>
+                                <p class="read_text">Champua</p> <input type="text" class="form-control edit_input"
+                                  value="0">
+                              </li>
+                              <li><span>Alt Contact Number:</span>
+                                <p class="read_text">6360145362</p> <input type="text" class="form-control edit_input"
+                                  value="0">
+                              </li>
+                              <li><span>Contact Number-3:</span>
+                                <p class="read_text">NA</p> <input type="text" class="form-control edit_input"
+                                  value="0">
+                              </li>
+                              <li><span>Contact Number-4:</span>
+                                <p class="read_text">NA</p> <input type="text" class="form-control edit_input"
+                                  value="0">
+                              </li>
+                              <li><span>Mail-1:</span>
+                                <p class="read_text">NA</p> <input type="text" class="form-control edit_input"
+                                  value="0">
+                              </li>
+                              <li><span>Mail-2:</span>
+                                <p class="read_text">NA</p> <input type="text" class="form-control edit_input"
+                                  value="0">
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+
+                        <div class="col-md-6 mt-4">
+                          <div class="billing_box">
+                            <h5>Office contact <span><a class="click_to_edit" href="#"><img src="images/edit_icon.svg"
+                                    class="img-fluid" alt=""></a> <a class="click_to_read" href="#"><img
+                                    src="images/close_icon.svg" class="img-fluid" alt=""></a></span></h5>
+                            <ul class="list-inline">
+                              <li><span>Name:</span>
+                                <p class="read_text">6360145362</p> <input type="text" class="form-control edit_input"
+                                  value="0">
+                              </li>
+                              <li><span>Designation:</span>
+                                <p class="read_text">Asutosh</p> <input type="text" class="form-control edit_input"
+                                  value="0">
+                              </li>
+                              <li><span>Contact Number:</span>
+                                <p class="read_text">Champua</p> <input type="text" class="form-control edit_input"
+                                  value="0">
+                              </li>
+                              <li><span>Alt Contact Number:</span>
+                                <p class="read_text">6360145362</p> <input type="text" class="form-control edit_input"
+                                  value="0">
+                              </li>
+                              <li><span>Contact Number-3:</span>
+                                <p class="read_text">NA</p> <input type="text" class="form-control edit_input"
+                                  value="0">
+                              </li>
+                              <li><span>Contact Number-4:</span>
+                                <p class="read_text">NA</p> <input type="text" class="form-control edit_input"
+                                  value="0">
+                              </li>
+                              <li><span>Mail-1:</span>
+                                <p class="read_text">NA</p> <input type="text" class="form-control edit_input"
+                                  value="0">
+                              </li>
+                              <li><span>Mail-2:</span>
+                                <p class="read_text">NA</p> <input type="text" class="form-control edit_input"
+                                  value="0">
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+                    <div class="business_block">
+                      <div class="billing_box">
+                        <h5>Basic info <span><a class="click_to_edit" href="#"><img src="images/edit_icon.svg"
+                                class="img-fluid" alt=""></a> <a class="click_to_read" href="#"><img
+                                src="images/close_icon.svg" class="img-fluid" alt=""></a></span></h5>
+                        <ul class="list-inline">
+                          <li><span>Company Name:</span>
+                            <p class="read_text">6360145362</p> <input type="text" class="form-control edit_input"
+                              value="0">
+                          </li>
+                          <li><span>Unique Profile Id:</span>
+                            <p class="read_text">Asutosh</p> <input type="text" class="form-control edit_input"
+                              value="0">
+                          </li>
+                          <li><span>Profile Score:</span>
+                            <p class="read_text">Champua</p> <input type="text" class="form-control edit_input"
+                              value="0">
+                          </li>
+                          <li><span>Lead Creation Date:</span>
+                            <p class="read_text">6360145362</p> <input type="text" class="form-control edit_input"
+                              value="0">
+                          </li>
+                          <li><span>Lead Source:</span>
+                            <p class="read_text">NA</p> <input type="text" class="form-control edit_input" value="0">
+                          </li>
+                          <li><span>Profile Status:</span>
+                            <p class="read_text">NA</p> <input type="text" class="form-control edit_input" value="0">
+                          </li>
+                          <li><span>About Company:</span>
+                            <p class="read_text">NA</p> <input type="text" class="form-control edit_input" value="0">
+                          </li>
+                          <li><span>Company Type:</span>
+                            <p class="read_text">NA</p> <input type="text" class="form-control edit_input" value="0">
+                          </li>
+                          <li><span>Establishment Year:</span>
+                            <p class="read_text">NA</p> <input type="text" class="form-control edit_input" value="0">
+                          </li>
+                          <li><span>Nature Of Business:</span>
+                            <p class="read_text">NA</p> <input type="text" class="form-control edit_input" value="0">
+                          </li>
+                          <li><span>Turn Over:</span>
+                            <p class="read_text">NA</p> <input type="text" class="form-control edit_input" value="0">
+                          </li>
+                          <li><span>City:</span>
+                            <p class="read_text">NA</p> <input type="text" class="form-control edit_input" value="0">
+                          </li>
+                          <li><span>State:</span>
+                            <p class="read_text">NA</p> <input type="text" class="form-control edit_input" value="0">
+                          </li>
+                          <li><span>Address:</span>
+                            <p class="read_text">NA</p> <input type="text" class="form-control edit_input" value="0">
+                          </li>
+                          <li><span>Pincode:</span>
+                            <p class="read_text">NA</p> <input type="text" class="form-control edit_input" value="0">
+                          </li>
+                          <li><span>Country:</span>
+                            <p class="read_text">NA</p> <input type="text" class="form-control edit_input" value="0">
+                          </li>
+                          <li><span>GST Number:</span>
+                            <p class="read_text">NA</p> <input type="text" class="form-control edit_input" value="0">
+                          </li>
+                          <li><span>Phone Number:</span>
+                            <p class="read_text">NA</p> <input type="text" class="form-control edit_input" value="0">
+                          </li>
+                          <li><span>Employee Count:</span>
+                            <p class="read_text">NA</p> <input type="text" class="form-control edit_input" value="0">
+                          </li>
+                          <li><span>Online Link-1:</span>
+                            <p class="read_text">NA</p> <input type="text" class="form-control edit_input" value="0">
+                          </li>
+                          <li><span>Online Link-2:</span>
+                            <p class="read_text">NA</p> <input type="text" class="form-control edit_input" value="0">
+                          </li>
+                          <li><span>Online Link-3:</span>
+                            <p class="read_text">NA</p> <input type="text" class="form-control edit_input" value="0">
+                          </li>
+                          <li><span>Online Link-4:</span>
+                            <p class="read_text">NA</p> <input type="text" class="form-control edit_input" value="0">
+                          </li>
+                          <li><span>Website:</span>
+                            <p class="read_text">NA</p> <input type="text" class="form-control edit_input" value="0">
+                          </li>
+                          <li><span>Facebook:</span>
+                            <p class="read_text">NA</p> <input type="text" class="form-control edit_input" value="0">
+                          </li>
+                          <li><span>Insta:</span>
+                            <p class="read_text">NA</p> <input type="text" class="form-control edit_input" value="0">
+                          </li>
+                          <li><span>LinkedIn:</span>
+                            <p class="read_text">NA</p> <input type="text" class="form-control edit_input" value="0">
+                          </li>
+                          <li><span>You Tube:</span>
+                            <p class="read_text">NA</p> <input type="text" class="form-control edit_input" value="0">
+                          </li>
+                          <li><span>Quora:</span>
+                            <p class="read_text">NA</p> <input type="text" class="form-control edit_input" value="0">
+                          </li>
+                        </ul>
+
+                        <button type="button" class="btn btn-primary">Submit</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
+                    <div class="activity_history">
+                      <div class="table-responsive">
+                        <table class="table table-bordered">
+                          <thead>
+                            <tr>
+                              <th>Call Back Date</th>
+                              <th>Disposition</th>
+                              <th>Sub-Disposition</th>
+                              <th>Remarks</th>
+                              <th>Sales Member</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td>01-02-2025 10:12 AM</td>
+                              <td>Call Back</td>
+                              <td>Call Back</td>
+                              <td>Tomorrow call back 1... <a class="products_btn" href="javascript:void(0);">Read
+                                  More</a></td>
+                              <td>Shajar Abbas</td>
+                            </tr>
+                            <tr>
+                              <td>01-02-2025 10:12 AM</td>
+                              <td>Call Back</td>
+                              <td>Call Back</td>
+                              <td>Tomorrow call back 1... <a href="javascript:void(0);">Read More</a></td>
+                              <td>Shajar Abbas</td>
+                            </tr>
+                            <tr>
+                              <td>01-02-2025 10:12 AM</td>
+                              <td>Call Back</td>
+                              <td>Call Back</td>
+                              <td>Tomorrow call back 1... <a href="javascript:void(0);">Read More</a></td>
+                              <td>Shajar Abbas</td>
+                            </tr>
+                            <tr>
+                              <td>01-02-2025 10:12 AM</td>
+                              <td>Call Back</td>
+                              <td>Call Back</td>
+                              <td>Tomorrow call back 1... <a href="javascript:void(0);">Read More</a></td>
+                              <td>Shajar Abbas</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <div class="add_products_popup">
+                        <div class="inner_modal_product">
+                          <h4 class="d-flex align-items-center justify-content-between">Remarks </h4>
+                          <p>tomorrow call back 10am dealing in cctv cameras 75 for 6</p>
+
+                          <div class="text-end"><a href="javascript:void(0);"
+                              class="btn btn-default close_popup">Cancel</a></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="tab-pane fade" id="nav-products" role="tabpanel" aria-labelledby="nav-products-tab">
+                    <div class="products_block">
+                      <div class="billing_box">
+                        <a href="javascript:void(0);" class="btn btn-primary products_btn">Add Products <i
+                            class="fa-solid fa-plus"></i></a>
+                      </div>
+
+                      <div class="add_products_popup">
+                        <div class="inner_modal_product">
+                          <h4 class="d-flex align-items-center justify-content-between">Add Product <a
+                              href="javascript:void(0);" class="close_popup"><i class="fa-solid fa-x"></i></a></h4>
+
+                          <div class="form-group mb-3">
+                            <label class="mb-2" for="">Product Name:</label>
+                            <input type="text" class="form-control" placeholder="Enter product name">
+                          </div>
+                          <div class="form-group mb-3">
+                            <label class="mb-2" for="">Category:</label>
+                            <input type="text" class="form-control" placeholder="Enter category">
+                          </div>
+                          <div class="form-group mb-4">
+                            <label class="mb-2" for="">Keywords:</label>
+                            <input type="text" class="form-control" placeholder="Enter keywords">
+                          </div>
+
+                          <button type="button" class="btn btn-primary w-100">Submit</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="tab-pane fade" id="nav-contract" role="tabpanel" aria-labelledby="nav-contract-tab">...
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <%- include('partials/linkfooter.ejs') %>
+    <script src="https://cdn2.hubspot.net/hubfs/476360/Chart.js"></script>
+    <script src="https://cdn2.hubspot.net/hubfs/476360/utils.js"></script>
+    <script>
+      // $(document).ready(function(){
+      //   // to add a class
+      //   $(".click_to_edit").click(function(){
+      //     $(".billing_box ul li").addClass("editable");
+      //   });
+
+      //   // to remove a class
+      //   $(".click_to_read").click(function(){
+      //       $(".billing_box ul li").removeClass("editable");
+      //   });
+
+      //   $(".click_to_edit").click(function(){
+      //     $(".billing_box h5 span").addClass("show");
+      //   });
+
+      //   // to remove a class
+      //   $(".click_to_read").click(function(){
+      //       $(".billing_box h5 span").removeClass("show");
+      //   });
+
+
+      //   $(".products_btn").click(function(){
+      //     $(".add_products_popup").addClass("show");
+      //   });
+
+      //   // to remove a class
+      //   $(".close_popup").click(function(){
+      //       $(".add_products_popup").removeClass("show");
+      //   });
+
+      // });
+
+      var ctx = document.getElementById("barChartnew").getContext('2d');
+      var barChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sst", "Sun"],
+          datasets: [{
+            label: 'data-1',
+            data: [12, 19, 3, 17, 28, 24, 7],
+            backgroundColor: "rgba(152,184,232,1)"
+          },
+            // {
+            //   label: 'data-2',
+            //   data: [30, 29, 5, 5, 20, 3, 10],
+            //   backgroundColor: "rgba(152,184,232,1)"
+            // }
+          ]
+        }
+      });
+    </script>
+</body>
+
+</html>

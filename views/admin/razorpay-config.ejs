@@ -1,0 +1,119 @@
+<% 
+  // Helper function to check permissions
+  const hasPermission = (module, permissionType = 'manage') => {
+    // Admins have all permissions
+    if (typeof isAdmin !== 'undefined' && isAdmin) return true;
+    // Check if user has the module and the specific permission
+    return typeof userPermissions !== 'undefined' && userPermissions && userPermissions[module] && userPermissions[module][permissionType];
+  };
+%>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EZ Door || RazorPay Config</title>
+  <%- include('partials/linkheader.ejs') %>
+</head>
+
+<body>
+  <div class="page-wrapper">
+    <section class="listing-wrapper distributer-wrapper position-relative vh-100">
+      <div class="container-fluid px-0 h-100">
+        <div class="row mx-0 h-100">
+          <div class="col-md-12 px-0">
+            <div class="h-100">
+              <%- include('partials/sidebar.ejs') %>
+              <div class="right-side-block">
+                <%- include('partials/header.ejs') %>
+
+                <div class="card border-0 bg-transparent">
+                  <div class="card-body p-0">
+                    <div class="p-4 bg-white rounded-3">
+                      <h4>RazorPay Config</h4>
+                      <form id="updateForm">
+                        <div class="row">
+                          <div class="col-md-6 mt-4">
+                            <div class="form-group">
+                              <label for="">Key</label>
+                              <input type="text" class="form-control" id="key_id" name="key_id" placeholder="Enter Key" value="<%= key_id ? key_id : '' %>" />
+                            </div>
+                          </div>
+                          <div class="col-md-6 mt-4">
+                            <div class="form-group">
+                              <label for="">Key Secret</label>
+                              <input type="text" class="form-control" id="key_secret" name="key_secret" placeholder="Enter Key Secret" value="<%= key_secret ? key_secret : '' %>" />
+                            </div>
+                          </div>
+
+                          <% if (hasPermission('Setting', 'edit')) { %>
+                          <div class="col-md-6 ms-auto text-md-end text-center mt-4">
+                            <button type="submit" class="btn btn-primary">
+                              Save Changes
+                            </button>
+                          </div>
+                          <% } %>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!------listing-wrapper END-------->
+  </div>
+  <!------Page-wrapper END-------->
+  <%- include('partials/linkfooter.ejs') %>
+  <script>
+    //#region SMTP Config Add
+    var editform = $("#updateForm");
+    editform.submit(function(e) {
+      e.preventDefault();
+
+      //validation
+
+      if ($("#key_id").val() == "") {
+        renderToast({
+            message: "Key is required",
+            icon: "warning",
+          });
+          return false;
+      }
+      if ($("#key_secret").val() == "") {
+        renderToast({
+            message: "Key Secret is required",
+            icon: "warning",
+          });
+          return false;
+      }
+
+      var formData = getFormData(editform);
+
+      $.ajax({
+        type: "POST",
+        url: "/admin/razorpay_config_add",
+        data: formData,
+        success: (res) => {
+          renderToast({
+            message: res.message,
+            icon: "success"
+          });
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        },
+        error: (res) => {
+          console.error(res);
+        },
+      });
+    });
+    //#endregion razorpay_config_ Add
+  </script>
+</body>
+
+</html>

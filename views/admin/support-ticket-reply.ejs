@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EZ Door || Support Tickets Replay</title>
+    <%- include('partials/linkheader.ejs') %>
+  </head>
+  <body>
+    <div class="page-wrapper">
+      <!------Header END-------->
+
+      <section
+        class="listing-wrapper distributer-wrapper position-relative vh-100"
+      >
+        <div class="container-fluid px-0 h-100">
+          <div class="row mx-0 h-100">
+            <div class="col-md-12 px-0">
+              <div class="h-100">
+                <%- include('partials/sidebar.ejs') %>
+                <div class="right-side-block">
+                  <%- include('partials/header.ejs') %>
+
+                  <div class="card border-0 bg-transparent">
+                    <div class="card-body p-0">
+                      <div class="replay_ticket_card">
+                        <h5>
+                          Replay Ticket -
+                          <span class="text-success"><%= supportTicket._id.toString().slice(-6) %></span>
+                        </h5>
+                  
+                        <div class="p-4 bg-white rounded-3 mt-4">
+                          <span class="green-bg"><%= supportTicket.priority %></span>
+                          <h4><%= supportTicket.subject %></h4>
+                          <p class="my-2">
+                            <strong><%= supportTicket.user_id?.name %></strong> ·
+                            <%= supportTicket.user_id?.email %> ·
+                            <%= new Date(supportTicket.created_at).toDateString() %>
+                          </p>
+                          <hr />
+                          <p><%= supportTicket.description %></p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card border-0 bg-transparent">
+                    <div class="card-body p-0">
+                      <div class="p-4 bg-white rounded-3">
+                        <form id="replyForm">
+                          <div class="form-group mb-4">
+                            <label for="">Comments</label>
+                            <textarea
+                              class="form-control"
+                              id="comment"
+                              placeholder="Your Comment"
+                              style="height: 100px"
+                            ></textarea>
+                          </div>
+                          <button type="submit" class="btn btn-primary w-100">
+                            <i class="fa-solid fa-plus"></i> Send
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!------listing-wrapper END-------->
+    </div>
+    <!------Page-wrapper END-------->
+    <%- include('partials/linkfooter.ejs') %>
+
+    <script>
+      document.getElementById('replyForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const comment = document.getElementById('comment').value.trim();
+        if (!comment) return alert("Please enter a comment.");
+    
+        fetch(`/admin/support-ticket-reply/<%= supportTicket._id %>`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ comment })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            renderToast("Comment sent successfully", "success");
+            window.location.reload();
+          } else {
+            renderError(data.message || "Failed to send comment.");
+          }
+        })
+        .catch(err => {
+          console.error(err);
+         renderError("An error occurred while sending the comment.");
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,2957 @@
+<% 
+  // Helper function to check permissions
+  const hasPermission = (module, permissionType = 'manage') => {
+    // Admins have all permissions
+    if (typeof isAdmin !== 'undefined' && isAdmin) return true;
+    // Check if user has the module and the specific permission
+    return typeof userPermissions !== 'undefined' && userPermissions && userPermissions[module] && userPermissions[module][permissionType];
+  };
+%>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Iclick Distributor || Listing</title>
+  <%- include('partials/linkheader.ejs') %>
+</head>
+<style>
+  .allocate_leads .form-group {
+    display: flex;
+    align-items: center;
+  }
+
+  .allocate_leads .form-group .allocate_drop span.select2.select2-container {
+    width: 100% !important;
+  }
+
+  .allocate_leads .form-group .allocate_drop {
+    width: 110px;
+  }
+
+  .profile-image-label {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .profile-image-container {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+  }
+
+  /* Rest of your existing CSS remains the same */
+
+  .profile-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: all 0.3s ease;
+    transition: opacity 0.3s ease;
+  }
+
+  .upload-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.3s ease;
+    color: white;
+    font-size: 1.5rem;
+  }
+
+  .profile-image-container:hover .upload-overlay {
+    opacity: 1;
+  }
+
+  .profile-image-container:hover .profile-image {
+    transform: scale(1.1);
+  }
+
+  .profile-image {
+    transition: opacity 0.3s ease;
+  }
+
+  .profile-image.uploading {
+    opacity: 0.7;
+    filter: grayscale(50%);
+  }
+
+  .profile-image-container:hover .upload-overlay {
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.7);
+  }
+
+  .profile-image-container.uploading .upload-overlay {
+    background-color: rgba(0, 0, 0, 0.9);
+  }
+
+  .profile-image-container.uploading .upload-overlay i::before {
+    content: "\f110";
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+</style>
+
+<body>
+  <span id="pageId" style="display: none">sales</span>
+  <div class="page-wrapper">
+    <!------Header END-------->
+    <section class="listing-wrapper position-relative vh-100">
+      <div class="container-fluid px-0 h-100">
+        <div class="row mx-0 h-100">
+          <div class="col-md-12 px-0">
+            <div class="h-100">
+              <%- include('partials/sidebar.ejs') %>
+                <div class="right-side-block">
+                  <%- include('partials/header.ejs') %>
+                    <div class="card border-0">
+                      <div class="card-body p-0">
+                        <div class="fliter_bar">
+                          <div class="row mx-0 align-items-md-center">
+                            <div class="col-md-6 col-lg-6 col-xl-7 px-0">
+                              <div class="lead_form">
+                                <form method="GET" action="/admin/allocate-lead-listing"
+                                  class="d-md-flex align-items-center">
+                                  <% 
+                                  // Get today's date in YYYY-MM-DD format 
+                                  const today=new Date().toISOString().split('T')[0]; 
+                                  %>
+
+                                    <div class="form-group d-flex align-items-center mb-0">
+                                      <label class="mb-0" for="from">From</label>
+                                      <input type="date" class="form-control ms-2" name="from"
+                                        value="<%= from || today %>" />
+                                    </div>
+
+                                    <div class="form-group d-flex align-items-center mx-md-3 my-md-0 my-3">
+                                      <label class="mb-0" for="to">To</label>
+                                      <input type="date" class="form-control ms-2" name="to"
+                                        value="<%= to || today %>" />
+                                    </div>
+
+
+                                    <div class="form-group lead_dropdown">
+                                      <select name="filter" class="form-control">
+                                        <option value="" <%=currentFilter==='' ? 'selected' : '' %>>Select Filter
+                                        </option>
+                                        <option value="hot_lead" <%=currentFilter==='hot_lead' ? 'selected' : '' %>>Hot
+                                          Lead</option>
+                                        <option value="not_open" <%=currentFilter==='not_open' ? 'selected' : '' %>>Not
+                                          Open</option>
+                                        <option value="no_response" <%=currentFilter==='no_response' ? 'selected' : ''
+                                          %>>
+                                          No Response</option>
+                                        <option value="call_back" <%=currentFilter==='call_back' ? 'selected' : '' %>
+                                          >Call Back</option>
+                                        <option value="client_meeting" <%=currentFilter==='client_meeting' ? 'selected'
+                                          : '' %>
+                                          >Client Meeting</option>
+                                        <option value="present_call" <%=currentFilter==='present_call' ? 'selected' : ''
+                                          %>>Present Call</option>
+                                        <option value="today_followup" <%=currentFilter==='today_followup' ? 'selected'
+                                          : '' %>>Today Follow-up</option>
+                                        <option value="prospect" <%=currentFilter==='prospect' ? 'selected' : '' %>
+                                          >Prospect</option>
+                                        <option value="presentation" <%=currentFilter==='presentation' ? 'selected' : ''
+                                          %>>Presentation</option>
+                                        <option value="deal_done" <%=currentFilter==='deal_done' ? 'selected' : '' %>
+                                          >Deal Done</option>
+                                        <option value="non_contactable" <%=currentFilter==='non_contactable'
+                                          ? 'selected' : '' %>>Not Interested</option>
+                                        <option value="not_interested" <%=currentFilter==='not_interested' ? 'selected'
+                                          : '' %>>Non Contactable</option>
+                                        <option value="become_distibutor" <%=currentFilter==='become_distibutor'
+                                          ? 'selected' : '' %>>Become Distributor/Dealer</option>
+                                        <option value="prospect_fu" <%=currentFilter==='prospect_fu' ? 'selected' : ''
+                                          %>>Prospect - Follow-up</option>
+                                        <option value="presentation_fu" <%=currentFilter==='presentation_fu'
+                                          ? 'selected' : '' %>>Presentation - Follow-up</option>
+                                        <option value="payment" <%=currentFilter==='payment' ? 'selected' : '' %>
+                                          >Payment</option>
+                                      </select>
+                                    </div>
+                                    <div class="form-group lead_dropdown">
+                                      <!-- <select name="filter" class="form-control">
+                                        <option value="">Select Employee</option>
+                                        <option>Employee 1</option>
+                                        <option>Employee 2</option>
+                                      </select> -->
+                                      <select name="filter" class="form-control js-states ms-2" id="userSelect">
+                                        <option value="">Select Employee</option>
+                                        <% users.forEach(user=> { %>
+                                          <option value="<%= user._id %>">
+                                            <%= user.name %>
+                                          </option>
+                                          <% }) %>
+                                      </select>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary">
+                                      Search
+                                    </button>
+                                    <button type="button" class="btn btn-default ms-2" onclick="clearQueryParams()">
+                                      Clear
+                                    </button>
+                                </form>
+                              </div>
+                            </div>
+
+                            <div class="col-md-6 col-lg-6 col-xl-5 px-0 mt-4 mt-md-0">
+                              <ul class="list-inline filter_button mb-0 d-flex align-items-center justify-content-end">
+                                <% if (hasPermission('Sales', 'create' )) { %>
+                                  <li>
+                                    <a href="javascript:void(0);" class="btn btn-primary crate_lead_btn"
+                                      data-bs-toggle="modal" data-bs-target="#leadModal">+ Create Lead</a>
+                                  </li>
+                                  <% } %>
+                                    <% if (hasPermission('Sales', 'create' )) { %>
+                                      <li>
+                                        <a href="javascript:void(0);" class="btn btn-primary" data-bs-toggle="modal"
+                                          data-bs-target="#exampleModals">Import Excel</a>
+                                      </li>
+                                      <% } %>
+                                        <li>
+                                          <a class="btn btn-default bg-white bulk-delete-btn">Delete All</a>
+                                        </li>
+                                        <li>
+                                          <a href="#" class="btn btn-default setting-btn" data-bs-toggle="modal"
+                                            data-bs-target="#columnSettingsModal">
+                                            <span><svg width="15" height="16" viewBox="0 0 15 16" fill="none"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <path
+                                                  d="M13.6129 8.58886C13.492 8.45118 13.4253 8.27419 13.4253 8.09093C13.4253 7.90766 13.492 7.73067 13.6129 7.59299L14.5786 6.50658C14.685 6.38788 14.7511 6.23853 14.7674 6.07995C14.7836 5.92136 14.7493 5.7617 14.6692 5.62388L13.1603 3.01348C13.081 2.87581 12.9602 2.76669 12.8153 2.70166C12.6703 2.63663 12.5085 2.61903 12.353 2.65135L10.9346 2.93804C10.7542 2.97533 10.5663 2.94527 10.4064 2.85354C10.2466 2.76181 10.1259 2.61475 10.067 2.4401L9.6068 1.05946C9.55619 0.909612 9.45976 0.779459 9.33114 0.687399C9.20253 0.595339 9.04824 0.546028 8.89007 0.546436H5.87228C5.70776 0.537849 5.54495 0.583349 5.40872 0.675986C5.27249 0.768623 5.17032 0.903305 5.11783 1.05946L4.69534 2.4401C4.63649 2.61475 4.51576 2.76181 4.35592 2.85354C4.19608 2.94527 4.0082 2.97533 3.82772 2.93804L2.37163 2.65135C2.22418 2.63051 2.07385 2.65378 1.9396 2.71822C1.80534 2.78267 1.69316 2.8854 1.61719 3.01348L0.108287 5.62388C0.0261733 5.76017 -0.0107479 5.91893 0.00280236 6.07747C0.0163526 6.23601 0.0796805 6.3862 0.183732 6.50658L1.14188 7.59299C1.26284 7.73067 1.32954 7.90766 1.32954 8.09093C1.32954 8.27419 1.26284 8.45118 1.14188 8.58886L0.183732 9.67527C0.0796805 9.79565 0.0163526 9.94584 0.00280236 10.1044C-0.0107479 10.2629 0.0261733 10.4217 0.108287 10.558L1.61719 13.1684C1.69648 13.306 1.8172 13.4152 1.96216 13.4802C2.10711 13.5452 2.2689 13.5628 2.42445 13.5305L3.84281 13.2438C4.02329 13.2065 4.21117 13.2366 4.37101 13.3283C4.53085 13.42 4.65158 13.5671 4.71043 13.7417L5.17064 15.1224C5.22313 15.2785 5.3253 15.4132 5.46153 15.5059C5.59776 15.5985 5.76057 15.644 5.92509 15.6354H8.94288C9.10105 15.6358 9.25534 15.5865 9.38396 15.4945C9.51257 15.4024 9.609 15.2722 9.65961 15.1224L10.1198 13.7417C10.1787 13.5671 10.2994 13.42 10.4592 13.3283C10.6191 13.2366 10.807 13.2065 10.9874 13.2438L12.4058 13.5305C12.5614 13.5628 12.7231 13.5452 12.8681 13.4802C13.013 13.4152 13.1338 13.306 13.2131 13.1684L14.722 10.558C14.8021 10.4201 14.8365 10.2605 14.8202 10.1019C14.8039 9.94332 14.7378 9.79397 14.6314 9.67527L13.6129 8.58886ZM12.4888 9.59982L13.0924 10.2788L12.1267 11.9537L11.2364 11.7726C10.693 11.6616 10.1278 11.7539 9.64799 12.032C9.16818 12.3102 8.80719 12.7548 8.63356 13.2815L8.34687 14.1265H6.41548L6.14388 13.2664C5.97025 12.7397 5.60926 12.2951 5.12945 12.0169C4.64964 11.7388 4.0844 11.6465 3.54103 11.7575L2.65078 11.9386L1.67 10.2713L2.27356 9.59228C2.64471 9.17731 2.8499 8.64011 2.8499 8.08338C2.8499 7.52665 2.64471 6.98945 2.27356 6.57448L1.67 5.89548L2.63569 4.23569L3.52594 4.41676C4.06931 4.52783 4.63455 4.43553 5.11436 4.15738C5.59417 3.87923 5.95516 3.43459 6.12879 2.90786L6.41548 2.05533H8.34687L8.63356 2.91541C8.80719 3.44213 9.16818 3.88677 9.64799 4.16492C10.1278 4.44307 10.693 4.53537 11.2364 4.4243L12.1267 4.24324L13.0924 5.91811L12.4888 6.59712C12.1218 7.01113 11.9192 7.54522 11.9192 8.09847C11.9192 8.65172 12.1218 9.18581 12.4888 9.59982ZM7.38118 5.07313C6.78431 5.07313 6.20085 5.25012 5.70458 5.58172C5.2083 5.91332 4.8215 6.38463 4.59309 6.93606C4.36469 7.48749 4.30492 8.09427 4.42137 8.67967C4.53781 9.26506 4.82522 9.80278 5.24727 10.2248C5.66932 10.6469 6.20704 10.9343 6.79243 11.0507C7.37783 11.1672 7.9846 11.1074 8.53603 10.879C9.08746 10.6506 9.55878 10.2638 9.89038 9.76752C10.222 9.27125 10.399 8.68779 10.399 8.09093C10.399 7.29056 10.081 6.52297 9.51508 5.95702C8.94913 5.39107 8.18154 5.07313 7.38118 5.07313ZM7.38118 9.59982C7.08274 9.59982 6.79101 9.51133 6.54288 9.34553C6.29474 9.17973 6.10134 8.94407 5.98713 8.66835C5.87293 8.39264 5.84305 8.08925 5.90127 7.79655C5.95949 7.50386 6.1032 7.235 6.31422 7.02397C6.52525 6.81295 6.79411 6.66924 7.0868 6.61102C7.3795 6.5528 7.68289 6.58268 7.9586 6.69689C8.23432 6.81109 8.46998 7.00449 8.63578 7.25263C8.80158 7.50076 8.89007 7.79249 8.89007 8.09093C8.89007 8.49111 8.7311 8.8749 8.44813 9.15788C8.16515 9.44085 7.78136 9.59982 7.38118 9.59982Z"
+                                                  fill="#7F8A96" />
+                                              </svg>
+                                            </span>
+                                            Settings
+                                          </a>
+                                        </li>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="card border-0 py-0">
+                      <div class="card-body p-0">
+                        <div class="fillter_label">
+                          <!-- Reset Filters button -->
+                          <a href="?" class="<%if(currentFilter==''){%> d-none <%}%>">
+                            Reset Filters
+                            <span>
+                              <svg width="8" height="8" viewBox="0 0 8 8" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M7 1L1 7M1 1L7 7" stroke="#F04438" stroke-width="1.5" stroke-linecap="round"
+                                  stroke-linejoin="round" />
+                              </svg>
+                            </span>
+                          </a>
+
+                          <% const filterLabels={ unallocated: 'Unallocated' , hot_lead: 'Hot Lead' ,
+                            not_open: 'Not Open' , no_response: 'No Response' , call_back: 'Call Back' ,
+                            client_meeting: 'Client Meeting' , present_call: 'Present Call' ,
+                            today_followup: 'Follow-up' , presentation: 'Presentation' , prospect: 'Prospect' ,
+                            deal_done: 'Deal Done' , not_interested: 'Not Interested' ,
+                            non_contactable: 'Non Contactable' , become_distibutor: 'Become Distributor/Dealer' ,
+                            prospect_fu: 'Prospect - Follow-up' , presentation_fu:'Presentation - Follow-up',
+                            payment: 'Payment' }; const filterColors={ not_open: '#b38d8d' , no_response: '#ecb483' ,
+                            call_back: '#b4b6e2' , client_meeting: '#f690a8' , present_call: '#8fc49f' ,
+                            today_followup: '#f8bec0' , prospect: '#79ca79' , payment: '#dfc869' , deal_done: '#12f628'
+                            , not_interested: '#f8634e' , non_contactable: '#b6afaf' , become_distibutor: '#e3a58a' ,
+                            hot_lead: '#6941c6' , unallocated: '#b42318' , presentation: '#2a73a2' ,
+                            prospect_fu: '#5ca2c9' , presentation_fu: '#b33ec6' }; %>
+
+                            <% Object.entries(counts).forEach(([key, cnt])=> { %>
+                              <a href="?filter=<%= key %>"
+                                style="background-color: <%= filterColors[key] || '#ccc' %>; color: #fff;"
+                                class="<%= currentFilter===key ? 'active' : '' %>">
+                                <%= filterLabels[key] %> (<%= cnt %>)
+                              </a>
+                              <% }) %>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="card border-0 py-0 mt-1">
+                      <div class="card-body p-0">
+                        <div class="table-responsive">
+                          <table class="table table-hover" id="example">
+                            <thead>
+                              <tr class="text-center">
+                                <th>
+                                  <div class="form-check">
+                                    <input id="MyTableCheckAllButton" class="form-check-input" type="checkbox" value=""
+                                      id="flexCheckDefault" />
+                                  </div>
+                                </th>
+                                <th>Created</th>
+                                <th>Name</th>
+                                <th>Brand Name</th>
+                                <th>Data Type</th>
+                                <th>Profile ID</th>
+                                <th>Company Name</th>
+                                <th>Looking for</th>
+                                <th>Mobile</th>
+                                <th>Email</th>
+                                <th>City</th>
+                                <th>Query</th>
+                                <th>Follow-up</th>
+                                <th>Disposition</th>
+                                <th>Remarks</th>
+                                <th>Status</th>
+                                <th>Updated</th>
+                                <th>Action</th>
+                              </tr>
+                            </thead>
+
+                            <tbody class="text-center">
+                              <% if (!leads[0]) { %>
+                                <tr>
+                                  <td colspan="100%">No Data</td>
+                                </tr>
+                                <% } else {%>
+                                  <% leads.forEach(function(lead,index){%>
+                                    <tr>
+                                      <td>
+                                        <div class="form-check">
+                                          <!-- <input class="form-check-input" type="checkbox" value="<%=lead._id%>" id="flexCheckDefault" /> -->
+                                          <input class="form-check-input lead-checkbox" type="checkbox"
+                                            value="<%=lead._id%>" />
+                                        </div>
+                                      </td>
+                                      <td>
+                                        <%=lead.date%>
+                                      </td>
+                                      <td>
+                                        <%=lead.contact_person%>
+                                      </td>
+                                      <td>
+                                        <%=lead.brand_name%>
+                                      </td>
+                                      <td>-</td>
+                                      <td class="highlight profile-btn" data-bs-toggle="modal" role="button"
+                                        data-lead-id="<%=lead._id%>" data-bs-target="#exampleModal">
+                                        <%=lead.profile_id%>
+                                      </td>
+                                      <td>
+                                        <%=lead.company_name%>
+                                      </td>
+                                      <td>
+                                        <%=lead.looking_for%>
+                                      </td>
+                                      <td>
+                                        <%=lead.default_phone%>
+                                      </td>
+                                      <td>
+                                        <%=lead.email%>
+                                      </td>
+                                      <td>
+                                        <%=lead.city%>
+                                      </td>
+                                      <td>
+                                        <%=lead.query_status%>
+                                      </td>
+                                      <td>
+                                        <%=lead.followup_date%>
+                                      </td>
+                                      <td>
+                                        <%=lead.description%>
+                                      </td>
+                                      <td>
+                                        <%=lead.remarks%>
+                                      </td>
+                                      <td>
+                                        <span>
+                                          <% if (lead.status==1) { %> Active <% } else {%> Inactive <%}%>
+                                        </span>
+                                      </td>
+                                      <td>
+                                        <%=lead.updatedAt%>
+                                      </td>
+                                      <td>
+                                        <a class="edit-btn" data-model="<%= JSON.stringify(lead) %>"><i
+                                            class="fa-solid fa-pen"></i></a>
+                                        <a class="single-delete-btn" data-id="<%=lead._id%>"><i
+                                            class="fa-solid fa-trash"></i></a>
+                                      </td>
+                                    </tr>
+                                    <% });} %>
+                            </tbody>
+                          </table>
+                        </div>
+                        <!-- Page Size Dropdown (Right side) -->
+                        <div class="d-flex align-items-center justify-content-between mt-4 p-4">
+                          <p>
+                            Showing
+                            <%= Math.min(currentPage * pageSize, totalItems) %>
+                              of
+                              <%= totalItems %>
+                                entries
+                          </p>
+
+                          <nav aria-label="Page navigation">
+                            <ul class="pagination mb-0">
+
+                              <!-- Previous Button -->
+                              <li class="page-item <%= currentPage <= 1 ? 'disabled' : '' %>">
+                                <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
+                              </li>
+
+                              <% 
+                              let startPage=Math.max(1, currentPage - 1); 
+                              let endPage=Math.min(totalPages, startPage + 2); 
+                                // Adjust startPage if we're near the end 
+                                if (endPage - startPage < 2) { startPage=Math.max(1, endPage - 2); } %>
+
+                                <% for (let i=startPage; i <=endPage; i++) { %>
+                                  <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                    <a class="page-link" href="?page=<%= i %>">
+                                      <%= i %>
+                                    </a>
+                                  </li>
+                                  <% } %>
+
+                                    <!-- Next Button -->
+                                    <li class="page-item <%= currentPage >= totalPages ? 'disabled' : '' %>">
+                                      <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
+                                    </li>
+                            </ul>
+                          </nav>
+                        </div>
+
+                      </div>
+                    </div>
+
+                    <div class="card border-0 leads_wrapper mb-0">
+                      <div class="card-body p-0">
+                        <div class="allocate_leads">
+                          <div class="row">
+                            <div class="col-md-10 col-xl-8">
+                              <div class="form-group mb-0">
+                                <label for="">Allocate 1 lead</label>
+                                <div class="allocate_drop">
+                                  <select name="assign_to_distributor" class="form-control js-states ms-2"
+                                    id="distributorSelect">
+                                    <option value="">Assign to Distributor</option>
+                                    <% distributors.forEach(distributor=> { %>
+                                      <option value="<%= distributor._id %>">
+                                        <%= distributor.name %>
+                                      </option>
+                                      <% }) %>
+                                  </select>
+                                </div>
+                                <div class="allocate_drop">
+                                  <select name="assign_to_user" class="form-control js-states ms-2" id="userSelect">
+                                    <option value="">Assign to Employee</option>
+                                    <% users.forEach(user=> { %>
+                                      <option value="<%= user._id %>">
+                                        <%= user.name %> (<%= user.role?.name || "No Role" %>)
+                                      </option>
+                                      <% }) %>
+                                  </select>
+                                </div>
+                                <button type="button" class="btn btn-primary ms-md-3" id="allocateBtn">
+                                  Allocate Now
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!------listing-wrapper END-------->
+  </div>
+  <!------Page-wrapper END-------->
+  <!-- Modal -->
+  <div class="modal fade" id="exampleModals" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body px-4">
+          <form id="bulk-add">
+            <div class="form-group">
+              <input type="file" required name="excelFile" accept=".xlsx, .xls" class="form-control" />
+            </div>
+
+            <div class="buttons d-flex align-items-center justify-content-center mt-4">
+              <button type="button" class="btn btn-default bg-white" data-bs-dismiss="modal">
+                Download
+              </button>
+              <button type="submit" class="btn btn-primary ms-3">
+                Upload Excel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="editLeadModal" tabindex="-1" aria-labelledby="editLeadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Lead</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body px-4">
+          <form id="edit-lead-form">
+            <input type="text" name="id" hidden id="edit_id" />
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="">Date<span class="text-danger">*</span></label>
+                  <input type="date" class="form-control" required placeholder="dd/mm/yyyy" name="date" />
+                </div>
+              </div>
+              <div class="col-md-6 mt-4 mt-md-0">
+                <div class="form-group">
+                  <label for="">Looking For<span class="text-danger">*</span></label>
+                  <input type="text" required class="form-control" placeholder="Looking For" name="looking_for" />
+                </div>
+              </div>
+
+              <div class="col-md-6 mt-4">
+                <div class="form-group">
+                  <label for="">Company Name<span class="text-danger">*</span></label>
+                  <input type="text" required class="form-control" placeholder="Enter Company name"
+                    name="company_name" />
+                </div>
+              </div>
+
+              <div class="col-md-6 mt-4">
+                <div class="form-group">
+                  <label for="">Contact Person<span class="text-danger">*</span></label>
+                  <input name="contact_person" required type="text" class="form-control"
+                    placeholder="Enter Contact Person's name" />
+                </div>
+              </div>
+
+              <div class="col-md-6 mt-4">
+                <div class="form-group">
+                  <label for="">Default Phone<span class="text-danger">*</span></label>
+                  <input name="default_phone" required type="text" class="form-control"
+                    placeholder="Enter 10-digit mobile number" />
+                </div>
+              </div>
+
+              <div class="col-md-6 mt-4">
+                <div class="form-group">
+                  <label for="">Mobile Number (Optional)<span class="text-danger">*</span></label>
+                  <input type="text" name="alt_phone" class="form-control" placeholder="Enter 10-digit mobile number" />
+                </div>
+              </div>
+
+              <div class="col-md-6 mt-4">
+                <div class="form-group">
+                  <label for="">Email<span class="text-danger">*</span></label>
+                  <input type="email" name="email" required class="form-control"
+                    placeholder="Enter your email address" />
+                </div>
+              </div>
+
+              <div class="col-md-6 mt-4">
+                <div class="form-group">
+                  <label for="">City<span class="text-danger">*</span></label>
+                  <input type="text" name="city" required class="form-control" placeholder="Enter your City" />
+                </div>
+              </div>
+
+              <div class="col-md-6 mt-4">
+                <div class="form-group">
+                  <label for="">Message / Requirement<span class="text-danger">*</span></label>
+                  <textarea name="message" class="form-control" required placeholder="Describe your requirments"
+                    style="height: 100px"></textarea>
+                </div>
+              </div>
+
+              <div class="col-md-6 mt-4">
+                <div class="form-group">
+                  <label for="">Prfile Score (Optional)<span class="text-danger">*</span></label>
+                  <input type="text" name="prefil_score" class="form-control" placeholder="Enter Profile Score" />
+                </div>
+                <div class="form-group mt-2">
+                  <label for="">Query Status<span class="text-danger">*</span></label>
+                  <select name="query_status" class="form-control">
+                    <option value="not_open">Not Open</option>
+                    <option value="no_response">No Response</option>
+                    <option value="call_back">Call Back</option>
+                    <option value="client_meeting">Client Meeting</option>
+                    <option value="present_call">Present Call</option>
+                    <option value="follow_up">Follow Up</option>
+                    <option value="prospect">Prospect</option>
+                    <option value="payment">Payment</option>
+                    <option value="deal_done">Deal Done</option>
+                    <option value="not_interested">Not Interested</option>
+                    <option value="non_contactable">Non Contactable</option>
+                    <option value="become_distibutor">Become Distributor/Dealer</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="allocated_lead mt-4">
+              <div class="row">
+                <div class="col-md-6">
+                  <p>
+                    <strong>Allocated To</strong><span class="text-danger">*</span>
+                  </p>
+                </div>
+                <div class="col-md-6">
+                  <select name="allocated_to" class="form-control">
+                    <option value="" disabled selected>Select</option>
+                    <% admins.forEach(element=> { %>
+                      <option value="<%= element._id %>">
+                        <%= element.username %>(<%= element.email %>)
+                      </option>
+                      <% }); %>
+                  </select>
+                </div>
+
+                <div class="col-md-6 mt-4 mt-md-0">
+                  <div class="form-group">
+                    <label for="">Next Call Back Date</label>
+                    <input type="date" name="next_call" class="form-control" />
+                  </div>
+                </div>
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Disposition</label>
+                    <select name="description" id="description" class="form-control">
+                      <option value="not_open">Not Open</option>
+                      <option value="no_response">No Response</option>
+                      <option value="call_back">Call Back</option>
+                      <option value="client_meeting">Client Meeting</option>
+                      <option value="present_call">Present Call</option>
+                      <option value="follow_up">Follow Up</option>
+                      <option value="prospect">Prospect</option>
+                      <option value="payment">Payment</option>
+                      <option value="deal_done">Deal Done</option>
+                      <option value="not_interested">Not Interested</option>
+                      <option value="non_contactable">Non Contactable</option>
+                      <option value="become_distibutor">Become Distributor/Dealer</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Sub-Disposition</label>
+                    <select name="subdescription" id="subdescription" class="form-control">
+                      <option value="">Select Sub-Disposition</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Brand Name</label>
+                    <select name="brand_name" class="form-control">
+                      <option value="">Select Brand</option>
+                      <option value="EZ Doors">EZ Doors</option>
+                      <option value="Hindustan Doors">Hindustan Doors</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Remark<span class="text-danger">*</span></label>
+                    <textarea name="remarks" required class="form-control" placeholder="Describe your requirments"
+                      style="height: 100px"></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="buttons mt-4">
+              <button type="submit" class="btn btn-primary w-100">
+                Update Lead
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal -->
+  <div class="modal fade" id="leadModal" tabindex="-1" aria-labelledby="leadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">
+            Create Manual Lead
+          </h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body px-4">
+          <form id="add-lead-form">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="">Date<span class="text-danger">*</span></label>
+                  <input type="date" class="form-control" required placeholder="dd/mm/yyyy" name="date" />
+                </div>
+              </div>
+              <div class="col-md-6 mt-4 mt-md-0">
+                <div class="form-group">
+                  <label for="">Looking For<span class="text-danger">*</span></label>
+                  <input type="text" required class="form-control" placeholder="Looking For" name="looking_for" />
+                </div>
+              </div>
+
+              <div class="col-md-6 mt-4">
+                <div class="form-group">
+                  <label for="">Company Name<span class="text-danger">*</span></label>
+                  <input type="text" required class="form-control" placeholder="Enter Company name"
+                    name="company_name" />
+                </div>
+              </div>
+
+              <div class="col-md-6 mt-4">
+                <div class="form-group">
+                  <label for="">Contact Person<span class="text-danger">*</span></label>
+                  <input name="contact_person" required type="text" class="form-control"
+                    placeholder="Enter Contact Person's name" />
+                </div>
+              </div>
+
+              <div class="col-md-6 mt-4">
+                <div class="form-group">
+                  <label for="">Default Phone<span class="text-danger">*</span></label>
+                  <input name="default_phone" required type="text" class="form-control"
+                    placeholder="Enter 10-digit mobile number" />
+                </div>
+              </div>
+
+              <div class="col-md-6 mt-4">
+                <div class="form-group">
+                  <label for="">Mobile Number (Optional)<span class="text-danger">*</span></label>
+                  <input type="text" name="alt_phone" class="form-control" placeholder="Enter 10-digit mobile number" />
+                </div>
+              </div>
+
+              <div class="col-md-6 mt-4">
+                <div class="form-group">
+                  <label for="">Email<span class="text-danger">*</span></label>
+                  <input type="email" name="email" required class="form-control"
+                    placeholder="Enter your email address" />
+                </div>
+              </div>
+
+              <div class="col-md-6 mt-4">
+                <div class="form-group">
+                  <label for="">City<span class="text-danger">*</span></label>
+                  <input type="text" name="city" required class="form-control" placeholder="Enter your City" />
+                </div>
+              </div>
+
+              <div class="col-md-6 mt-4">
+                <div class="form-group">
+                  <label for="">Message / Requirement<span class="text-danger">*</span></label>
+                  <textarea name="message" class="form-control" required placeholder="Describe your requirments"
+                    style="height: 100px"></textarea>
+                </div>
+              </div>
+
+              <div class="col-md-6 mt-4">
+                <div class="form-group">
+                  <label for="">Prfile Score (Optional)<span class="text-danger">*</span></label>
+                  <input type="text" name="prefil_score" class="form-control" placeholder="Enter Profile Score" />
+                </div>
+                <div class="form-group mt-2">
+                  <label for="">Query Status<span class="text-danger">*</span></label>
+                  <select name="query_status" class="form-control">
+                    <option value="not_open">Not Open</option>
+                    <option value="no_response">No Response</option>
+                    <option value="call_back">Call Back</option>
+                    <option value="client_meeting">Client Meeting</option>
+                    <option value="present_call">Present Call</option>
+                    <option value="follow_up">Follow Up</option>
+                    <option value="prospect">Prospect</option>
+                    <option value="payment">Payment</option>
+                    <option value="deal_done">Deal Done</option>
+                    <option value="not_interested">Not Interested</option>
+                    <option value="non_contactable">Non Contactable</option>
+                    <option value="become_distibutor">Become Distributor/Dealer</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="allocated_lead mt-4">
+              <div class="row">
+                <div class="col-md-6">
+                  <p>
+                    <strong>Allocated To</strong><span class="text-danger">*</span>
+                  </p>
+                </div>
+                <div class="col-md-6">
+                  <select name="allocated_to" class="form-control">
+                    <option value="" disabled selected>Select</option>
+                    <% admins.forEach(element=> { %>
+                      <option value="<%= element._id %>">
+                        <%= element.username %>(<%= element.email %>)
+                      </option>
+                      <% }); %>
+                  </select>
+                </div>
+
+                <div class="col-md-6 mt-4 mt-md-0">
+                  <div class="form-group">
+                    <label for="">Next Call Back Date</label>
+                    <input type="date" name="next_call" class="form-control" />
+                  </div>
+                </div>
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Disposition</label>
+                    <select name="description" id="disposition" class="form-control">
+                      <option value="not_open">Not Open</option>
+                      <option value="no_response">No Response</option>
+                      <option value="call_back">Call Back</option>
+                      <option value="client_meeting">Client Meeting</option>
+                      <option value="present_call">Present Call</option>
+                      <option value="follow_up">Follow Up</option>
+                      <option value="prospect">Prospect</option>
+                      <option value="payment">Payment</option>
+                      <option value="deal_done">Deal Done</option>
+                      <option value="not_interested">Not Interested</option>
+                      <option value="non_contactable">Non Contactable</option>
+                      <option value="become_distibutor">Become Distributor/Dealer</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Sub-Disposition</label>
+                    <select name="subdescription" id="subdisposition" class="form-control">
+                      <option value="">Select Sub-Disposition</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Brand Name</label>
+                    <select name="brand_name" class="form-control">
+                      <option value="">Select Brand</option>
+                      <option value="EZ Doors">EZ Doors</option>
+                      <option value="Hindustan Doors">Hindustan Doors</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6 mt-4">
+                  <div class="form-group">
+                    <label for="">Remark<span class="text-danger">*</span></label>
+                    <textarea name="remarks" required class="form-control" placeholder="Describe your requirments"
+                      style="height: 100px"></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="buttons mt-4">
+              <button type="submit" class="btn btn-primary w-100">
+                Add Lead
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <!-- <h5 class="modal-title" id="exampleModalLabel">Modal title</h5> -->
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="text" name="id" hidden id="edit_id" />
+          <div class="row">
+            <div class="col-md-5 col-lg-4 col-xl-3 col-xxl-3">
+              <div class="left_aside">
+                <div class="user_circle">
+                  <figure class="profile-image-container">
+                    <label for="profile-image-upload" class="profile-image-label">
+                      <img
+                        src="<%= profile && profile.profileImage ? profile.profileImage.path + '?t=' + Date.now() : 'images/circle_img.png?t=' + Date.now() %>"
+                        class="img-fluid profile-image" alt="Profile Image"
+                        data-lead-id="<%= profile ? profile._id : '' %>"
+                        data-prev-src="<%= profile && profile.profileImage ? profile.profileImage.path : 'images/circle_img.png' %>">
+                      <div class="upload-overlay">
+                        <i class="fa-solid fa-camera"></i>
+                      </div>
+                    </label>
+                    <input type="file" id="profile-image-upload" accept="image/*" style="display: none;">
+                  </figure>
+                  <p class="name-text">
+                    <%= profile ? profile.contact_person : 'Name' %>
+                  </p>
+                </div>
+                <div class="user_details mt-2">
+                  <ul class="list-inline">
+                    <li>
+                      <span>Contact Number:</span><span class="default_phone-text">6360145362</span>
+                    </li>
+                    <li>
+                      <span>Company Name:</span><span class="company_name-text"></span>
+                    </li>
+                    <li><span>City:</span><span class="city-text"></span></li>
+                    <li>
+                      <span>Requirement:</span><span class="requirement-text"></span>
+                    </li>
+                  </ul>
+
+                  <ul class="list-inline">
+                    <li>
+                      <span>Disposition:</span><span class="description-text"></span>
+                    </li>
+                    <li>
+                      <span>Sub-Disposition:</span><span class="subdescription-text"></span>
+                    </li>
+                    <li><span>Last Call Back:</span><span class="last_call-text"></span></li>
+                    <li>
+                      <span>Next Call Back:</span><span class="next_call-text"></span>
+                    </li>
+                    <li>
+                      <span>Remarks:</span><span class="remarks-text"></span>
+                    </li>
+                  </ul>
+
+                  <p class="text-start"></p>
+
+                  <div class="text-center mt-5">
+                    <button type="button" class="btn btn-primary update_btn">
+                      Update
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-7 col-lg-8 col-xl-9 col-xxl-9">
+              <div class="right_aside">
+                <div class="nav nav-tabs border-0" id="nav-tab" role="tablist">
+                  <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home"
+                    type="button" role="tab" aria-controls="nav-home" aria-selected="true">
+                    Basic Details
+                  </button>
+                  <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile"
+                    type="button" role="tab" aria-controls="nav-profile" aria-selected="false">
+                    Business Details
+                  </button>
+                  <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact"
+                    type="button" role="tab" aria-controls="nav-contact" aria-selected="false">
+                    Activity History
+                  </button>
+                  <button class="nav-link" id="nav-products-tab" data-bs-toggle="tab" data-bs-target="#nav-products"
+                    type="button" role="tab" aria-controls="nav-products" aria-selected="false">
+                    Products Details
+                  </button>
+                  <button class="nav-link" id="nav-billing-tab" data-bs-toggle="tab" data-bs-target="#nav-billing"
+                    type="button" role="tab" aria-controls="nav-billing" aria-selected="false">
+                    Billing Details
+                  </button>
+                </div>
+                <div class="tab-content" id="nav-tabContent">
+                  <!-- Basic Details Tab  -->
+                  <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+                    <div class="billing_block">
+                      <div class="row">
+                        <div class="col-md-6">
+                          <div class="billing_box box1">
+                            <h5>
+                              Basic info
+                              <span><a class="click_to_edit box1" href="javascript:void(0)"><img
+                                    src="images/edit_icon.svg" class="img-fluid" alt="" /></a>
+                                <a class="click_to_read box1" href="javascript:void(0)"><img src="images/close_icon.svg"
+                                    class="img-fluid" alt="" /></a></span>
+                            </h5>
+                            <ul class="list-inline">
+                              <li>
+                                <span>Name:</span>
+                                <p class="read_text name-text">6360145362</p>
+                                <input type="text" id="name-input" name="name" class="form-control edit_input" />
+                              </li>
+                              <li>
+                                <span>Designation:</span>
+                                <p class="read_text designation-text"></p>
+                                <input type="text" id="designation-input" name="designation"
+                                  class="form-control edit_input" />
+                              </li>
+                              <li>
+                                <span>Contact Number:</span>
+                                <p class="read_text default_phone-text">
+                                  Champua
+                                </p>
+                                <input type="text" id="default_phone-input" name="default_phone"
+                                  class="form-control edit_input" />
+                              </li>
+                              <li>
+                                <span>Alt Contact Number:</span>
+                                <p class="read_text alt_phone-text">
+                                  6360145362
+                                </p>
+                                <input type="text" id="alt_phone-input" name="alt_phone"
+                                  class="form-control edit_input" />
+                              </li>
+                              <li>
+                                <span>Contact Number-3:</span>
+                                <p class="read_text phone3-text"></p>
+                                <input type="text" id="phone3-input" name="phone3" class="form-control edit_input" />
+                              </li>
+                              <li>
+                                <span>Contact Number-4:</span>
+                                <p class="read_text" id="phone4-text"></p>
+                                <input type="text" id="phone4-input" name="phone4" class="form-control edit_input" />
+                              </li>
+                              <li>
+                                <span>Mail-1:</span>
+                                <p class="read_text email-text">NA</p>
+                                <input type="text" id="email-input" name="email" class="form-control edit_input" />
+                              </li>
+                              <li>
+                                <span>Mail-2:</span>
+                                <p class="read_text email2-text"></p>
+                                <input type="text" id="email2-input" name="email2" class="form-control edit_input" />
+                              </li>
+                            </ul>
+                            <button type="button" class="btn submit_btn d-none btn-primary">
+                              Submit
+                            </button>
+                          </div>
+                        </div>
+
+                        <div class="col-md-6 mt-4 mt-md-0">
+                          <div class="billing_box box2">
+                            <h5>
+                              Alternative Contact Details
+                              <span><a class="click_to_edit box2" href="javascript:void(0)"><img
+                                    src="images/edit_icon.svg" class="img-fluid" alt="" /></a>
+                                <a class="click_to_read box2" href="javascript:void(0)"><img src="images/close_icon.svg"
+                                    class="img-fluid" alt="" /></a></span>
+                            </h5>
+                            <ul class="list-inline">
+                              <li>
+                                <span>Name:</span>
+                                <p class="read_text alt_name-text"></p>
+                                <input type="text" id="alt_name-input" name="alt_name"
+                                  class="form-control edit_input" />
+                              </li>
+                              <li>
+                                <span>Designation:</span>
+                                <p class="read_text alt_designation-text"></p>
+                                <input type="text" id="alt_designation-input" name="alt_designation"
+                                  class="form-control edit_input" />
+                              </li>
+                              <li>
+                                <span>Contact Number:</span>
+                                <p class="read_text alt_default_phone-text"></p>
+                                <input type="text" id="alt_default_phone-input" name="alt_default_phone"
+                                  class="form-control edit_input" />
+                              </li>
+                              <li>
+                                <span>Alt Contact Number:</span>
+                                <p class="read_text alt_alt_phone-text"></p>
+                                <input type="text" id="alt_alt_phone-input" name="alt_alt_phone"
+                                  class="form-control edit_input" />
+                              </li>
+                              <li>
+                                <span>Contact Number-3:</span>
+                                <p class="read_text alt_phone3-text"></p>
+                                <input type="text" id="alt_phone3-input" name="alt_phone3"
+                                  class="form-control edit_input" />
+                              </li>
+                              <li>
+                                <span>Contact Number-4:</span>
+                                <p class="read_text alt_phone4-text"></p>
+                                <input type="text" id="alt_phone4-input" name="alt_phone4"
+                                  class="form-control edit_input" />
+                              </li>
+                              <li>
+                                <span>Mail-1:</span>
+                                <p class="read_text alt_email-text"></p>
+                                <input type="text" id="alt_email-input" name="alt_email"
+                                  class="form-control edit_input" />
+                              </li>
+                              <li>
+                                <span>Mail-2:</span>
+                                <p class="read_text alt_email2-text"></p>
+                                <input type="text" id="alt_email2-input" name="alt_email2"
+                                  class="form-control edit_input" />
+                              </li>
+                            </ul>
+                            <button type="button" class="btn submit_btn d-none btn-primary">
+                              Submit
+                            </button>
+                          </div>
+                        </div>
+
+                        <div class="col-md-6 mt-4">
+                          <div class="billing_box box3">
+                            <h5>
+                              Office contact
+                              <span><a class="click_to_edit box3" href="javascript:void(0)"><img
+                                    src="images/edit_icon.svg" class="img-fluid" alt="" /></a>
+                                <a class="click_to_read box3" href="javascript:void(0)"><img src="images/close_icon.svg"
+                                    class="img-fluid" alt="" /></a></span>
+                            </h5>
+                            <ul class="list-inline">
+                              <li>
+                                <span>Name:</span>
+                                <p class="read_text office_name-text"></p>
+                                <input type="text" id="office_name-input" name="office_name"
+                                  class="form-control edit_input" />
+                              </li>
+                              <li>
+                                <span>Designation:</span>
+                                <p class="read_text office_designation-text"></p>
+                                <input type="text" id="office_designation-input" name="office_designation"
+                                  class="form-control edit_input" />
+                              </li>
+                              <li>
+                                <span>Contact Number:</span>
+                                <p class="read_text office_default_phone-text"></p>
+                                <input type="text" id="office_default_phone-input" name="default_phone"
+                                  class="form-control edit_input" />
+                              </li>
+                              <li>
+                                <span>Alt Contact Number:</span>
+                                <p class="read_text office_alt_phone-text"></p>
+                                <input type="text" id="office_alt_phone-input" name="office_alt_phone"
+                                  class="form-control edit_input" />
+                              </li>
+                              <li>
+                                <span>Contact Number-3:</span>
+                                <p class="read_text office_phone3-text"></p>
+                                <input type="text" id="office_phone3-input" name="office_phone3"
+                                  class="form-control edit_input" />
+                              </li>
+                              <li>
+                                <span>Contact Number-4:</span>
+                                <p class="read_text" id="office_phone4-text"></p>
+                                <input type="text" id="office_phone4-input" name="office_phone4"
+                                  class="form-control edit_input" />
+                              </li>
+                              <li>
+                                <span>Mail-1:</span>
+                                <p class="read_text office_email-text"></p>
+                                <input type="text" id="office_email-input" name="office_email"
+                                  class="form-control edit_input" />
+                              </li>
+                              <li>
+                                <span>Mail-2:</span>
+                                <p class="read_text office_email2-text"></p>
+                                <input type="text" id="office_email2-input" name="office_email2"
+                                  class="form-control edit_input" />
+                              </li>
+                            </ul>
+                            <button type="button" class="btn submit_btn d-none btn-primary">
+                              Submit
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Business Details Tab  -->
+                  <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+                    <div class="business_block">
+                      <div class="billing_box box4">
+                        <h5>
+                          Basic info
+                          <span><a class="click_to_edit box4" href="javascript:void(0)"><img src="images/edit_icon.svg"
+                                class="img-fluid" alt="" /></a>
+                            <a class="click_to_read box4" href="javascript:void(0)"><img src="images/close_icon.svg"
+                                class="img-fluid" alt="" /></a></span>
+                        </h5>
+                        <ul class="list-inline">
+                          <li>
+                            <span>Company Name:</span>
+                            <p class="read_text company_name-text"></p>
+                            <input id="company_name-input" name="company_name" type="text"
+                              class="form-control edit_input company_name-input" />
+                          </li>
+                          <li>
+                            <span>Unique Profile Id:</span>
+                            <p class="read_text profile_id-text"></p>
+                            <input disabled id="profile_id-input" name="profile_id" type="text"
+                              class="form-control edit_input profile_id-input" />
+                          </li>
+                          <li>
+                            <span>Profile Score:</span>
+                            <p class="read_text prefil_score-text"></p>
+                            <input type="text" id="prefil_score-input" name="prefil_score"
+                              class="form-control edit_input prefil_score-input" />
+                          </li>
+                          <li>
+                            <span>Lead Creation Date:</span>
+                            <p class="read_text lead_creation_date-text"></p>
+                            <input type="date" disabled id="lead_creation_date-input"
+                              class="form-control edit_input lead_creation_date-input" />
+                          </li>
+                          <li>
+                            <span>Lead Source:</span>
+                            <p class="read_text source-text"></p>
+                            <input id="source-input" type="text" class="form-control edit_input source-input" />
+                          </li>
+                          <li>
+                            <span>Profile Status:</span>
+                            <p class="read_text status-text"></p>
+                            <select id="status-input" name="status" class="form-select edit_input status-input">
+                              <option value="0">Inactive</option>
+                              <option value="1">Active</option>
+                            </select>
+                          </li>
+                          <li>
+                            <span>About Company:</span>
+                            <p class="read_text abt_company-text"></p>
+                            <input id="abt_company-input" type="text"
+                              class="form-control edit_input abt_company-input" />
+                          </li>
+                          <li>
+                            <span>Company Type:</span>
+                            <p class="read_text company_type-text"></p>
+                            <input id="company_type-input" type="text"
+                              class="form-control edit_input company_type-input" />
+                          </li>
+                          <li>
+                            <span>Establishment Year:</span>
+                            <p class="read_text est_year-text"></p>
+                            <input id="est_year-input" type="text" class="form-control edit_input est_year-input" />
+                          </li>
+                          <li>
+                            <span>Nature Of Business:</span>
+                            <p class="read_text business_nature-text"></p>
+                            <input id="business_nature-input" type="text"
+                              class="form-control edit_input business_nature-input" />
+                          </li>
+                          <li>
+                            <span>Turn Over:</span>
+                            <p class="read_text turn_over-text"></p>
+                            <input id="turn_over-input" type="text" class="form-control edit_input turn_over-input" />
+                          </li>
+                          <li>
+                            <span>City:</span>
+                            <p class="read_text city-text"></p>
+                            <input type="text" id="city-input" class="form-control edit_input city-input" />
+                          </li>
+                          <li>
+                            <span>State:</span>
+                            <p class="read_text state-text"></p>
+                            <input id="state-input" type="text" class="form-control edit_input state-input" />
+                          </li>
+                          <li>
+                            <span>Address:</span>
+                            <p class="read_text address-text"></p>
+                            <input id="address-input" type="text" class="form-control edit_input address-input" />
+                          </li>
+                          <li>
+                            <span>Pincode:</span>
+                            <p class="read_text pincode-text"></p>
+                            <input id="pincode-input" type="text" class="form-control edit_input pincode-input" />
+                          </li>
+                          <li>
+                            <span>Country:</span>
+                            <p class="read_text country-text"></p>
+                            <input id="country-input" type="text" class="form-control edit_input country-input" />
+                          </li>
+                          <li>
+                            <span>GST Number:</span>
+                            <p class="read_text gst_num-text"></p>
+                            <input id="gst_num-input" type="text" class="form-control edit_input gst_num-input" />
+                          </li>
+                          <li>
+                            <span>Phone Number:</span>
+                            <p class="read_text address_phone-text"></p>
+                            <input id="address_phone-input" type="text"
+                              class="form-control edit_input address_phone-input" />
+                          </li>
+                          <li>
+                            <span>Employee Count:</span>
+                            <p class="read_text employee_count-text"></p>
+                            <input id="employee_count-input" type="text"
+                              class="form-control edit_input employee_count-input" />
+                          </li>
+                          <li>
+                            <span>Online Link-1:</span>
+                            <p class="read_text link1-text"></p>
+                            <input id="link1-input" type="text" class="form-control edit_input link1-input" />
+                          </li>
+                          <li>
+                            <span>Online Link-2:</span>
+                            <p class="read_text link2-text"></p>
+                            <input id="link2-input" type="text" class="form-control edit_input link2-input" />
+                          </li>
+                          <li>
+                            <span>Online Link-3:</span>
+                            <p class="read_text link3-text"></p>
+                            <input id="link3-input" type="text" class="form-control edit_input link3-input" />
+                          </li>
+                          <li>
+                            <span>Online Link-4:</span>
+                            <p class="read_text link4-text"></p>
+                            <input id="link4-input" type="text" class="form-control edit_input link4-input" />
+                          </li>
+                          <li>
+                            <span>Website:</span>
+                            <p class="read_text website-text"></p>
+                            <input id="website-input" type="text" class="form-control edit_input website-input" />
+                          </li>
+                          <li>
+                            <span>Facebook:</span>
+                            <p class="read_text fb-text"></p>
+                            <input id="fb-input" type="text" class="form-control edit_input fb-input" />
+                          </li>
+                          <li>
+                            <span>Insta:</span>
+                            <p class="read_text insta-text"></p>
+                            <input id="insta-input" type="text" class="form-control edit_input insta-input" />
+                          </li>
+                          <li>
+                            <span>LinkedIn:</span>
+                            <p class="read_text linkdin-text"></p>
+                            <input id="linkdin-input" type="text" class="form-control edit_input linkdin-input" />
+                          </li>
+                          <li>
+                            <span>You Tube:</span>
+                            <p class="read_text yt-text"></p>
+                            <input id="yt-input" type="text" class="form-control edit_input yt-input" />
+                          </li>
+                          <li>
+                            <span>Quora:</span>
+                            <p class="read_text quora-text"></p>
+                            <input id="quora-input" type="text" class="form-control edit_input quora-input" />
+                          </li>
+                        </ul>
+
+                        <button type="button" class="btn submit_btn d-none btn-primary">
+                          Submit
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Activity History Tab  -->
+                  <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
+                    <div class="activity_history">
+                      <div class="table-responsive">
+                        <table class="table table-bordered">
+                          <thead>
+                            <tr>
+                              <th>Call Date</th>
+                              <th>Next follow up Date</th>
+                              <th>Disposition</th>
+                              <th>Sub-Disposition</th>
+                              <th>Product Name</th>
+                              <th>Price</th>
+                              <th>Remarks</th>
+                              <!-- <th>Sales Member</th> -->
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <% if (!leads[0]) { %>
+                              <tr>
+                                <td colspan="100%">No Data</td>
+                              </tr>
+                              <% } else {%>
+                                <% leads.forEach(function(lead,index){%>
+                                  <tr>
+                                    <td>
+                                      <%=lead.date%>
+                                    </td>
+                                    <td>
+                                      <%=lead.followup_date%>
+                                    </td>
+                                    <td>
+                                      <%=lead.description%>
+                                    </td>
+                                    <td>
+                                      <%=lead.subdescription%>
+                                    </td>
+                                    <td>
+                                      <%=lead.product_name%>
+                                    </td>
+                                    <td>
+                                      <%=lead.price%>
+                                    </td>
+                                    <td>
+                                      <%=lead.remarks%>
+                                    </td>
+                                    <!-- <td>
+                                  Tomorrow call back 1...
+                                  <a
+                                    class="products_btn"
+                                    href="javascript:void(0);"
+                                    >Read More</a
+                                  >
+                                </td>
+                                <td>Shajar Abbas</td> -->
+                                  </tr>
+                                  <% });} %>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <div class="add_products_popup">
+                        <div class="inner_modal_product">
+                          <h4 class="d-flex align-items-center justify-content-between">
+                            Remarks
+                          </h4>
+                          <p>
+                            tomorrow call back 10am dealing in cctv cameras 75
+                            for 6
+                          </p>
+
+                          <div class="text-end">
+                            <a href="javascript:void(0);" class="btn btn-default close_popup">Cancel</a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="tab-pane fade" id="nav-products" role="tabpanel" aria-labelledby="nav-products-tab">
+                    <div class="products_block">
+                      <div class="billing_box">
+                        <a href="javascript:void(0);" class="btn btn-primary products_btn">Add Products <i
+                            class="fa-solid fa-plus"></i></a>
+
+                        <!-- Products List Table -->
+                        <div class="table-responsive mt-3">
+                          <table class="table table-bordered">
+                            <thead>
+                              <tr>
+                                <th>Product Name</th>
+                                <th>Category</th>
+                                <th>Keywords</th>
+                                <th>Action</th>
+                              </tr>
+                            </thead>
+                            <tbody id="products-list">
+                              <% if (profile && profile.products && profile.products.length> 0) { %>
+                                <% profile.products.forEach(product=> { %>
+                                  <tr data-product-id="<%= product._id %>">
+                                    <td>
+                                      <%= product.product_name %>
+                                    </td>
+                                    <td>
+                                      <%= product.category %>
+                                    </td>
+                                    <td>
+                                      <%= product.keywords %>
+                                    </td>
+                                    <td>
+                                      <button class="btn btn-sm btn-danger delete-product-btn"
+                                        data-lead-id="<%= profile._id %>" data-product-id="<%= product._id %>">
+                                        <i class="fa-solid fa-trash"></i>
+                                      </button>
+                                    </td>
+                                  </tr>
+                                  <% }); %>
+                                    <% } else { %>
+                                      <tr>
+                                        <td colspan="4" class="text-center">No products found</td>
+                                      </tr>
+                                      <% } %>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      <!-- Add Product Modal -->
+                      <div class="add_products_popup">
+                        <div class="inner_modal_product">
+                          <h4 class="d-flex align-items-center justify-content-between">
+                            Add Product
+                            <a href="javascript:void(0);" class="close_popup"><i class="fa-solid fa-x"></i></a>
+                          </h4>
+                          <form id="add-product-form">
+                            <input type="hidden" name="id" class="edit_id" value="<%= profile ? profile._id : '' %>">
+                            <div class="product-entry">
+                              <div class="form-group mb-3">
+                                <label class="mb-2" for="">Product Name:</label>
+                                <input type="text" name="product_name" class="form-control product-name"
+                                  placeholder="Enter product name" required />
+                              </div>
+                              <div class="form-group mb-3">
+                                <label class="mb-2" for="">Category:</label>
+                                <input type="text" name="category" class="form-control product-category"
+                                  placeholder="Enter category" />
+                              </div>
+                              <div class="form-group mb-4">
+                                <label class="mb-2" for="">Keywords:</label>
+                                <input type="text" name="keywords" class="form-control product-keywords"
+                                  placeholder="Enter keywords" />
+                              </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">
+                              Submit
+                            </button>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Billing Details Tab  -->
+                  <div class="tab-pane fade" id="nav-billing" role="tabpanel" aria-labelledby="nav-billing-tab">
+                    <div class="billings_modal p-4">
+                      <div class="d-flex align-items-center">
+                        <label for="">GST Number:</label>
+                        <div class="billing_group">
+                          <input type="text" name="billing_gst_num" id="billing_gst_num-input"
+                            class="form-control billing_gst_num-input" placeholder="5584/8/8/848484" />
+                        </div>
+                      </div>
+
+                      <div class="d-flex align-items-center mt-4">
+                        <label for="">Email:</label>
+                        <div class="billing_group">
+                          <p class="read_text billing_email-text"></p>
+                          <input id="billing_email-input" type="text" class="form-control billing_email-input" />
+                        </div>
+                      </div>
+
+                      <div class="d-flex align-items-center mt-4">
+                        <label for="">Phone:</label>
+                        <div class="billing_group">
+                          <p class="read_text billing_phone-text"></p>
+                          <input id="billing_phone-input" type="text" class="form-control billing_phone-input" />
+                        </div>
+                      </div>
+
+                      <div class="d-flex align-items-center mt-4">
+                        <label for="">Phone:</label>
+                        <div class="d-flex align-items-center billing_group">
+                          <input type="text" name="billing_phone2" id="billing_phone2-input"
+                            class="form-control billing_phone2-input" placeholder="0" />
+                          <!-- <select name="" class="form-control bg-white ms-3">
+                              <option value="">Select Period</option>
+                            </select> -->
+                        </div>
+                      </div>
+
+                      <div class="d-flex align-items-center mt-4">
+                        <label for="">Contract Type</label>
+                        <div class="billing_group">
+                          <select name="billing_contract_type" id="billing_contract_type-input"
+                            class="form-control bg-white billing_contract_type-input">
+                            <option value="">NC</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="d-flex align-items-center mt-4">
+                        <label for="">Recevied Amount:</label>
+                        <div class="billing_group">
+                          <input type="text" name="received_amount" id="received_amount-input"
+                            class="form-control received_amount-input" placeholder="" />
+                        </div>
+                      </div>
+
+                      <div class="d-flex align-items-center mt-4">
+                        <label for="">Total Contract Value:</label>
+                        <div class="billing_group">
+                          <input type="text" name="total_contract_value" id="total_contract_value-input"
+                            class="form-control total_contract_value-input" placeholder="" />
+                        </div>
+                      </div>
+
+                      <button type="button" class="btn submit_btn btn-primary">
+                        Submit
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="updateremark">
+            <div class="inner_modal_product" style="max-width: 672px">
+              <h4 class="d-flex align-items-center justify-content-between pb-3">
+                Remarks
+                <a href="javascript:void(0);" class="close_popup"><i class="fa-solid fa-x"></i></a>
+              </h4>
+              <input type="hidden" name="id" id="edit_id" value="" />
+
+              <div class="form-group mb-3">
+                <label class="mb-2" for="">Remarks:</label>
+                <textarea id="remarks-input" name="remarks" class="form-control" style="height: 120px"
+                  placeholder="Enter your remark here"></textarea>
+              </div>
+
+              <div class="row mb-4">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="">Disposition</label>
+                    <select name="description" id="description-input" class="form-control">
+                      <option value="not_open">Not Open</option>
+                      <option value="no_response">No Response</option>
+                      <option value="call_back">Call Back</option>
+                      <option value="client_meeting">Client Meeting</option>
+                      <option value="present_call">Present Call</option>
+                      <option value="follow_up">Follow Up</option>
+                      <option value="prospect">Prospect</option>
+                      <option value="payment">Payment</option>
+                      <option value="deal_done">Deal Done</option>
+                      <option value="not_interested">Not Interested</option>
+                      <option value="non_contactable">Non Contactable</option>
+                      <option value="become_distibutor">Become Distributor/Dealer</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-4 mt-4 mt-md-0">
+                  <div class="form-group">
+                    <label for="">Sub-Disposition</label>
+                    <select name="subdescription" id="subdescription-input" class="form-control">
+                      <option value="">Select Sub-Disposition</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-4 mt-4 mt-md-0">
+                  <div class="form-group">
+                    <label for="">Product Name</label>
+                    <input type="text" name="product_name" id="product_name-input" class="form-control"
+                      placeholder="Products">
+                  </div>
+                </div>
+
+                <div class="col-md-4 mt-4">
+                  <div class="form-group">
+                    <label for="">Price</label>
+                    <input type="text" name="price" id="price-input" class="form-control" placeholder="Price">
+                  </div>
+                </div>
+                <div class="col-md-4 mt-4">
+                  <div class="form-group">
+                    <label for="">Follow-up Date</label>
+                    <input type="date" name="followup_date" id="followup_date-input" class="form-control" />
+                  </div>
+                </div>
+              </div>
+
+              <button type="button" class="btn btn-primary w-100 submit_btn_remark">
+                Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal fade" id="columnSettingsModal" tabindex="-1" aria-labelledby="columnSettingsLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="columnSettingsLabel">Select Columns to Show</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="columnSettingsForm">
+            <!-- Checkboxes will be dynamically added here -->
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="saveColumnSettings" class="btn btn-primary" data-bs-dismiss="modal">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%- include('partials/linkfooter.ejs') %>
+
+    <script>
+      function getDateFromString(date) {
+        if (!date) return "";
+        const [day, month, year] = date.split("/");
+        return `${year}-${month}-${day}`;
+      }
+      function setProfileModalTextFieldFromData(profile_data) {
+        $(".edit_id").val(profile_data._id);
+        $("#edit_id").val(profile_data._id)
+        $("#name-input").val(profile_data.contact_person);
+        $("#designation-input").val(profile_data.designation);
+        $("#default_phone-input").val(profile_data.default_phone);
+        $("#alt_phone-input").val(profile_data.alt_phone);
+        $("#phone3-input").val(profile_data.phone3);
+        $("#phone4-input").val(profile_data.phone4);
+        $("#email-input").val(profile_data.email);
+        $("#email2-input").val(profile_data.email2);
+
+        $("#alt_name-input").val(profile_data.alt_contact_person);
+        $("#alt_designation-input").val(profile_data.alt_designation);
+        $("#alt_default_phone-input").val(profile_data.alt_default_phone);
+        $("#alt_alt_phone-input").val(profile_data.alt_alt_phone);
+        $("#alt_phone3-input").val(profile_data.alt_phone3);
+        $("#alt_phone4-input").val(profile_data.alt_phone4);
+        $("#alt_email-input").val(profile_data.alt_email);
+        $("#alt_email2-input").val(profile_data.alt_email2);
+
+        $("#office_name-input").val(profile_data.office_contact_person);
+        $("#office_designation-input").val(profile_data.office_designation);
+        $("#office_default_phone-input").val(profile_data.office_default_phone);
+        $("#office_alt_phone-input").val(profile_data.office_alt_phone);
+        $("#office_phone3-input").val(profile_data.office_phone3);
+        $("#office_phone4-input").val(profile_data.office_phone4);
+        $("#office_email-input").val(profile_data.office_email);
+        $("#office_email2-input").val(profile_data.office_email2);
+        $("#lead_creation_date-input").val(
+          getDateFromString(profile_data.date)
+        );
+
+        $("#company_name-input").val(profile_data.company_name);
+        $("#profile_id-input").val(profile_data.profile_id);
+        $("#source-input").val(profile_data.source);
+        $("#status-input").val(profile_data.status);
+        $("#prefil_score-input").val(profile_data.prefil_score);
+        $("#abt_company-input").val(profile_data.abt_company);
+        $("#company_type-input").val(profile_data.company_type);
+        $("#est_year-input").val(profile_data.est_year);
+        $("#business_nature-input").val(profile_data.business_nature);
+        $("#turn_over-input").val(profile_data.turn_over);
+        $("#city-input").val(profile_data.city);
+        $("#state-input").val(profile_data.state);
+        $("#country-input").val(profile_data.country);
+        $("#address-input").val(profile_data.address);
+        $("#pincode-input").val(profile_data.pincode);
+        $(".address_phone-input").val(profile_data.address_phone);
+        $(".gst_num-input").val(profile_data.gst_num);
+        $(".employee_count-input").val(profile_data.employee_count);
+        $(".link1-input").val(profile_data.link1);
+        $(".link2-input").val(profile_data.link2);
+        $(".link3-input").val(profile_data.link3);
+        $(".link4-input").val(profile_data.link4);
+        $(".website-input").val(profile_data.website);
+        $(".fb-input").val(profile_data.fb);
+        $(".linkdin-input").val(profile_data.linkdin);
+        $(".insta-input").val(profile_data.insta);
+        $(".yt-input").val(profile_data.yt);
+        $(".quora-input").val(profile_data.quora);
+
+
+        $(".billing_gst_num-input").val(profile_data.billing_gst_num);
+        $(".billing_email-input").val(profile_data.billing_email);
+        $(".billing_phone-input").val(profile_data.billing_phone);
+        $(".billing_phone2-input").val(profile_data.billing_phone2);
+        $(".billing_contract_type-input").val(profile_data.billing_contract_type);
+        $(".received_amount-input").val(profile_data.received_amount);
+        $(".total_contract_value-input").val(profile_data.total_contract_value);
+      }
+
+      function displayText(selector, value) {
+        $(selector).text(value ? value : "--");
+      }
+
+      function setProfileModalTextFromData(profile_data) {
+        displayText(".name-text", profile_data.contact_person);
+        displayText(".designation-text", profile_data.designation);
+        displayText(".default_phone-text", profile_data.default_phone);
+        displayText(".alt_phone-text", profile_data.alt_phone);
+        displayText(".phone3-text", profile_data.phone3);
+        displayText(".phone4-text", profile_data.phone4);
+        displayText(".email-text", profile_data.email);
+        displayText(".email2-text", profile_data.email2);
+
+        displayText(".alt_name-text", profile_data.alt_contact_person);
+        displayText(".alt_designation-text", profile_data.alt_designation);
+        displayText(".alt_default_phone-text", profile_data.alt_default_phone);
+        displayText(".alt_alt_phone-text", profile_data.alt_alt_phone);
+        displayText(".alt_phone3-text", profile_data.alt_phone3);
+        displayText(".alt_phone4-text", profile_data.alt_phone4);
+        displayText(".alt_email-text", profile_data.alt_email);
+        displayText(".alt_email2-text", profile_data.alt_email2);
+
+        displayText(".office_name-text", profile_data.office_contact_person);
+        displayText(".office_designation-text", profile_data.office_designation);
+        displayText(".office_default_phone-text", profile_data.office_default_phone);
+        displayText(".office_alt_phone-text", profile_data.office_alt_phone);
+        displayText(".office_phone3-text", profile_data.office_phone3);
+        displayText(".office_phone4-text", profile_data.office_phone4);
+        displayText(".office_email-text", profile_data.office_email);
+        displayText(".office_email2-text", profile_data.office_email2);
+
+        displayText(".lead_creation_date-text", profile_data.date);
+        displayText(".company_name-text", profile_data.company_name);
+        displayText(".profile_id-text", profile_data.profile_id);
+        displayText(".source-text", profile_data.source);
+        displayText(".status-text", profile_data.status);
+        displayText(".prefil_score-text", profile_data.prefil_score);
+        displayText(".abt_company-text", profile_data.abt_company);
+        displayText(".company_type-text", profile_data.company_type);
+        displayText(".est_year-text", profile_data.est_year);
+        displayText(".business_nature-text", profile_data.business_nature);
+        displayText(".turn_over-text", profile_data.turn_over);
+        displayText(".city-text", profile_data.city);
+        displayText(".state-text", profile_data.state);
+        displayText(".country-text", profile_data.country);
+        displayText(".address-text", profile_data.address);
+        displayText(".pincode-text", profile_data.pincode);
+        displayText(".address_phone-text", profile_data.address_phone);
+        displayText(".gst_num-text", profile_data.gst_num);
+        displayText(".employee_count-text", profile_data.employee_count);
+        displayText(".link1-text", profile_data.link1);
+        displayText(".link2-text", profile_data.link2);
+        displayText(".link3-text", profile_data.link3);
+        displayText(".link4-text", profile_data.link4);
+        displayText(".website-text", profile_data.website);
+        displayText(".fb-text", profile_data.fb);
+        displayText(".linkdin-text", profile_data.linkdin);
+        displayText(".insta-text", profile_data.insta);
+        displayText(".yt-text", profile_data.yt);
+        displayText(".quora-text", profile_data.quora);
+        displayText(".description-text", profile_data.description);
+        displayText(".subdescription-text", profile_data.subdescription);
+        displayText(".next_call-text", profile_data.next_call);
+        displayText(".last_call-text", profile_data.lastActivitiesDate ? new Date(profile_data.lastActivitiesDate).toLocaleDateString('en-AU') : '--');
+        displayText(".remarks-text", profile_data.remarks);
+        const profileImage = profile_data.profileImage
+          ? profile_data.profileImage.path
+          : 'images/circle_img.png';
+        $(".profile-image").attr("src", profileImage);
+        $(".profile-image").data("lead-id", profile_data._id);
+      }
+    </script>
+
+    <script>
+      $(".submit_btn").on("click", function (e) {
+        const data = {
+          contact_person: $("#name-input").val(),
+          designation: $("#designation-input").val(),
+          default_phone: $("#default_phone-input").val(),
+          alt_phone: $("#alt_phone-input").val(),
+          phone3: $("#phone3-input").val(),
+          phone4: $("#phone4-input").val(),
+          email: $("#email-input").val(),
+          email2: $("#email2-input").val(),
+          alt_contact_person: $("#alt_name-input").val(),
+          alt_designation: $("#alt_designation-input").val(),
+          alt_default_phone: $("#alt_default_phone-input").val(),
+          alt_alt_phone: $("#alt_alt_phone-input").val(),
+          alt_phone3: $("#alt_phone3-input").val(),
+          alt_phone4: $("#alt_phone4-input").val(),
+          alt_email: $("#alt_email-input").val(),
+          alt_email2: $("#alt_email2-input").val(),
+          office_contact_person: $("#office_name-input").val(),
+          office_designation: $("#office_designation-input").val(),
+          office_default_phone: $("#office_default_phone-input").val(),
+          office_alt_phone: $("#office_alt_phone-input").val(),
+          office_phone3: $("#office_phone3-input").val(),
+          office_phone4: $("#office_phone4-input").val(),
+          office_email: $("#office_email-input").val(),
+          office_email2: $("#office_email2-input").val(),
+          date: $("#lead_creation_date-input").val(),
+          company_name: $("#company_name-input").val(),
+          profile_id: $("#profile_id-input").val(),
+          source: $("#source-input").val(),
+          status: $("#status-input").val(),
+          prefil_score: $("#prefil_score-input").val(),
+          abt_company: $("#abt_company-input").val(),
+          company_type: $("#company_type-input").val(),
+          est_year: $("#est_year-input").val(),
+          business_nature: $("#business_nature-input").val(),
+          turn_over: $("#turn_over-input").val(),
+          city: $("#city-input").val(),
+          state: $("#state-input").val(),
+          country: $("#country-input").val(),
+          address: $("#address-input").val(),
+          pincode: $("#pincode-input").val(),
+          address_phone: $("#address_phone-input").val(),
+          gst_num: $("#gst_num-input").val(),
+          employee_count: $("#employee_count-input").val(),
+          link1: $("#link1-input").val(),
+          link2: $("#link2-input").val(),
+          link3: $("#link3-input").val(),
+          link4: $("#link4-input").val(),
+          website: $("#website-input").val(),
+          fb: $("#fb-input").val(),
+          linkdin: $("#linkdin-input").val(),
+          insta: $("#insta-input").val(),
+          yt: $("#yt-input").val(),
+          quora: $("#quora-input").val(),
+
+          billing_gst_num: $("#billing_gst_num-input").val(),
+          billing_email: $("#billing_email-input").val(),
+          billing_phone: $("#billing_phone-input").val(),
+          billing_phone2: $("#billing_phone2-input").val(),
+          billing_contract_type: $("#billing_contract_type-input").val(),
+          received_amount: $("#received_amount-input").val(),
+          total_contract_value: $("#total_contract_value-input").val(),
+
+          remarks: $("#remarks-input").val(),
+          description: $("#description-input").val(),
+          subdescription: $("#subdescription-input").val(),
+          product_name: $("#product_name-input").val(),
+          price: $("#price-input").val(),
+          followup_date: $("#followup_date-input").val(),
+          id: $("#edit_id").val(),
+        };
+        const activeTab = document.querySelector('.nav-link.active');
+        $.ajax({
+          url: "/admin/edit-lead",
+          type: "POST",
+          data: data,
+          success: (res) => {
+            debugger;
+            renderToast({
+              message: res.message,
+              icon: "success"
+            });
+            if (res.data) {
+              setProfileModalTextFromData(res.data);
+              setProfileModalTextFieldFromData(res.data);
+              resetFormEditData();
+            }
+            // setTimeout(() => {
+            //   const url = new URL(window.location.href);
+            //   const params = new URLSearchParams(url.search);
+
+            //   if (data.id) params.set("pid", data.id); // Prevent undefined
+            //   params.set("tab", activeTab.id);
+
+            //   url.search = params.toString();
+            //   window.location.href = url.toString();
+            // }, 1000);
+          },
+          error: (res) => {
+            console.error(res);
+          },
+        });
+      });
+      function resetFormEditData() {
+        $(".billing_box.box1 ul li").removeClass("editable");
+        $(".billing_box.box1 h5 span").removeClass("show");
+        $(".billing_box.box1 .submit_btn").addClass("d-none");
+        $(".billing_box.box2 ul li").removeClass("editable");
+        $(".billing_box.box2 h5 span").removeClass("show");
+        $(".billing_box.box2 .submit_btn").addClass("d-none");
+        $(".billing_box.box3 ul li").removeClass("editable");
+        $(".billing_box.box3 h5 span").removeClass("show");
+        $(".billing_box.box3 .submit_btn").addClass("d-none");
+        $(".billing_box.box4 ul li").removeClass("editable");
+        $(".billing_box.box4 h5 span").removeClass("show");
+        $(".billing_box.box4 .submit_btn").addClass("d-none");
+      }
+      // Add this to your client-side JavaScript
+      function loadActivityHistory(leadId) {
+        if (!leadId) return;
+
+        $.ajax({
+          url: `/admin/lead-details/${leadId}`,
+          type: "GET",
+          beforeSend: function () {
+            $("#nav-contact tbody").html('<tr><td colspan="7" class="text-center py-3"><div class="spinner-border spinner-border-sm" role="status"></div> Loading activity history...</td></tr>');
+          },
+          success: function (res) {
+            const tbody = $("#nav-contact tbody");
+            tbody.empty();
+
+            if (res.data && res.data.activities && res.data.activities.length > 0) {
+              res.data.activities.forEach(activity => {
+                tbody.append(`
+            <tr>
+              <td>${activity.date ? new Date(activity.date).toLocaleDateString() : '--'}</td>
+              <td>${activity.followup_date || '--'}</td>
+              <td>${activity.description || '--'}</td>
+              <td>${activity.subdescription || '--'}</td>
+              <td>${activity.product_name || '--'}</td>
+              <td>${activity.price || '--'}</td>
+              <td>${activity.remarks || '--'}</td>
+            </tr>
+          `);
+              });
+            } else {
+              tbody.append(`
+          <tr>
+            <td colspan="7" class="text-center">No activity history found</td>
+          </tr>
+        `);
+            }
+          },
+          error: function (err) {
+            $("#nav-contact tbody").html('<tr><td colspan="7" class="text-center text-danger">Failed to load activity history</td></tr>');
+            console.error("Failed to load activity history", err);
+          }
+        });
+      }
+    </script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // 🔹 1. Disposition → Sub-Disposition mapping
+        const dispoToSubDispo = {
+          not_open: ["Hot Lead"],
+          no_response: ["Ringing", "Switched Off", "Not Reachable", "Hung up"],
+          call_back: ["Call Back"],
+          client_meeting: ["Office Meeting", "Field Meeting", "Site Visit"],
+          present_call: ["Catalog Shared", "Door", "Frame", "Window", "All"],
+          follow_up: ["Catalog Shared - Follow Up"],
+          prospect: ["Follow Up"],
+          payment: ["Payment - Follow Up"],
+          deal_done: ["Generate Order"],
+          not_interested: [
+            "Opted for Competition",
+            "Price Issue",
+            "Not Now",
+            "Catalog Shared - NI",
+            "Prospect - NI",
+            "Payment - NI",
+          ],
+          non_contactable: [],
+          become_distibutor: [],
+        };
+
+        // 🔹 2. Populate Sub-Disposition dropdown based on selected Disposition
+        function populateSubDisposition(selectedDispo, preselected = "") {
+          const subDispositionSelect = document.getElementById("subdescription-input");
+          if (!subDispositionSelect) return;
+
+          // Clear existing options
+          subDispositionSelect.innerHTML =
+            '<option value="">Select Sub-Disposition</option>';
+
+          const subDispos = dispoToSubDispo[selectedDispo] || [];
+          subDispos.forEach((sub) => {
+            const val = sub.toLowerCase().replace(/\s+/g, "_");
+            const option = document.createElement("option");
+            option.value = val;
+            option.textContent = sub;
+            if (preselected && preselected === val) option.selected = true;
+            subDispositionSelect.appendChild(option);
+          });
+        }
+
+        // 🔹 3. When disposition changes, re-populate sub-disposition dropdown
+        $(document).on("change", "#description-input", function () {
+          const selected = $(this).val();
+          populateSubDisposition(selected);
+        });
+
+        // 🔹 4. Function to set modal fields (called when opening profile modal)
+        window.setUpdateRemarkModalFields = function (profile_data) {
+          $("#remarks-input").val(profile_data.remarks || "");
+          $("#description-input").val(profile_data.description || "");
+
+          // Populate sub-dispo dropdown AFTER setting description
+          populateSubDisposition(profile_data.description, profile_data.subdescription);
+
+          $("#product_name-input").val(profile_data.product_name || "");
+          $("#price-input").val(profile_data.price || "");
+          $("#followup_date-input").val(
+            profile_data.followup_date
+              ? getDateFromString(profile_data.followup_date)
+              : ""
+          );
+          $("#edit_id").val(profile_data._id || "");
+        };
+
+        // 🔹 5. Clear modal fields (on close or new)
+        window.clearRemarkModal = function () {
+          $("#remarks-input").val("");
+          $("#description-input").val("not_open");
+          populateSubDisposition("not_open");
+          $("#product_name-input").val("");
+          $("#price-input").val("");
+          $("#followup_date-input").val("");
+        };
+
+        // 🔹 6. // Update the submit button handler for remarks modal
+        $(".updateremark .submit_btn_remark").on("click", function (e) {
+          e.preventDefault();
+
+          const data = {
+            remarks: $("#remarks-input").val(),
+            description: $("#description-input").val(),
+            subdescription: $("#subdescription-input").val(),
+            product_name: $("#product_name-input").val(),
+            price: $("#price-input").val(),
+            followup_date: $("#followup_date-input").val(),
+            id: $("#edit_id").val(),
+          };
+
+          $.ajax({
+            url: "/admin/update-remarks",
+            type: "POST",
+            data: data,
+            success: function (res) {
+              renderToast({ message: res.message, icon: "success" });
+
+              // Refresh the activity history after successful update
+              if (res.data && res.data._id) {
+                loadActivityHistory(res.data._id);
+              }
+
+              // Close the modal
+              $(".updateremark").removeClass("show");
+            },
+            error: function (res) {
+              renderToast({
+                message:
+                  res.responseJSON?.message || "Error updating remarks",
+                icon: "error",
+              });
+            },
+          });
+        });
+
+        // 🔹 7. Profile modal handler (lead details)
+        $(".profile-btn").on("click", function (e) {
+          e.preventDefault();
+
+          const leadId = $(this).data("lead-id");
+          if (!leadId) return;
+
+          const $modal = $("#exampleModal");
+
+          $.ajax({
+            url: `/admin/lead-details/${leadId}`,
+            type: "GET",
+            success: function (response) {
+              if (!response.error && response.data) {
+                $(".nav-link").removeClass("active");
+                $("#nav-home-tab").addClass("active");
+                $(".tab-pane").removeClass("active show");
+                $("#nav-home").addClass("active show");
+
+                const profile_data = response.data;
+
+                setProfileModalTextFromData(profile_data);
+                setProfileModalTextFieldFromData(profile_data);
+                setUpdateRemarkModalFields(profile_data);
+                loadActivityHistory(leadId);
+
+                $modal.modal("show");
+                $modal.on("shown.bs.modal", function () {
+                  loadProducts(leadId);
+                });
+              } else {
+                renderToast({
+                  message: response.message || "Failed to load lead details",
+                  icon: "error",
+                });
+                $modal.modal("hide");
+              }
+            },
+            error: function (xhr) {
+              renderToast({
+                message:
+                  xhr.responseJSON?.message || "Error fetching lead details",
+                icon: "error",
+              });
+              $modal.modal("hide");
+            },
+          });
+        });
+      });
+    </script>
+
+    <script>
+      const addForm = $("#add-lead-form");
+      const addLeadHandler = (e) => {
+        e.preventDefault();
+        const dataArr = addForm.serializeArray();
+        const data = {};
+        dataArr.forEach(({
+          name,
+          value
+        }) => {
+          data[name] = value;
+        });
+        $.ajax({
+          url: "/admin/add-lead",
+          type: "POST",
+          data: data,
+          success: (res) => {
+            renderToast({
+              message: res.message,
+              icon: "success"
+            });
+              window.location.reload();
+          },
+          error: (res) => {
+            console.log(res);
+          },
+        });
+      };
+      addForm.on("submit", addLeadHandler);
+      $("#bulk-add").on("submit", function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        $.ajax({
+          url: "/admin/add-xlsx-leads",
+          type: "POST",
+          data: formData,
+          processData: false, // prevent jQuery from automatically transforming the data into a query string
+          contentType: false,
+          success: (res) => {
+            renderToast({
+              message: res.message,
+              icon: "success"
+            });
+              window.location.reload();
+          },
+          error: (res) => {
+            renderToast({
+              message: res.message,
+              icon: "error"
+            });
+            console.log(res);
+          },
+        });
+      });
+    </script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const dispoToSubDispo = {
+          not_open: ["Hot Lead"],
+          no_response: ["Ringing", "Switched Off", "Not Reachable", "Hung up"],
+          call_back: ["Call Back"],
+          client_meeting: ["Office Meeting", "Field Meeting", "Site Visit"],
+          present_call: ["Catalog Shared", "Door", "Frame", "Window", "All"],
+          follow_up: ["Catalog Shared - Follow Up"],
+          prospect: ["Follow Up"],
+          payment: ["Payment - Follow Up"],
+          deal_done: [
+            "Generate Order"
+          ],
+          not_interested: [
+            "Opted for Competition",
+            "Price Issue",
+            "Not Now",
+            "Catalog Shared - NI",
+            "Prospect - NI",
+            "Payment - NI"
+          ],
+          non_contactable: [],
+          become_distibutor: [],
+        };
+
+        const dispositionSelect = document.getElementById("disposition");
+        const subDispositionSelect = document.getElementById("subdisposition");
+
+        dispositionSelect.addEventListener("change", function () {
+          const selectedDispo = this.value;
+          const subDispos = dispoToSubDispo[selectedDispo] || [];
+
+          // clear old options
+          subDispositionSelect.innerHTML = '<option value="">Select Sub-Disposition</option>';
+
+          // populate new ones
+          subDispos.forEach(sub => {
+            const opt = document.createElement("option");
+            opt.value = sub.toLowerCase().replace(/\s+/g, "_");
+            opt.textContent = sub;
+            subDispositionSelect.appendChild(opt);
+          });
+        });
+      });
+    </script>
+
+    <script>
+      const editForm = $("#edit-lead-form");
+      const editLeadHandler = (e) => {
+        debugger;
+        e.preventDefault();
+        const dataArr = editForm.serializeArray();
+        const data = {};
+        dataArr.forEach(({
+          name,
+          value
+        }) => {
+          data[name] = value;
+        });
+        $.ajax({
+          url: "/admin/edit-lead",
+          type: "POST",
+          data: data,
+          success: (res) => {
+            renderToast({
+              message: res.message,
+              icon: "success"
+            });
+              window.location.reload();
+          },
+          error: (res) => {
+            console.log(res);
+          },
+        });
+        return false;
+      };
+      editForm.on("submit", editLeadHandler);
+    </script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // Map Disposition → Sub-Disposition options
+        const dispoToSubDispo = {
+          not_open: ["Hot Lead"],
+          no_response: ["Ringing", "Switched Off", "Not Reachable", "Hung Up"],
+          call_back: ["Call Back"],
+          client_meeting: ["Office Meeting", "Field Meeting", "Site Visit"],
+          present_call: ["Catalog Shared", "Door", "Frame", "Window", "All"],
+          follow_up: ["Catalog Shared - Follow Up"],
+          prospect: ["Follow Up"],
+          payment: ["Payment - Follow Up"],
+          deal_done: [
+            "Generate Order"
+          ],
+          not_interested: [
+            "Opted for Competition",
+            "Price Issue",
+            "Not Now",
+            "Catalog Shared - NI",
+            "Prospect - NI",
+            "Payment - NI"
+          ],
+          non_contactable: [],
+          become_distibutor: []
+        };
+
+        const dispositionSelect = document.querySelector("#editLeadModal #description");
+        const subDispositionSelect = document.querySelector("#editLeadModal #subdescription");
+
+        // Populate sub-dispositions based on selected disposition
+        function populateSubDispositions(selectedDispo, preselectedValue = "") {
+          subDispositionSelect.innerHTML = '<option value="">Select Sub-Disposition</option>';
+          const subOptions = dispoToSubDispo[selectedDispo] || [];
+
+          subOptions.forEach(sub => {
+            const opt = document.createElement("option");
+            opt.value = sub.toLowerCase().replace(/\s+/g, "_");
+            opt.textContent = sub;
+            if (preselectedValue && preselectedValue === opt.value) {
+              opt.selected = true;
+            }
+            subDispositionSelect.appendChild(opt);
+          });
+        }
+
+        // Handle dropdown change
+        dispositionSelect.addEventListener("change", function () {
+          populateSubDispositions(this.value);
+        });
+
+        // ✅ When opening modal, set subdisposition dynamically
+        $(document).on("click", ".edit-btn", function () {
+          const data = $(this).data("model");
+
+          // Convert date helper
+          function getDateFromString(date) {
+            if (!date) return "";
+            const [day, month, year] = date.split("/");
+            return `${year}-${month}-${day}`;
+          }
+
+          $("#editLeadModal").modal("show");
+          $("#editLeadModal #edit_id").val(data._id);
+          $("#editLeadModal input[name='date']").val(getDateFromString(data.date));
+          $("#editLeadModal input[name='looking_for']").val(data.looking_for);
+          $("#editLeadModal input[name='company_name']").val(data.company_name);
+          $("#editLeadModal input[name='contact_person']").val(data.contact_person);
+          $("#editLeadModal input[name='default_phone']").val(data.default_phone);
+          $("#editLeadModal input[name='alt_phone']").val(data.alt_phone);
+          $("#editLeadModal input[name='email']").val(data.email);
+          $("#editLeadModal input[name='city']").val(data.city);
+          $("#editLeadModal input[name='prefil_score']").val(data.prefil_score);
+          $("#editLeadModal input[name='next_call']").val(getDateFromString(data.next_call));
+          $("#editLeadModal select[name='allocated_to']").val(data?.allocated_to?._id);
+          $("#editLeadModal select[name='brand_name']").val(data.brand_name);
+          $("#editLeadModal select[name='query_status']").val(data.query_status);
+          $("#editLeadModal textarea[name='message']").val(data.message);
+          $("#editLeadModal textarea[name='remarks']").val(data.remarks);
+
+          // ✅ Handle Disposition + Sub-Disposition
+          $("#editLeadModal select[name='description']").val(data.description);
+          populateSubDispositions(data.description, data.subdescription);
+
+        });
+      });
+    </script>
+
+    <script>
+      let selectedLeads = [];
+
+      // Track checkbox changes
+      $(document).on("change", ".lead-checkbox", function () {
+        const id = $(this).val();
+        if ($(this).is(":checked")) {
+          selectedLeads.push(id);
+        } else {
+          selectedLeads = selectedLeads.filter(leadId => leadId !== id);
+        }
+      });
+
+      // Bulk delete
+      $(document).on("click", ".bulk-delete-btn", function () {
+        if (selectedLeads.length === 0) {
+          alert("Please select at least one lead to delete.");
+          return;
+        }
+
+        if (confirm("Do you really want to delete selected leads?")) {
+          $.ajax({
+            type: "POST",
+            contentType: "application/json",
+            url: "/admin/delete-leads",
+            data: JSON.stringify(selectedLeads),
+            success: function (res) {
+              renderToast({ message: res.message, icon: "success" });
+              setTimeout(() => window.location.reload(), 1000);
+            },
+            error: function (res) {
+              renderToast({
+                message: res.responseJSON?.message || "Bulk delete error",
+                icon: "error",
+              });
+            }
+          });
+        }
+      });
+
+      // Single delete
+      $(document).on("click", ".single-delete-btn", function () {
+        const id = $(this).data("id");
+
+        if (!id) return;
+
+        if (confirm("Do you really want to delete this lead?")) {
+          $.ajax({
+            type: "POST",
+            contentType: "application/json",
+            url: "/admin/delete-lead",
+            data: JSON.stringify({ id }),
+            success: function (res) {
+              renderToast({ message: res.message, icon: "success" });
+              setTimeout(() => window.location.reload(), 1000);
+            },
+            error: function (res) {
+              renderToast({
+                message: res.responseJSON?.message || "Error occurred",
+                icon: "error",
+              });
+            }
+          });
+        }
+      });
+    </script>
+
+
+    <script>
+      $(document).ready(function () {
+        $(".crate_lead_btn").click(function () {
+          $(".leads_wrapper").toggleClass("show");
+        });
+      });
+
+      $(document).ready(function () {
+        // to add a class
+        $(".click_to_edit.box1").click(function () {
+          $(".billing_box.box1 ul li").addClass("editable");
+          $(".billing_box.box1 h5 span").addClass("show");
+          $(".billing_box.box1 .submit_btn").removeClass("d-none");
+        });
+        $(".click_to_edit.box2").click(function () {
+          $(".billing_box.box2 ul li").addClass("editable");
+          $(".billing_box.box2 h5 span").addClass("show");
+          $(".billing_box.box2 .submit_btn").removeClass("d-none");
+        });
+        $(".click_to_edit.box3").click(function () {
+          $(".billing_box.box3 ul li").addClass("editable");
+          $(".billing_box.box3 h5 span").addClass("show");
+          $(".billing_box.box3 .submit_btn").removeClass("d-none");
+        });
+        $(".click_to_edit.box4").click(function () {
+          $(".billing_box.box4 ul li").addClass("editable");
+          $(".billing_box.box4 h5 span").addClass("show");
+          $(".billing_box.box4 .submit_btn").removeClass("d-none");
+        });
+
+        // to remove a class
+        $(".click_to_read.box1").click(function () {
+          $(".billing_box.box1 ul li").removeClass("editable");
+          $(".billing_box.box1 h5 span").removeClass("show");
+          $(".billing_box.box1 .submit_btn").addClass("d-none");
+        });
+        $(".click_to_read.box2").click(function () {
+          $(".billing_box.box2 ul li").removeClass("editable");
+          $(".billing_box.box2 h5 span").removeClass("show");
+          $(".billing_box.box2 .submit_btn").addClass("d-none");
+        });
+        $(".click_to_read.box3").click(function () {
+          $(".billing_box.box3 ul li").removeClass("editable");
+          $(".billing_box.box3 h5 span").removeClass("show");
+          $(".billing_box.box3 .submit_btn").addClass("d-none");
+        });
+        $(".click_to_read.box4").click(function () {
+          $(".billing_box.box4 ul li").removeClass("editable");
+          $(".billing_box.box4 h5 span").removeClass("show");
+          $(".billing_box.box4 .submit_btn").addClass("d-none");
+        });
+
+        $(".products_btn").click(function () {
+          $("#add-product-form")[0].reset();
+          $(".add_products_popup").addClass("show");
+        });
+
+        // to remove a class
+        $(".close_popup").click(function () {
+          $(".add_products_popup").removeClass("show");
+        });
+
+        $(".update_btn").click(function () {
+
+          $(".updateremark").addClass("show");
+        });
+
+        // to remove a class
+        $(".close_popup").click(function () {
+          clearRemarkModal();
+          $(".updateremark").removeClass("show");
+        });
+      });
+    </script>
+
+    <script>
+      $(".profile-btn").on("click", function (e) {
+        e.preventDefault();
+
+        const leadId = $(this).data("lead-id");
+        if (!leadId) return;
+
+        const $modal = $("#exampleModal");
+        // $modal.find(".modal-body").html('<div class="text-center py-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+        // $modal.modal("show");
+
+        $.ajax({
+          url: `/admin/lead-details/${leadId}`,
+          type: "GET",
+          success: function (response) {
+            debugger;
+            if (!response.error && response.data) {
+
+              $('.nav-link').removeClass('active');
+              $('#nav-home-tab').addClass('active');
+              $('.tab-pane').removeClass('active show');
+              $('#nav-home').addClass('active show');
+              const profile_data = response.data;
+
+              setProfileModalTextFromData(profile_data);
+              setProfileModalTextFieldFromData(profile_data);
+              setUpdateRemarkModalFields(profile_data);
+              loadActivityHistory(leadId);
+              $modal.modal("show");
+              $modal.on('shown.bs.modal', function () {
+
+                loadProducts(leadId);
+              });
+
+            } else {
+              renderToast({ message: response.message || "Failed to load lead details", icon: "error" });
+              $modal.modal("hide");
+            }
+          },
+          error: function (xhr) {
+            renderToast({ message: xhr.responseJSON?.message || "Error fetching lead details", icon: "error" });
+            $modal.modal("hide");
+          }
+        });
+      });
+      function setUpdateRemarkModalFields(profile_data) {
+        $("#remarks-input").val(profile_data.remarks || "");
+        $("#description-input").val(profile_data.description || "");
+        $("#subdescription-input").val(profile_data.subdescription || "");
+        $("#product_name-input").val(profile_data.product_name || "");
+        $("#price-input").val(profile_data.price || "");
+        $("#followup_date-input").val(profile_data.followup_date ? getDateFromString(profile_data.followup_date) : "");
+        $("#edit_id").val(profile_data._id || "");
+      }
+      function clearRemarkModal() {
+        $("#remarks-input").val('');
+        $("#description-input").val('not_open');
+        $("#subdescription-input").val('');
+        $("#product_name-input").val('');
+        $("#price-input").val('');
+        $("#followup_date-input").val('');
+      }
+    </script>
+
+    <script>
+      // Select all checkbox functionality
+      document.getElementById("MyTableCheckAllButton").addEventListener("change", function () {
+        const allCheckboxes = document.querySelectorAll('tbody input[type="checkbox"]');
+        allCheckboxes.forEach((checkbox) => {
+          checkbox.checked = this.checked;
+        });
+      });
+
+      // Unselect all checkboxes
+      document.getElementById("unselectAllBtn").addEventListener("click", function () {
+        // Uncheck the header checkbox
+        document.getElementById("MyTableCheckAllButton").checked = false;
+
+        // Uncheck all row checkboxes
+        const allCheckboxes = document.querySelectorAll('tbody input[type="checkbox"]');
+        allCheckboxes.forEach((checkbox) => {
+          checkbox.checked = false;
+        });
+      });
+    </script>
+
+    <script>
+      function clearQueryParams() {
+        // Reset input and select fields
+        document.querySelector('input[name="from"]').value = '';
+        document.querySelector('input[name="to"]').value = '';
+        document.querySelector('select[name="filter"]').value = '';
+
+        // Reload the page without any query parameters
+        const url = window.location.origin + window.location.pathname;
+        window.location.href = url; // Triggers reload with no query
+      }
+    </script>
+
+    <script>
+      document.getElementById('allocateBtn').addEventListener('click', function () {
+        let selectedLeads = [];
+
+        const checkboxes = document.querySelectorAll('.lead-checkbox:checked');
+        if (checkboxes.length > 0) {
+          checkboxes.forEach(function (checkbox) {
+            selectedLeads.push(checkbox.value);
+          });
+        } else {
+          const singleLeadId = document.getElementById('lead_id')?.value;
+          if (singleLeadId) {
+            selectedLeads.push(singleLeadId);
+          }
+        }
+
+        const assignToUser = document.getElementById('userSelect').value;
+        const assignToDistributor = document.getElementById('distributorSelect').value;
+
+        if (selectedLeads.length > 0 && (assignToUser || assignToDistributor)) {
+          fetch('/admin/assign-leads', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              leads: selectedLeads,
+              assignToUser,
+              assignToDistributor
+            }),
+          })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                renderToast({ message: data.message, icon: "success" });
+                setTimeout(() => window.location.reload(), 1000);
+              } else {
+                renderToast({ message: data.message, icon: "error" });
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              renderToast({ message: 'An error occurred while allocating leads.', icon: "error" });
+            });
+        } else {
+          renderToast({ message: 'Please select leads and at least one assign option (User or Distributor).', icon: "error" });
+        }
+      });
+    </script>
+
+    <script>
+      // Handle product form submission
+      $("#add-product-form").on("submit", function (e) {
+        e.preventDefault();
+        const formData = $(this).serialize();
+
+        $.ajax({
+          url: "/admin/add-product",
+          type: "POST",
+          data: formData,
+          success: function (res) {
+            if (!res.error) {
+              renderToast({ message: res.message, icon: "success" });
+              $(".add_products_popup").removeClass("show");
+              loadProducts($("#add-product-form input[name='id']").val());
+            } else {
+              renderToast({ message: res.message, icon: "error" });
+            }
+          },
+          error: function (err) {
+            renderToast({ message: "Failed to add product", icon: "error" });
+          }
+        });
+      });
+
+      // Function to load products
+      function loadProducts(leadId) {
+        if (!leadId) return;
+
+        $.ajax({
+          url: `/admin/products/${leadId}`,
+          type: "GET",
+          beforeSend: function () {
+            $("#products-list").html('<tr><td colspan="4" class="text-center py-3"><div class="spinner-border spinner-border-sm" role="status"></div> Loading products...</td></tr>');
+          },
+          success: function (res) {
+            const productsList = $("#products-list");
+            productsList.empty();
+
+            if (res.products && res.products.length > 0) {
+              res.products.forEach(product => {
+                productsList.append(`
+            <tr data-product-id="${product._id}">
+              <td>${product.product_name || "--"}</td>
+              <td>${product.category || "--"}</td>
+              <td>${product.keywords || "--"}</td>
+              <td>
+                <button class="btn btn-sm btn-danger delete-product-btn" 
+                        data-lead-id="${leadId}"
+                        data-product-id="${product._id}">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          `);
+              });
+            } else {
+              productsList.append(`
+          <tr>
+            <td colspan="4" class="text-center">No products found</td>
+          </tr>
+        `);
+            }
+          },
+          error: function (err) {
+            $("#products-list").html('<tr><td colspan="4" class="text-center text-danger">Failed to load products</td></tr>');
+            console.error("Failed to load products", err);
+          }
+        });
+      }
+
+      // Handle product deletion
+      $(document).on("click", ".delete-product-btn", function () {
+        const leadId = $(this).data("lead-id");
+        const productId = $(this).data("product-id");
+
+        if (confirm("Are you sure you want to delete this product?")) {
+          $.ajax({
+            url: "/admin/delete-product",
+            type: "POST",
+            data: { leadId, productId },
+            success: function (res) {
+              if (!res.error) {
+                renderToast({ message: res.message, icon: "success" });
+                $(`tr[data-product-id="${productId}"]`).remove();
+
+                // If no products left, show empty message
+                if ($("#products-list tr").length === 0) {
+                  $("#products-list").append(`
+                <tr>
+                  <td colspan="4" class="text-center">No products found</td>
+                </tr>
+              `);
+                }
+              } else {
+                renderToast({ message: res.message, icon: "error" });
+              }
+            },
+            error: function (err) {
+              renderToast({ message: "Failed to delete product", icon: "error" });
+            }
+          });
+        }
+      });
+
+      // When profile modal opens, load products if not already loaded
+      $(".profile-btn").on("click", function () {
+        const profile_data = $(this).data("profile");
+        if (profile_data && profile_data._id) {
+          setTimeout(() => {
+            loadProducts(profile_data._id);
+          }, 300);
+        }
+      });
+    </script>
+    <script>
+      $(document).ready(function () {
+        // Handle file selection
+        $("#profile-image-upload").on("change", function (e) {
+          const file = e.target.files[0];
+          if (!file) return;
+
+          const leadId = $(".profile-image").data("lead-id");
+          if (!leadId) {
+            renderToast({ message: "No lead selected", icon: "error" });
+            return;
+          }
+
+          const formData = new FormData();
+          formData.append("profileImage", file);
+          formData.append("leadId", leadId);
+
+          // Show loading state
+          const $img = $(".profile-image");
+          $img.css("opacity", "0.5");
+
+          // Create a temporary preview while uploading
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            $img.attr("src", e.target.result);
+          };
+          reader.readAsDataURL(file);
+
+          $.ajax({
+            url: "/admin/upload-profile-image",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (res) {
+              if (!res.error) {
+                // Force refresh by adding timestamp
+                $img.attr("src", res.imagePath + "?t=" + Date.now());
+                renderToast({ message: res.message, icon: "success" });
+              } else {
+                // Revert to previous image if error occurs
+                const previousSrc = $img.data("prev-src") || 'images/circle_img.png';
+                $img.attr("src", previousSrc);
+                renderToast({ message: res.message, icon: "error" });
+              }
+            },
+            error: function (err) {
+              const previousSrc = $img.data("prev-src") || 'images/circle_img.png';
+              $img.attr("src", previousSrc);
+              renderToast({
+                message: err.responseJSON?.message || "Failed to upload image",
+                icon: "error"
+              });
+            },
+            complete: function () {
+              $img.css("opacity", "1");
+              $("#profile-image-upload").val("");
+            }
+          });
+        });
+
+        // Store original image source on page load
+        $(".profile-image").each(function () {
+          $(this).data("prev-src", $(this).attr("src"));
+        });
+      });
+    </script>
+
+    <script>
+      $(document).ready(function () {
+
+        // Columns you want to show in modal
+        const modalColumns = [
+          "Created", "Name", "Brand Name", "Data Type", "Profile ID",
+          "Company Name", "Looking for", "Mobile", "Email", "City",
+          "Query", "Follow-up", "Disposition", "Remarks"
+        ];
+
+        // Function to apply column visibility based on localStorage
+        function applyColumnSettings() {
+          // If localStorage empty, default = all columns
+          let settings = JSON.parse(localStorage.getItem('columnSettings'));
+          if (!settings) {
+            settings = [...modalColumns]; // copy all columns
+            localStorage.setItem('columnSettings', JSON.stringify(settings));
+          }
+
+          $('#example thead th, #example tbody td').show(); // show all first
+
+          $('#example thead th').each(function (index) {
+            let colName = $(this).text().trim();
+            // Hide column if it's in modalColumns but not in saved settings
+            if (modalColumns.includes(colName) && !settings.includes(colName)) {
+              $(this).hide();
+              $('#example tbody tr').each(function () {
+                $(this).find('td').eq(index).hide();
+              });
+            }
+          });
+        }
+
+        // Initially apply stored settings
+        applyColumnSettings();
+
+        // Populate modal dynamically when settings button clicked
+        $('.setting-btn').click(function () {
+          $('#columnSettingsForm').empty();
+
+          $('#example thead th').each(function (index) {
+            let colName = $(this).text().trim();
+            if (modalColumns.includes(colName)) {
+              let settings = JSON.parse(localStorage.getItem('columnSettings')) || modalColumns;
+              let checked = settings.includes(colName) ? 'checked' : '';
+
+              let checkboxHtml = `
+          <div class="form-check">
+            <input class="form-check-input column-checkbox" type="checkbox" value="${colName}" id="col${index}" ${checked}>
+            <label class="form-check-label" for="col${index}">${colName}</label>
+          </div>
+        `;
+              $('#columnSettingsForm').append(checkboxHtml);
+            }
+          });
+        });
+
+        // Save column settings
+        $('#saveColumnSettings').click(function () {
+          let visibleCols = [];
+
+          $('#columnSettingsForm .column-checkbox:checked').each(function () {
+            visibleCols.push($(this).val());
+          });
+
+          localStorage.setItem('columnSettings', JSON.stringify(visibleCols));
+          applyColumnSettings();
+        });
+
+      });
+    </script>
+</body>
+
+</html>

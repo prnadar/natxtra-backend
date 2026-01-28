@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EZ Door || Create Designation</title>
+    <%- include('partials/linkheader.ejs') %>
+  </head>
+  <body>
+    <span id="pageId" style="display: none">user</span>
+    <div class="page-wrapper">
+      <!------Header END-------->
+
+      <section
+        class="listing-wrapper distributer-wrapper position-relative vh-100"
+      >
+        <div class="container-fluid px-0 h-100">
+          <div class="row mx-0 h-100">
+            <div class="col-md-12 px-0">
+              <div class="h-100">
+                <%- include('partials/sidebar.ejs') %>
+                <div class="right-side-block">
+                  <%- include('partials/header.ejs') %>
+
+                  <div class="card border-0 bg-transparent">
+                    <div class="card-body p-0">
+                      <div class="bg-white">
+                        <div
+                          class="d-flex align-items-center justify-content-between p-4"
+                        >
+                          <h4 class="title-head">Designation List</h4>
+                          <a
+                            href=""
+                            class="btn btn-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#designationModal"
+                            >Add New Designation</a
+                          >
+                        </div>
+                        <div class="distributor-table">
+                          <div class="table-responsive">
+                            <table class="table bg-white">
+                              <thead>
+                                <tr>
+                                  <th>Designation</th>
+                                  <th>Actions</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <% designations.forEach(designation => { %>
+                                <tr>
+                                  <td><%= designation.name %></td>
+                                  <td>
+                                    <a
+                                      href="#"
+                                      class="btn btn-primary text-white edit-btn"
+                                      data-model="<%= JSON.stringify(designation) %>"
+                                      id="edit_btn"
+                                      data-bs-toggle="modal"
+                                      data-bs-target="#editdesignationModal"
+                                      >Edit</a
+                                    >
+                                    <a
+                                      href="#"
+                                      class="delete-btn red-status text-black bg-transparent btn btn-default ms-2"
+                                      data-id="<%=designation._id%>"
+                                      >Delete</a
+                                    >
+                                  </td>
+                                </tr>
+                                <% }) %>
+                              </tbody>
+                            </table>
+                          </div>
+                          <div
+                            class="d-flex align-items-center justify-content-between"
+                          >
+                            <p>
+                              Showing <%= Math.min(currentPage * pageSize,
+                              totalItems) %> of <%= totalItems %> entries
+                            </p>
+
+                            <nav aria-label="Page navigation">
+                              <ul class="pagination mb-0">
+                                <!-- Previous Button -->
+                                <li
+                                  class="page-item <%= currentPage <= 1 ? 'disabled' : '' %>"
+                                >
+                                  <a
+                                    class="page-link"
+                                    href="?page=<%= currentPage - 1 %>"
+                                    >Previous</a
+                                  >
+                                </li>
+
+                                <% 
+                                let startPage = Math.max(1, currentPage - 1);
+                                let endPage = Math.min(totalPages, startPage + 2);
+                                
+                                // Adjust startPage if we're near the end 
+                                if (endPage - startPage < 2) { 
+                                    startPage = Math.max(1, endPage - 2);
+                                } 
+                                %> 
+                                <% for (let i = startPage; i <= endPage; i++) { %>
+                                <li
+                                  class="page-item <%= i === currentPage ? 'active' : '' %>"
+                                >
+                                  <a class="page-link" href="?page=<%= i %>"
+                                    ><%= i %></a
+                                  >
+                                </li>
+                                <% } %>
+
+                                <!-- Next Button -->
+                                <li
+                                  class="page-item <%= currentPage >= totalPages ? 'disabled' : '' %>"
+                                >
+                                  <a
+                                    class="page-link"
+                                    href="?page=<%= currentPage + 1 %>"
+                                    >Next</a
+                                  >
+                                </li>
+                              </ul>
+                            </nav>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!------listing-wrapper END-------->
+    </div>
+    <!------Page-wrapper END-------->
+    <%- include('partials/linkfooter.ejs') %>
+
+    <!-- Modal -->
+    <div
+      class="modal fade"
+      id="designationModal"
+      tabindex="-1"
+      aria-labelledby="designationModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="designationModalLabel">
+              Create New Designation
+            </h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="createForm">
+              <div class="form-group">
+                <label for="">Designation</label>
+                <input
+                  type="text"
+                  name="name"
+                  id="name"
+                  class="form-control"
+                  placeholder="Designation"
+                />
+              </div>
+              <div class="modal-footer">
+                <button type="submit" id="add-btn" class="btn btn-primary">
+                  Save
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div
+      class="modal fade"
+      id="editdesignationModal"
+      tabindex="-1"
+      aria-labelledby="editdesignationModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="editdesignationModalLabel">
+              Edit Designation
+            </h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="editform">
+              <input type="text" name="editid" hidden id="editid" />
+              <div class="form-group">
+                <label for="">Designation</label>
+                <input
+                  type="text"
+                  name="edit_name"
+                  id="edit_name"
+                  class="form-control"
+                  placeholder="Designation"
+                />
+              </div>
+              <div class="modal-footer">
+                <button
+                  type="submit"
+                  id="edit-btn"
+                  class="btn btn-primary ms-2"
+                >
+                  Save
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
+<script>
+  //#region Add Designation
+  var addform = $("#createForm");
+  addform.on("submit", submitFormHandler);
+
+  function submitFormHandler(e) {
+    e.preventDefault();
+
+    var formData = getFormData(addform);
+    // DO POST
+    $.ajax({
+      type: "POST",
+      processData: false,
+      contentType: "application/json",
+      url: "/admin/create-new-designation",
+      data: JSON.stringify(formData),
+      success: (res) => {
+        renderToast({
+          message: res.message,
+          icon: "success",
+        });
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      },
+      error: (res) => {
+        renderToast({
+          message: res.message,
+          icon: "error",
+        });
+        console.log(res);
+      },
+    });
+  }
+  //#endregion Add Designation
+
+  //#region starts Edit Designation
+  $(document).on("click", "#edit_btn", function (e) {
+    var data = $(this).attr("data-model");
+    designation = JSON.parse(data);
+
+    $("#editid").val(designation._id);
+    $("#edit_name").val(designation.name);
+  });
+
+  var editform = $("#editform");
+  editform.on("submit", editSubmitHandler);
+
+  function editSubmitHandler(e) {
+    e.preventDefault();
+    // Prepare form data
+    var formData = getFormData(editform);
+
+    // Perform AJAX request
+    $.ajax({
+      type: "POST",
+      url: "/admin/update-designation",
+      contentType: "application/json",
+      processData: false,
+      data: JSON.stringify(formData),
+      success: (res) => {
+        renderToast({
+          message: res.message,
+          icon: "success",
+        });
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      },
+      error: (res) => {
+        renderToast({
+          message: res.message,
+          icon: "error",
+        });
+        console.log(res);
+      },
+    });
+  }
+
+  //#endregion Edit Designation
+</script>
+<script>
+      let selectedDesignation = [];
+      $(document).ready(function () {
+        $(".form-check-input").on("change", function () {
+          const value = $(this).val();
+          if ($(this).is(":checked")) {
+            if (!selectedDesignation.includes(value)) {
+              selectedDesignation.push(value);
+            }
+          } else {
+            // Remove value
+            selectedDesignation = selectedDesignation.filter((item) => item !== value);
+          }
+          if (selectedDesignation.length == 0) {
+            $(".edit-btn").show();
+          } else {
+            $(".edit-btn").hide();
+          }
+        });
+
+        $(".delete-btn").on("click", function (e) {
+          const id = $(this).data("id");
+          if (selectedDesignation.length == 0) {
+            if (confirm("Do you really want to delete this record")) {
+              $.ajax({
+                type: "POST",
+                contentType: "application/json",
+                url: "/admin/delete-designation",
+                data: JSON.stringify({
+                  id: id,
+                }),
+                success: (res) => {
+                  renderToast({
+                    message: res.message,
+                    icon: "success",
+                  });
+                  setTimeout(() => {
+                    window.location.reload();
+                  }, 1000);
+                },
+                error: (res) => {
+                  renderToast({
+                    message: res.message,
+                    icon: "error",
+                  });
+                  console.error(res);
+                },
+              });
+            }
+          } else {
+            $.ajax({
+              type: "POST",
+              contentType: "application/json",
+              url: "/admin/delete-designations",
+              data: JSON.stringify(selectedDesignation),
+              success: (res) => {
+                renderToast({
+                  message: res.message,
+                  icon: "success",
+                });
+                setTimeout(() => {
+                  window.location.reload();
+                }, 1000);
+              },
+              error: (res) => {
+                renderToast({
+                  message: res.message,
+                  icon: "error",
+                });
+                console.error(res);
+              },
+            });
+          }
+        });
+      });
+    </script>

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EZ Door || Office Calander</title>
+    <%- include('partials/linkheader.ejs') %>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css"
+    />
+  </head>
+  <body>
+    <div class="page-wrapper">
+      <!------Header END-------->
+
+      <section
+        class="listing-wrapper distributer-wrapper position-relative vh-100"
+      >
+        <div class="container-fluid px-0 h-100">
+          <div class="row mx-0 h-100">
+            <div class="col-md-12 px-0">
+              <div class="h-100">
+                <%- include('partials/sidebar.ejs') %>
+                <div class="right-side-block">
+                  <%- include('partials/header.ejs') %>
+
+                  <div class="card border-0 bg-transparent">
+                    <div class="card-body p-0">
+                      <div class="bg-white p-4">
+                        <h4>Office Calander</h4>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card border-0 bg-transparent">
+                    <div class="card-body p-0">
+                      <div class="bg-white p-4">
+                        <div id="calendar" class="calendar"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!------listing-wrapper END-------->
+    </div>
+    <!------Page-wrapper END-------->
+    <%- include('partials/linkfooter.ejs') %>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <!-- FullCalendar JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
+
+    <!-- Optional color picker if you want event colors -->
+    <input type="color" id="colorPicker" style="display: none" />
+
+    <script>
+      $(document).ready(function () {
+        $("#calendar").fullCalendar({
+          header: {
+            left: "prev,next today",
+            center: "title",
+            right: "month,agendaWeek,agendaDay",
+          },
+          defaultView: "month",
+          navLinks: true,
+          selectable: true,
+          editable: true,
+          eventLimit: true,
+
+          // Load events from backend on page load
+          events: "/admin/office-calander/events",
+
+          // When selecting a date range
+          select: function (start, end) {
+            var title = prompt("Event Content:");
+            if (!title || title.trim() === "") {
+              renderToast({
+                message: "Event title is required.",
+                type: "error",
+              });
+              $("#calendar").fullCalendar("unselect");
+              return;
+            }
+
+            const startDate = moment(start).format("YYYY-MM-DD");
+            const endDate = moment(end)
+              .subtract(1, "days")
+              .format("YYYY-MM-DD"); // FullCalendar adds 1 day to end
+
+            if (moment(startDate).isAfter(endDate)) {
+              renderToast({
+                message: "Start date cannot be after end date.",
+                type: "error",
+              });
+              $("#calendar").fullCalendar("unselect");
+              return;
+            }
+
+            const color = $("#colorPicker").val() || "#3788d8";
+
+            $.ajax({
+              url: "/admin/save-office-event",
+              method: "POST",
+              contentType: "application/json",
+              data: JSON.stringify({
+                title,
+                start: startDate,
+                end: endDate,
+                color: color,
+              }),
+              success: function (response) {
+                const eventData = {
+                  _id: response._id,
+                  title: response.event,
+                  start: response.date,
+                  end: response.end_date,
+                  color: response.color,
+                };
+                $("#calendar").fullCalendar("renderEvent", eventData, true);
+                renderToast({
+                  message: "Event saved successfully.",
+                  type: "success",
+                });
+                setTimeout(function () {
+                  window.location.reload();
+                }, 1000);
+              },
+              error: function () {
+                renderToast({
+                  message: "Failed to save event.",
+                  type: "error",
+                });
+              },
+            });
+
+            $("#calendar").fullCalendar("unselect");
+          },
+
+          // Render close button for deleting
+          eventRender: function (event, element) {
+            const closeBtn = $(
+              "<span class='closeBtn material-icons' style='cursor:pointer;'>&#xe5cd;</span>"
+            );
+
+            closeBtn.on("click", function (e) {
+              e.stopPropagation(); // Prevent edit popup from opening
+              if (confirm("Delete this event?")) {
+                $.ajax({
+                  url: "/admin/delete-office-event/" + event._id,
+                  method: "POST",
+                  success: function () {
+                    $("#calendar").fullCalendar("removeEvents", event._id);
+                    renderToast({
+                      message: "Event deleted successfully.",
+                      type: "success",
+                    });
+                    setTimeout(function () {
+                      window.location.reload();
+                    }, 1000);
+                  },
+                  error: function () {
+                    renderToast({
+                      message: "Failed to delete event.",
+                      type: "error",
+                    });
+                  },
+                });
+              }
+            });
+
+            element.find(".fc-content").prepend(closeBtn);
+          },
+
+          // Edit title on click
+          eventClick: function (calEvent) {
+            var newTitle = prompt("Edit Event Content:", calEvent.title);
+            if (!newTitle || newTitle.trim() === "") {
+              renderToast({
+                message: "Event title cannot be empty.",
+                type: "error",
+              });
+              return;
+            }
+
+            $.ajax({
+              url: "/admin/update-office-event/" + calEvent._id,
+              method: "POST",
+              contentType: "application/json",
+              data: JSON.stringify({ title: newTitle }),
+              success: function () {
+                calEvent.title = newTitle;
+                $("#calendar").fullCalendar("updateEvent", calEvent);
+                renderToast({
+                  message: "Event updated successfully.",
+                  type: "success",
+                });
+                setTimeout(function () {
+                  window.location.reload();
+                }, 1000);
+              },
+              error: function () {
+                renderToast({
+                  message: "Failed to update event.",
+                  type: "error",
+                });
+              },
+            });
+          },
+        });
+      });
+    </script>
+  </body>
+</html>

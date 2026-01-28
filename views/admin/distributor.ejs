@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EZ Door || Distributor</title>
+<%- include('partials/linkheader.ejs') %>
+</head>
+<body>
+<span id="pageId" style="display:none;">distributor</span>
+<div class="page-wrapper">
+<!------Header END-------->
+
+<section class="listing-wrapper distributer-wrapper position-relative vh-100">
+    <div class="container-fluid px-0 h-100">
+        <div class="row mx-0 h-100">
+            <div class="col-md-12 px-0">
+                <div class="h-100">
+                    <%- include('partials/sidebar.ejs') %>
+                <div class="right-side-block">
+                  <%- include('partials/header.ejs') %>
+
+                        <div class="card border-0 bg-transparent">
+                            <div class="card-body p-0">
+                                <div class="bg-white p-3">
+                                    <h3><strong>Distributor</strong></h3>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-md-4 col-6">
+                                        <div class="distributer-block">
+                                            <h4>Total Distributor</h4>
+                                            <p><%= totalDistributors %></p>
+                                            <span>+12 this month</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-6">
+                                        <div class="distributer-block">
+                                            <h4>Active Distributors</h4>
+                                            <p><%= activeDistributors %></p>
+                                            <span>80% active rate</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-6 mt-4 mt-md-0">
+                                        <div class="distributer-block">
+                                            <h4>Total Distributor</h4>
+                                            <p>₹1.2M</p>
+                                            <span>+8% vs last month</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card border-0 bg-transparent">
+                            <div class="card-body p-0">
+                                <div class="top-distributor">
+                                    <div class="top_bar d-flex align-items-center justify-content-between">
+                                        <h3>Top Performing Distributors</h3>
+                                        <div class="form-group mb-0">
+                                            <select name="" class="form-control">
+                                                <option value="">This Month</option>
+                                                <option value="">Last Month</option>
+                                                <option value="">This Quarter</option>
+                                                <option value="">This Year</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="distributor-detail">
+                                                <div class=" d-flex align-items-center">
+                                                    <figure class="mb-0 distribute-img"></figure>
+                                                    <div class="name-detail">
+                                                        <h5>ABC Distributors</h5>
+                                                        <p>Mumbai Region</p>
+                                                    </div>
+                                                </div>
+                                                <div class="sales-leads d-flex align-items-center justify-content-between w-50 my-4">
+                                                    <div class="">
+                                                        <span>Sales</span>
+                                                        <p>$125,000</p>
+                                                    </div>
+
+                                                    <div class="">
+                                                        <span>Leads</span>
+                                                        <p>45</p>
+                                                    </div>
+                                                </div>
+
+                                                <div class="">
+                                                    <div class="progress">
+                                                        <div class="progress-bar w-75" role="progressbar" aria-label="Basic example" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4 mt-4 mt-md-0">
+                                            <div class="distributor-detail">
+                                                <div class="d-flex align-items-center">
+                                                    <figure class="mb-0 distribute-img"></figure>
+                                                    <div class="name-detail">
+                                                        <h5>ABC Distributors</h5>
+                                                        <p>Mumbai Region</p>
+                                                    </div>
+                                                </div>
+                                                <div class="sales-leads d-flex align-items-center justify-content-between w-50 my-4">
+                                                    <div class="">
+                                                        <span>Sales</span>
+                                                        <p>$98,000</p>
+                                                    </div>
+
+                                                    <div class="">
+                                                        <span>Leads</span>
+                                                        <p>45</p>
+                                                    </div>
+                                                </div>
+
+                                                <div class="">
+                                                    <div class="progress">
+                                                        <div class="progress-bar w-75" role="progressbar" aria-label="Basic example" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card border-0 bg-transparent">
+                            <div class="card-body p-0">
+                                <div class="recent-activity">
+                                    <h3>Recent Activity</h3>
+
+                                    <ul class="list-inline">
+                                        <li>ABC Distributors completed 5 new sales <p>2 hours ago</p></li>
+                                        <li>ABC Distributors completed 5 new sales <p>2 hours ago</p></li>
+                                        <li>ABC Distributors completed 5 new sales <p>2 hours ago</p></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!------listing-wrapper END-------->
+</div>
+<!------Page-wrapper END-------->
+<%- include('partials/linkfooter.ejs') %>
+</body>
+</html>

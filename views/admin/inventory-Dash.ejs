@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EZ Door || INVENTORY Dashboard</title>
+    <%- include('partials/linkheader.ejs') %>
+  </head>
+  <body>
+    <div class="page-wrapper">
+      <section
+        class="listing-wrapper distributer-wrapper position-relative vh-100"
+      >
+        <div class="container-fluid px-0 h-100">
+          <div class="row mx-0 h-100">
+            <div class="col-md-12 px-0">
+              <div class="h-100">
+                <%- include('partials/sidebar.ejs') %>
+                <div class="right-side-block">
+                  <%- include('partials/header.ejs') %>
+
+                  <div class="card border-0 bg-transparent">
+                    <div class="card-body p-0">
+                      <div
+                        class="d-flex align-items-center justify-content-between"
+                      >
+                        <h4 class="title-head">Inventory Dashboard</h4>
+                      </div>
+
+                      <div class="row mt-3">
+                        <div class="col-md-3">
+                          <div class="hrms-block">
+                            <span class="d-block">Total Products</span>
+                            <h5 class="py-2"><strong>
+                                <%= totalProducts %>
+                            </strong></h5>
+                            <p class="mb-0 text-success">+23 this month</p>
+                          </div>
+                        </div>
+
+                        <div class="col-md-3 mt-4 mt-md-0">
+                          <div class="hrms-block">
+                            <span class="d-block">Low Stock items</span>
+                            <h5 class="py-2"><strong>
+                                <%= lowStockItems %>
+                            </strong></h5>
+                            <p class="mb-0 text-danger">Needs attention</p>
+                          </div>
+                        </div>
+
+                        <div class="col-md-3 mt-4 mt-md-0">
+                          <div class="hrms-block">
+                            <span class="d-block">Out of Stock</span>
+                            <h5 class="py-2"><strong>
+                                <%= outOfStockItems %>
+                            </strong></h5>
+                            <p class="mb-0 text-danger">Critical</p>
+                          </div>
+                        </div>
+
+                        <div class="col-md-3 mt-4 mt-md-0">
+                          <div class="hrms-block">
+                            <span class="d-block">Total Value</span>
+                            <h5 class="py-2"><strong>
+                                ₹ <%= totalInventoryValue.toLocaleString() %>
+                            </strong></h5>
+                            <p class="mb-0 text-info">Current inventory</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!------listing-wrapper END-------->
+    </div>
+    <!------Page-wrapper END-------->
+    <%- include('partials/linkfooter.ejs') %>
+  </body>
+</html>

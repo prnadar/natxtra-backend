@@ -1,0 +1,41 @@
+const main = require("./routes/admin/main");
+const auth = require("./routes/admin/auth");
+const dashboard = require("./routes/admin/dashboard");
+const sales = require("./routes/admin/sales");
+const orders = require("./routes/admin/order");
+const distributor = require("./routes/admin/distributor");
+const user = require("./routes/admin/user");
+const hrms = require("./routes/admin/hrms");
+const inventory = require("./routes/admin/inventory");
+const webManage = require("./routes/admin/webManage");
+const account = require("./routes/admin/accounts");
+const settings = require("./routes/admin/settings");
+const accounts = require("./routes/admin/accounts");
+const reports = require("./routes/admin/reports");
+const support = require("./routes/admin/support");
+const category = require("./routes/admin/category");
+const unit = require("./routes/admin/unit");
+const checkPermission = require("./middlewares/permissions");
+const { NotLoggedIn } = require("./middlewares/Adminauth");
+
+const AdminRoutes = (app) => {
+  app.use("/", main);
+  app.use("/admin", auth);
+  app.use("/admin", NotLoggedIn, dashboard);
+  app.use("/admin/", NotLoggedIn, sales);
+  app.use("/admin/", NotLoggedIn, orders);
+  app.use("/admin", NotLoggedIn, distributor);
+  app.use("/admin", NotLoggedIn, user);
+  app.use("/admin", NotLoggedIn, hrms);
+  app.use("/admin", NotLoggedIn, inventory);
+  app.use("/admin", NotLoggedIn, webManage);
+  app.use("/admin", NotLoggedIn, account);
+  app.use("/admin", NotLoggedIn, settings);
+  app.use("/admin", NotLoggedIn, accounts);
+  app.use("/admin", NotLoggedIn, reports);
+  app.use("/admin", NotLoggedIn, support);
+  app.use("/admin", NotLoggedIn, category);
+  app.use("/admin", NotLoggedIn, unit);
+};
+
+module.exports = AdminRoutes;

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EZ Door || Gallery</title>
+    <%- include('partials/linkheader.ejs') %>
+  </head>
+  <body>
+    <span id="pageId" style="display: none">user</span>
+    <div class="page-wrapper">
+      <!------Header END-------->
+
+      <section
+        class="listing-wrapper distributer-wrapper position-relative vh-100"
+      >
+        <div class="container-fluid px-0 h-100">
+          <div class="row mx-0 h-100">
+            <div class="col-md-12 px-0">
+              <div class="h-100">
+                <%- include('partials/sidebar.ejs') %>
+                <div class="right-side-block">
+                  <%- include('partials/header.ejs') %>
+
+                  <div class="card border-0 bg-transparent">
+                    <div class="card-body p-0">
+                      <div class="bg-white">
+                        <div
+                          class="d-flex align-items-center justify-content-between p-4"
+                        >
+                          <h4 class="title-head">Gallery List</h4>
+                          <a
+                            href=""
+                            class="btn btn-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#newGalleryModal"
+                            >Add Gallery</a
+                          >
+                        </div>
+                        <div class="distributor-table">
+                          <div class="table-responsive">
+                            <table class="table bg-white w-100">
+                              <thead>
+                                <tr>
+                                  <th>Sr.</th>
+                                  <th>Image</th>
+                                  <th>Title</th>
+                                  <th>Actions</th>
+                                </tr>
+                              </thead>
+                              <tbody class="text-center">
+                                 <% if (!gallery[0]) { %>
+                                <tr>
+                                  <td colspan="100%">No Data</td>
+                                </tr>
+                                <% } else {%> <%
+                                gallery.forEach(function(gallery,index){%>
+                                <tr>
+                                  <td>
+                                    <%= index + 1 %>
+                                  </td>
+                                   <td>
+                                    <img
+                                    src="../../uploads/gallery/<%= gallery.image %>"
+                                    alt="Image"
+                                    class="img-fluid"
+                                    style="width: 60px; height: 60px;"
+                                  />
+                                   </td>
+                                  <td><%= gallery.title ? gallery.title : '--' %></td>
+                                  <td>
+                                    <a
+                                      href="#"
+                                      class="delete-btn red-status text-black bg-transparent btn btn-default ms-2"
+                                      data-id="<%=gallery._id%>"
+                                      >Delete</a
+                                    >
+                                  </td>
+                                </tr>
+                                <% });} %>
+                              </tbody>
+                            </table>
+                          </div>
+                          <div
+                            class="d-flex align-items-center justify-content-between"
+                          >
+                            <p>
+                              Showing <%= Math.min(currentPage * pageSize,
+                              totalItems) %> of <%= totalItems %> entries
+                            </p>
+
+                            <nav aria-label="Page navigation">
+                              <ul class="pagination mb-0">
+                                <!-- Previous Button -->
+                                <li
+                                  class="page-item <%= currentPage <= 1 ? 'disabled' : '' %>"
+                                >
+                                  <a
+                                    class="page-link"
+                                    href="?page=<%= currentPage - 1 %>"
+                                    >Previous</a
+                                  >
+                                </li>
+
+                                <% let startPage = Math.max(1, currentPage - 1);
+                                let endPage = Math.min(totalPages, startPage + 2); 
+                                // Adjust startPage if we're near the end 
+                                if (endPage - startPage < 2) { 
+                                  startPage = Math.max(1, endPage - 2); } %> 
+                                  <% for (let i = startPage; i <= endPage; i++) { %>
+                                <li
+                                  class="page-item <%= i === currentPage ? 'active' : '' %>"
+                                >
+                                  <a class="page-link" href="?page=<%= i %>"
+                                    ><%= i %></a
+                                  >
+                                </li>
+                                <% } %>
+
+                                <!-- Next Button -->
+                                <li
+                                  class="page-item <%= currentPage >= totalPages ? 'disabled' : '' %>"
+                                >
+                                  <a
+                                    class="page-link"
+                                    href="?page=<%= currentPage + 1 %>"
+                                    >Next</a
+                                  >
+                                </li>
+                              </ul>
+                            </nav>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!------listing-wrapper END-------->
+    </div>
+    <!------Page-wrapper END-------->
+    <%- include('partials/linkfooter.ejs') %>
+
+    <!-- Add category Modal -->
+    <div
+      class="modal fade"
+      id="newGalleryModal"
+      tabindex="-1"
+      aria-labelledby="newGalleryModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title" id="newGalleryModalLabel">
+              Create New Gallery
+            </h3>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="addGalleryForm">
+              <div class="row align-items-center">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="">Category</label>
+                    <select
+                      name="gallery_category_id"
+                      class="form-control js-states"
+                      id="gallery_category_id"
+                    >
+                      <option value="">Select Category</option>
+                      <% categories.forEach(categories => { %>
+                      <option value="<%= categories._id %>">
+                        <%= categories.name %>
+                      </option>
+                      <% }) %>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="">Image</label>
+                    <input
+                      type="file"
+                      id="image-input"
+                      name="image"
+                      class="form-control"
+                      placeholder=""
+                    />
+                  </div>
+                </div>
+
+                <div class="col-md-6 mt-2">
+                  <div class="form-group">
+                    <label for="">Title</label>
+                    <input
+                      type="text"
+                      id="title"
+                      class="form-control"
+                      name="title"
+                      placeholder="Enter title"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-12 mt-4">
+                <div class="text-end">
+                  <button
+                    type="submit"
+                    id="add-btn"
+                    class="btn btn-primary ms-2"
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      //#region Add Category
+      var addformCategory = $("#addGalleryForm");
+      addformCategory.on("submit", submitFormHandler);
+
+      function submitFormHandler(e) {
+        e.preventDefault();
+
+        //validate
+        if ($("#gallery_category_id").val() == "") {
+          renderToast({
+            message: "Please select a category",
+            icon: "error",
+          });
+          return;
+        }
+
+        if ($("#title").val() == "") {
+          renderToast({
+            message: "Title is required",
+            icon: "warning",
+          });
+          return false;
+        }
+
+        if ($("#image-input").val() == "") {
+          renderToast({
+            message: "Image is required",
+            icon: "warning",
+          });
+          return false;
+        }
+
+        var formData = new FormData(addformCategory[0]);
+        // DO POST
+        $.ajax({
+          type: "POST",
+          cache: false,
+          enctype: "multipart/form-data",
+          processData: false,
+          contentType: false,
+          url: "/admin/add-gallery",
+          data: formData,
+          success: (res) => {
+            renderToast({
+              message: res.message,
+              icon: "success",
+            });
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          },
+          error: (res) => {
+            renderToast({
+              message: res.message,
+              icon: "error",
+            });
+            console.log(res);
+          },
+        });
+      }
+      //#endregion Add Category
+    </script>
+
+    <script>
+      $(document).ready(function () {
+        $(".delete-btn").on("click", function (e) {
+          const id = $(this).data("id");
+          if (confirm("Do you really want to delete this record")) {
+            $.ajax({
+              type: "POST",
+              contentType: "application/json",
+              url: "/admin/delete-gallery",
+              data: JSON.stringify({
+                id: id,
+              }),
+              success: (res) => {
+                renderToast({
+                  message: res.message,
+                  icon: "success",
+                });
+                setTimeout(() => {
+                  window.location.reload();
+                }, 1000);
+              },
+              error: (res) => {
+                renderToast({
+                  message: res.message,
+                  icon: "error",
+                });
+                console.error(res);
+              },
+            });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

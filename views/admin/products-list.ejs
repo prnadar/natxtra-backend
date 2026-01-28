@@ -1,0 +1,259 @@
+<% 
+  // Helper function to check permissions
+  const hasPermission = (module, permissionType = 'manage') => {
+    // Admins have all permissions
+    if (typeof isAdmin !== 'undefined' && isAdmin) return true;
+    // Check if user has the module and the specific permission
+    return typeof userPermissions !== 'undefined' && userPermissions && userPermissions[module] && userPermissions[module][permissionType];
+  };
+%>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EZ Door || Products</title>
+    <%- include('partials/linkheader.ejs') %>
+  </head>
+
+  <body>
+    <span id="pageId" style="display: none">Product</span>
+    <div class="page-wrapper">
+      <!------Header END-------->
+
+      <section
+        class="listing-wrapper distributer-wrapper position-relative vh-100"
+      >
+        <div class="container-fluid px-0 h-100">
+          <div class="row mx-0 h-100">
+            <div class="col-md-12 px-0">
+              <div class="h-100">
+                <%- include('partials/sidebar.ejs') %>
+                <div class="right-side-block">
+                  <%- include('partials/header.ejs') %>
+                  <div class="card border-0 bg-transparent">
+                    <div class="card-body p-0">
+                      <div class="bg-white p-4">
+                        <div
+                          class="d-flex align-items-center justify-content-between"
+                        >
+                          <h4 class="title-head">Products List</h4>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card border-0 bg-transparent">
+                    <div class="card-body p-0">
+                      <div class="distributor-table bg-white p-4">
+                        <div class="table-responsive">
+                          <table class="table">
+                            <thead>
+                              <tr>
+                                <th class="text-center">Sr.</th>
+                                <th class="text-center">Image</th>
+                                <th class="text-center">Door Name</th>
+                                <th class="text-center">Door Code</th>
+                                <th class="text-center">Size</th>
+                                <th class="text-center">Category</th>
+                                <th class="text-center">Brand</th>
+                                <th class="text-center">Door Thickness</th>
+                                <th class="text-center">Panel Thickness</th>
+                                <th class="text-center">Sku</th>
+                                <th class="text-center">Sale Price</th>
+                                <th class="text-center">Distributor Price</th>
+                                <th class="text-center">Dealer Price</th>
+                                <th class="text-center">MRP</th>
+                                <th class="text-center">Quantity</th>
+                                <th class="text-center">Unit</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center">Visibility Status</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <% if (!products[0]) { %>
+                                <tr>
+                                  <td colspan="100%">No Data</td>
+                                </tr>
+                                <% } else {%> <%
+                                products.forEach(function(product,index){%>
+                              <tr>
+                                <td class="text-center">
+                                   <%= index + 1 %>
+                                </td>
+                                <td class="text-center">
+                                  <% if (product.image) { %>
+                                  <img
+                                    src="../../uploads/product/<%= product.image %>"
+                                    alt="Product Image"
+                                    class="img-fluid"
+                                    style="width: 45px; height: 45px;"
+                                  />
+                                  <% } else { %>
+                                  <img
+                                    src="../../admin/images/logo.png"
+                                    alt="No Image"
+                                    class="img-fluid"
+                                    style="width: 45px; height: 45px;"
+                                  />
+                                  <% } %>
+                                </td>
+                                <td class="text-center"><%= product.door_name %></td>
+                                <td class="text-center"><%= product.door_code %></td>
+                                <td class="text-center">
+                                  <% if (Array.isArray(product.size)) { %>
+                                    <%= product.size.join(', ') %>
+                                  <% } else { %>
+                                    <%= product.size %>
+                                  <% } %>
+                                </td>
+                                <td class="text-center"><%= product.category_id?.name %></td>
+                                <td class="text-center"><%= product.brand_name %></td>
+                                <td class="text-center"><%= product.thickness %></td>
+                                <td class="text-center"><%= product.pannel_thickness %></td>
+                                <td class="text-center"><%= product.sku %></td>
+                                <td class="text-center">
+                                  <%= product.sale_price ? product.sale_price.toFixed(2) : '--' %>
+                                  </td>
+                                  <td class="text-center">
+                                  <%= product.distributor_price ? product.distributor_price.toFixed(2) : '--' %>
+                                  </td>
+                                  <td class="text-center">
+                                  <%= product.dealer_price ? product.dealer_price.toFixed(2) : '--' %>
+                                  </td>
+                                  <td class="text-center">
+                                  <%= product.mrp ? product.mrp.toFixed(2) : '--' %>
+                                  
+                                  <td class="text-center"><%= product.quantity %></td>
+                                  <td class="text-center"><%= product.unit_id.name %></td>
+                                  <td class="text-center"><%= product.status %></td>
+                                  <td class="text-center" class="statusbar">
+                                     <button
+                                       data-bs-toggle="tooltip"
+                                       data-bs-placement="top"
+                                       title="Update Status"
+                                       class="toggle-btn transform btn btn-sm <%= product.visibility_status === 'hide' ? 'btn-danger' : 'btn-success' %>"
+                                       data-id="<%= product._id %>"
+                                     >
+                                       <%= product.visibility_status === 'hide' ? 'Hide' : 'Show'
+                                       %>
+                                     </button>
+                                   </td>
+                              </tr>
+                             <% });} %>
+                            </tbody>
+                          </table>
+                        </div>
+                        <!-- Page Size Dropdown (Right side) -->
+                        <div
+                          class="d-flex align-items-center justify-content-between"
+                        >
+                          <p>
+                            Showing <%= Math.min(currentPage * pageSize,
+                            totalItems) %> of <%= totalItems %> entries
+                          </p>
+
+                          <nav aria-label="Page navigation">
+                            <ul class="pagination mb-0">
+                              <!-- Previous Button -->
+                              <li
+                                class="page-item <%= currentPage <= 1 ? 'disabled' : '' %>"
+                              >
+                                <a
+                                  class="page-link"
+                                  href="?page=<%= currentPage - 1 %>"
+                                  >Previous</a
+                                >
+                              </li>
+
+                              <% 
+        let startPage = Math.max(1, currentPage - 1);
+        let endPage = Math.min(totalPages, startPage + 2);
+
+        // Adjust startPage if we're near the end
+        if (endPage - startPage < 2) {
+          startPage = Math.max(1, endPage - 2);
+        }
+      %>
+
+      <% for (let i = startPage; i <= endPage; i++) { %>
+        <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+          <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+        </li>
+      <% } %>
+
+      <% if (endPage < totalPages) { %>
+        <li class="page-item disabled">
+          <a class="page-link" href="#">...</a>
+        </li>
+      <% } %>
+
+                              <!-- Next Button -->
+                              <li
+                                class="page-item <%= currentPage >= totalPages ? 'disabled' : '' %>"
+                              >
+                                <a
+                                  class="page-link"
+                                  href="?page=<%= currentPage + 1 %>"
+                                  >Next</a
+                                >
+                              </li>
+                            </ul>
+                          </nav>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!------listing-wrapper END-------->
+    </div>
+    <!------Page-wrapper END-------->
+    <%- include('partials/linkfooter.ejs') %>
+    <script>
+  $(document).on("click", ".toggle-btn", function () {
+    var productId = $(this).data("id");
+    var button = $(this);
+    var newStatus;
+
+    // Toggle button class and text
+    if (button.hasClass("btn-success")) {
+      button.removeClass("btn-success").addClass("btn-danger").text("Hide");
+      newStatus = "hide";
+    } else {
+      button.removeClass("btn-danger").addClass("btn-success").text("Show");
+      newStatus = "show";
+    }
+
+    // Send AJAX to update status
+    $.ajax({
+      url: "/admin/product-status-update",
+      method: "POST",
+      data: {
+        productId: productId,
+        visibility_status: newStatus,
+      },
+      success: (res) => {
+        renderToast({
+          message: res.message,
+          icon: "success",
+        });
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      },
+      error: (res) => {
+        renderToast({
+          message: res.message,
+          icon: "error",
+        });
+        console.error(res);
+      },
+    });
+  });
+</script>
+  </body>
+</html>
