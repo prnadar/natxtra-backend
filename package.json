@@ -41,6 +41,7 @@
     "onesignal-node": "^3.4.0",
     "otp-generator": "^2.0.1",
     "pdfkit": "^0.17.2",
+    "png-js": "^1.0.0",
     "puppeteer": "^24.8.0",
     "razorpay": "^2.0.7",
     "request": "^2.88.2",
