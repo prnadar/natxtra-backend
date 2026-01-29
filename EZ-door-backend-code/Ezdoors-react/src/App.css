@@ -1,0 +1,23 @@
+.banner-slider .swiper-button-prev , .banner-slider .swiper-button-next {
+    background: #757374;
+    border-radius: 100%;
+    width: 40px;
+    height: 40px;
+}
+
+.banner-slider .swiper-button-prev::after , .banner-slider .swiper-button-next::after {
+   font-size:20px;
+    color:#fff;
+    font-weight:800
+   
+}
+
+.banner-slider span.swiper-pagination-bullet {
+    width: 0.75rem;
+    background:#fff6;
+     height: 0.75rem;
+}
+
+.swiper-pagination-bullet-active{
+    background-color: #dc2626!important;
+}
