@@ -1,3 +1,7 @@
 node_modules
 public/uploads
 .env
+.DS_Store
+*.zip
+EZ-door-backend-code/
+natxtra-erp-v2/
